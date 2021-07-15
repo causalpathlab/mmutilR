@@ -1,1 +1,1 @@
-# mmutilR
+# Matrix Market Utility for R

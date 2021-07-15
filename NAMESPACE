@@ -1,0 +1,4 @@
+useDynLib(mmutilR)
+import(RcppEigen)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")

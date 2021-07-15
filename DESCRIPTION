@@ -1,0 +1,12 @@
+Package: mmutilR
+Type: Package
+Title: Utility functions for Matrix Market-formatted data
+Version: 1.0
+Date: 2021-07-12
+Author: Yongjin P Park
+Maintainer: <ypp@stat.ubc.ca>
+Description: Single-cell sequencing data often come in a matrix market format, which consists of triplets in each line (row, column, value). 
+License: MIT License
+Imports: Rcpp (>= 1.0.7)
+LinkingTo: Rcpp, RcppEigen
+RoxygenNote: 7.1.1
