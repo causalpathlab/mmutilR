@@ -68,6 +68,36 @@
 //'         annot$col, .annot.ind, annot$argmax, c("ct1", "ct2"))
 //' ## show average marker features
 //' print(round(agg$mean[1:20, ]))
+//' unlink(list.files(pattern = "sim_test"))
+//' ## Case-control simulation
+//' .sim <- mmutilR::simulate_gamma_glm()
+//' .dat <- mmutilR::rcpp_simulate_poisson_data(.sim$obs.mu,
+//'                                             .sim$rho,
+//'                                             "sim_test")
+//' ## find column-wise annotation
+//' .annot <- read.table(.dat$indv,
+//'                      col.names = c("col", "ind"))
+//' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
+//' .annot$ct <- "ct1"
+//' ## simple PCA
+//' .pca <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 10)
+//' .agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = .dat$mtx,
+//'                                        row_file = .dat$row,
+//'                                        col_file = .dat$col,
+//'                                        r_cols = .annot$col,
+//'                                        r_indv = .annot$ind,
+//'                                        r_annot = .annot$ct,
+//'                                        r_lab_name = "ct1",
+//'                                        r_trt = .annot$trt,
+//'                                        r_V = .pca$V,
+//'                                        knn = 50,
+//'                                        IMPUTE_BY_KNN = TRUE)
+//' par(mfrow=c(1,3))
+//' for(k in sample(.sim$causal, 3)) {
+//'     y0 <- .agg$resid.mu[k, .sim$W == 0]
+//'     y1 <- .agg$resid.mu[k, .sim$W == 1]
+//'     boxplot(y0, y1)
+//' }
 //' ## clean up temp directory
 //' unlink(list.files(pattern = "sim_test"))
 //'
