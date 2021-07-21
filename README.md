@@ -16,13 +16,52 @@ This `R` package contains a list of functions that can be useful in processing s
 
 `R CMD INSTALL mmutilR_${version}.tar.gz`
 
-## Data editing
+## Available functions
 
-## Random access
+### Data editing
 
-## Marker-based cell type annotation
+* `mmutilR::rcpp_copy_selected_columns` 
 
-## Matching between columns
+* `mmutilR::rcpp_copy_selected_rows`
 
-## Simulation
+* `mmutilR::rcpp_merge_file_sets`
 
+### Data analysis
+
+* `mmutilR::rcpp_annotate_columns`
+
+* `mmutilR::rcpp_compute_scores`
+
+* `mmutilR::rcpp_mmutil_aggregate`
+
+* `mmutilR::rcpp_mmutil_bbknn_pca`
+
+* `mmutilR::rcpp_mmutil_pca`
+
+### Random access
+
+* `mmutilR::rcpp_read_mmutil_index`
+
+* `mmutilR::rcpp_build_mmutil_index`
+
+* `mmutilR::rcpp_check_index_tab`
+
+* `mmutilR::rcpp_read_columns`
+
+### Marker-based cell type annotation
+
+* `mmutilR::run.annotation`
+
+### Matching between columns
+
+* `mmutilR::rcpp_mmutil_match_files`
+
+### Simulation
+
+* `mmutilR::simulate_gamma_glm`
+
+* `mmutilR::rcpp_simulate_poisson_data`
+
+## Contact
+
+Yongjin Park `ypp@stat.ubc.ca`
