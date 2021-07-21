@@ -39,7 +39,7 @@ struct rpois_t {
     {
         float r;
         float x, m;
-        float PI = 3.14159265358979;
+        float pi = M_PI; // 3.14159265358979;
         float sqrt_mean = std::sqrt(mean);
         float log_mean = fasterlog(mean);
         float g_x;
@@ -47,9 +47,9 @@ struct rpois_t {
 
         do {
             do {
-                x = mean + sqrt_mean * std::tan(PI * (unif(rng) - .5));
+                x = mean + sqrt_mean * std::tan(pi * (unif(rng) - .5));
             } while (x < 0.);
-            g_x = sqrt_mean / (PI * ((x - mean) * (x - mean) + mean));
+            g_x = sqrt_mean / (pi * ((x - mean) * (x - mean) + mean));
             m = std::floor(x);
             f_m = fasterexp(m * log_mean - mean - fasterlgamma(m + 1.));
             r = f_m / g_x / 2.4;

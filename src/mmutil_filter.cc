@@ -1,9 +1,4 @@
-#include "mmutil.hh"
-#include "mmutil_io.hh"
-#include "mmutil_stat.hh"
-
-#ifndef MMUTIL_FILTER_COL_HH_
-#define MMUTIL_FILTER_COL_HH_
+#include "mmutil_filter.hh"
 
 void
 filter_col_by_nnz(const Index column_threshold,  //
@@ -76,5 +71,3 @@ filter_col_by_nnz(const Index column_threshold,  //
     copier_t copier(output_mtx_file, remap, NNZ);
     visit_matrix_market_file(mtx_file, copier);
 }
-
-#endif

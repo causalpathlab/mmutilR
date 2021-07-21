@@ -35,7 +35,7 @@ extern "C" {
 #ifndef MMUTIL_HH_
 #define MMUTIL_HH_
 
-using Scalar = double;
+using Scalar = float;
 using SpMat = Eigen::SparseMatrix<Scalar, Eigen::RowMajor, std::ptrdiff_t>;
 using Index = SpMat::Index;
 
@@ -46,16 +46,16 @@ using IntMat = typename Eigen::
     Matrix<std::ptrdiff_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
 using IntVec = typename Eigen::Matrix<std::ptrdiff_t, Eigen::Dynamic, 1>;
 
-inline std::tuple<Index, Index, Scalar>
-parse_triplet(const std::tuple<Index, Index, Scalar> &tt)
-{
-    return tt;
-}
+/////////////////////////////
+// simple helper functions //
+/////////////////////////////
 
-inline std::tuple<Index, Index, Scalar>
-parse_triplet(const Eigen::Triplet<Scalar> &tt)
-{
-    return std::make_tuple(tt.row(), tt.col(), tt.value());
-}
+std::tuple<Index, Index, Scalar>
+parse_triplet(const std::tuple<Index, Index, Scalar> &tt);
+
+std::tuple<Index, Index, Scalar>
+parse_triplet(const Eigen::Triplet<Scalar> &tt);
+
+std::vector<std::string> copy(const Rcpp::StringVector &r_vec);
 
 #endif

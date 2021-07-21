@@ -283,17 +283,17 @@ struct memory_block_t {
     Index ub_mem;
 };
 
-template <typename IDXVEC>
+template <typename IDXVEC1, typename IDXVEC2>
 std::vector<memory_block_t>
-find_consecutive_blocks(const IDXVEC &index_tab,
-                        const IDXVEC &subcol,
+find_consecutive_blocks(const IDXVEC1 &index_tab,
+                        const IDXVEC2 &subcol,
                         const Index gap = 10)
 {
 
     const Index N = index_tab.size();
     ASSERT(N > 1, "Empty index map");
 
-    IDXVEC sorted(subcol.size());
+    IDXVEC2 sorted(subcol.size());
     std::copy(subcol.begin(), subcol.end(), sorted.begin());
     std::sort(sorted.begin(), sorted.end());
 
@@ -529,8 +529,8 @@ private:
 
 template <typename VEC>
 SpMat
-read_eigen_sparse_subset_col(std::string mtx_file,
-                             std::vector<Index> &index_tab,
+read_eigen_sparse_subset_col(const std::string mtx_file,
+                             const std::vector<Index> &index_tab,
                              const VEC &subcol)
 {
 
@@ -584,8 +584,8 @@ read_eigen_sparse_subset_col(std::string mtx_file,
 
 template <typename VEC>
 SpMat
-read_eigen_sparse_subset_col(std::string mtx_file,
-                             std::string index_file,
+read_eigen_sparse_subset_col(const std::string mtx_file,
+                             const std::string index_file,
                              const VEC &subcol)
 {
     std::vector<Index> index_tab;
@@ -596,8 +596,8 @@ read_eigen_sparse_subset_col(std::string mtx_file,
 
 template <typename VEC>
 SpMat
-read_eigen_sparse_subset_row_col(std::string mtx_file,
-                                 std::vector<Index> &index_tab,
+read_eigen_sparse_subset_row_col(const std::string mtx_file,
+                                 const std::vector<Index> &index_tab,
                                  const VEC &subrow,
                                  const VEC &subcol)
 {
@@ -644,8 +644,8 @@ read_eigen_sparse_subset_row_col(std::string mtx_file,
 
 template <typename VEC>
 SpMat
-read_eigen_sparse_subset_row_col(std::string mtx_file,
-                                 std::string index_file,
+read_eigen_sparse_subset_row_col(const std::string mtx_file,
+                                 const std::string index_file,
                                  const VEC &subrow,
                                  const VEC &subcol)
 {

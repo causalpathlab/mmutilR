@@ -9,4 +9,5 @@ Description: Single-cell sequencing data often come in a matrix market format, w
 License: MIT License
 Imports: Rcpp (>= 1.0.7)
 LinkingTo: Rcpp, RcppEigen
+Suggests: data.table
 RoxygenNote: 7.1.1

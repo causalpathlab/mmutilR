@@ -10,14 +10,14 @@
 #include <cstring>
 #include <memory>
 
-// #include <execution> c++17
-
 #ifndef STD_UTIL_HH_
 #define STD_UTIL_HH_
 
 char *str2char(const std::string &s);
 
 std::vector<std::string> split(const std::string &s, char delim);
+
+////////////////////////////////////////////////////////////////
 
 template <typename Vec>
 auto

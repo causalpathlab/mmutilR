@@ -46,10 +46,18 @@ std::string zeropad(const int t, const int tmax);
         }                        \
     }
 
+#define ASSERT_RETM(cond, msg)             \
+    {                                      \
+        if (!(cond)) {                     \
+            ELOG(msg);                     \
+            return Rcpp::NumericMatrix(0); \
+        }                                  \
+    }
+
 #define CHECK(cond)                   \
     {                                 \
         if ((cond) != EXIT_SUCCESS) { \
-            std::exit(1);             \
+            Rcpp::stop("exit 1");     \
         }                             \
     }
 
@@ -57,7 +65,7 @@ std::string zeropad(const int t, const int tmax);
     {                                 \
         if ((cond) != EXIT_SUCCESS) { \
             ELOG(msg);                \
-            std::exit(1);             \
+            Rcpp::stop("exit 1");     \
         }                             \
     }
 
@@ -67,6 +75,14 @@ std::string zeropad(const int t, const int tmax);
             ELOG(msg);                \
             return EXIT_FAILURE;      \
         }                             \
+    }
+
+#define CHK_ERR_RETM(cond, msg)            \
+    {                                      \
+        if ((cond) != EXIT_SUCCESS) {      \
+            ELOG(msg);                     \
+            return Rcpp::NumericMatrix(0); \
+        }                                  \
     }
 
 #define ERR_RET(cond, msg)       \

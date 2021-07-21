@@ -28,7 +28,7 @@
 
 #include <cstring> // for memcpy
 #include <iostream>
-#include <gzstream.hh>
+#include "gzstream.hh"
 
 #ifdef GZSTREAM_NAMESPACE
 namespace GZSTREAM_NAMESPACE {

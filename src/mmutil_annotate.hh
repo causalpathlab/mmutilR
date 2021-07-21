@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "inference/sampler.hh"
 #include "mmutil.hh"
 #include "mmutil_io.hh"
 #include "mmutil_index.hh"
@@ -13,6 +12,7 @@
 #include "progress.hh"
 #include "mmutil_bgzf_util.hh"
 #include "mmutil_util.hh"
+#include "mmutil_stat.hh"
 
 #ifdef __cplusplus
 extern "C" {
@@ -196,18 +196,21 @@ struct annotation_stat_t {
         unc_stat_anti.setConstant(pseudo); // sum x0(g,j) * z(j, k)
     }
 
-    void squeeze(const std::vector<Index> &subrow)
+    void squeeze(const std::vector<Index> &ss)
     {
-        L = row_sub(L, subrow);
-        L0 = row_sub(L0, subrow);
-        Lqc = row_sub(Lqc, subrow);
+        L = row_sub(L, ss);
+        L0 = row_sub(L0, ss);
+        Lqc = row_sub(Lqc, ss);
 
-        Stat = row_sub(Stat, subrow);
-        Stat_anti = row_sub(Stat_anti, subrow);
+        Stat = row_sub(Stat, ss);
+        Stat_anti = row_sub(Stat_anti, ss);
 
-        unc_stat = row_sub(unc_stat, subrow);
-        unc_stat_anti = row_sub(unc_stat_anti, subrow);
+        unc_stat = row_sub(unc_stat, ss);
+        unc_stat_anti = row_sub(unc_stat_anti, ss);
         M = L.rows();
+
+        subrow.clear();
+        subrow.insert(std::end(subrow), std::begin(ss), std::end(ss));
     }
 
     Mat L;
@@ -223,70 +226,19 @@ struct annotation_stat_t {
     Mat unc_stat_anti;
 
     Vec nsize;
+
+    std::vector<std::string> labels;
+    std::vector<Index> subrow;
+
     static constexpr Scalar pseudo = 1e-8;
-};
-
-struct annotation_options_t {
-    using Str = std::string;
-
-    annotation_options_t()
-    {
-        mtx = "";
-        col = "";
-        row = "";
-        ann = "";
-        anti_ann = "";
-        qc_ann = "";
-        out = "output.txt.gz";
-
-        svd_u = "";
-        svd_d = "";
-        svd_v = "";
-
-        raw_scale = true;
-        log_scale = false;
-
-        batch_size = 100000;
-        max_em_iter = 100;
-        em_tol = 1e-4;
-        kappa_max = 100.;
-
-        verbose = false;
-        randomize_init = false;
-        do_standardize = false;
-    }
-
-    Str mtx;
-    Str col;
-    Str row;
-    Str ann;
-    Str anti_ann;
-    Str qc_ann;
-    Str out;
-
-    Str svd_u;
-    Str svd_d;
-    Str svd_v;
-
-    bool raw_scale;
-    bool log_scale;
-
-    Index batch_size;
-    Index max_em_iter;
-    Scalar em_tol;
-
-    bool verbose;
-    Scalar kappa_max;
-    bool randomize_init;
-    bool do_standardize;
 };
 
 struct mm_data_loader_t {
 
     template <typename T>
     mm_data_loader_t(const T &options)
-        : mtx_file(options.mtx)
-        , idx_file(options.mtx + ".index")
+        : mtx_file(options.mtx_file)
+        , idx_file(options.mtx_file + ".index")
         , log_scale(options.log_scale)
     {
 
@@ -296,7 +248,7 @@ struct mm_data_loader_t {
             CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
 
         if (!file_exists(idx_file)) {
-            mmutil::index::build_mmutil_index(options.mtx, idx_file);
+            mmutil::index::build_mmutil_index(options.mtx_file, idx_file);
         }
 
         CHECK(mmutil::index::read_mmutil_index(idx_file, idx_tab));
@@ -360,14 +312,15 @@ struct mm_data_loader_t {
 
 struct svd_data_loader_t {
 
-    template <typename T>
-    svd_data_loader_t(const T &options)
-        : log_scale(options.log_scale)
+    svd_data_loader_t(const Mat &uu,
+                      const Mat &dd,
+                      const Mat &vv,
+                      const bool _log_scale)
+        : log_scale(_log_scale)
+        , U(uu)
+        , D(dd)
+        , Vt(vv)
     {
-        read_data_file(options.svd_u, U);
-        read_data_file(options.svd_d, D);
-        read_data_file(options.svd_v, Vt);
-
         Vt.transposeInPlace();
         TLOG("U: " << U.rows() << " x " << U.cols());
         TLOG("Vt: " << Vt.rows() << " x " << Vt.cols());
@@ -450,28 +403,13 @@ struct svd_data_loader_t {
 };
 
 std::tuple<SpMat, SpMat, SpMat>
-read_annotation_matched(const std::unordered_map<std::string, Index> &row_pos,
-                        const std::unordered_map<std::string, Index> &label_pos,
-                        const std::string ann_file,
-                        const std::string anti_file,
-                        const std::string qc_file)
+read_annotation_matched(
+    const std::unordered_map<std::string, Index> &row_pos,
+    const std::unordered_map<std::string, Index> &label_pos,
+    std::vector<std::tuple<std::string, std::string>> &ann_pair_vec,
+    std::vector<std::tuple<std::string, std::string>> &anti_pair_vec,
+    std::vector<std::tuple<std::string, Scalar>> &qc_pair_vec)
 {
-
-    std::vector<std::tuple<std::string, std::string>> ann_pair_vec;
-    if (ann_file.size() > 0) {
-        read_pair_file<std::string, std::string>(ann_file, ann_pair_vec);
-    }
-
-    std::vector<std::tuple<std::string, std::string>> anti_pair_vec;
-    if (anti_file.size() > 0) {
-        read_pair_file<std::string, std::string>(anti_file, anti_pair_vec);
-    }
-
-    std::vector<std::tuple<std::string, Scalar>> qc_pair_vec;
-    if (qc_file.size() > 0) {
-        read_pair_file<std::string, Scalar>(qc_file, qc_pair_vec);
-    }
-
     using ET = Eigen::Triplet<Scalar>;
     std::vector<ET> triples;
 
@@ -531,117 +469,76 @@ read_annotation_matched(const std::unordered_map<std::string, Index> &row_pos,
     return std::make_tuple(L, L0, Lqc);
 }
 
-template <typename T>
-int fit_annotation(const annotation_options_t &options, T &data_loader);
+struct annotation_options_t {
 
-int
-run_annotation(const annotation_options_t &options)
+    annotation_options_t()
+    {
+        mtx_file = "";
+        log_scale = false;
+
+        batch_size = 10000;
+        max_em_iter = 100;
+        em_tol = 1e-4;
+        kappa_max = 100.;
+
+        verbose = false;
+        randomize_init = false;
+        do_standardize = false;
+    }
+
+    std::string mtx_file;
+
+    bool log_scale;
+
+    Index batch_size;
+    Index max_em_iter;
+    Scalar em_tol;
+
+    bool verbose;
+    Scalar kappa_max;
+    bool randomize_init;
+    bool do_standardize;
+};
+
+template <typename STAT, typename DATA, typename OPTIONS>
+auto
+train_model(std::vector<std::shared_ptr<STAT>> &stat_vector,
+            DATA &data_loader,
+            const OPTIONS &options)
 {
-    if (file_exists(options.mtx)) {
-        TLOG("Using MTX data to annotate ...");
-        mm_data_loader_t data_loader(options);
-        return fit_annotation(options, data_loader);
-    } else {
-        TLOG("Using SVD data to annotate ...");
-        svd_data_loader_t data_loader(options);
-        return fit_annotation(options, data_loader);
-    }
 
-    return EXIT_FAILURE;
-}
+    Index batch_size = options.batch_size;
+    const Index max_em_iter = options.max_em_iter;
+    Vec score_trace(max_em_iter);
 
-template <typename LOADER>
-int
-fit_annotation(const annotation_options_t &options, LOADER &data_loader)
-{
-    std::vector<std::string> rows;
-    CHK_ERR_RET(read_vector_file(options.row, rows),
-                "Failed to read the row file: " << options.row);
+    const Index D = data_loader.num_rows();
+    const Index N = data_loader.num_columns();
 
-    std::vector<std::string> columns;
-    CHK_ERR_RET(read_vector_file(options.col, columns),
-                "Failed to read the column file: " << options.col);
+    TLOG("D = " << D << ", N = " << N);
+    using DS = discrete_sampler_t<Scalar, Index>;
 
-    //////////////////////////////////////////////////////////
-    // Read the annotation information to construct initial //
-    // type-specific marker gene profiles                   //
-    //////////////////////////////////////////////////////////
+    //////////////////
+    // build models //
+    //////////////////
 
-    auto ann_files = split(options.ann, ',');
-    auto anti_files = split(options.anti_ann, ',');
-    auto qc_files = split(options.qc_ann, ',');
-
-    const Index num_annot = ann_files.size();
-
-    for (Index a = anti_files.size(); a < num_annot; ++a) {
-        anti_files.emplace_back("");
-    }
-
-    for (Index a = qc_files.size(); a < num_annot; ++a) {
-        qc_files.emplace_back("");
-    }
-
-    for (auto s : ann_files) {
-        TLOG("annotation : " << s);
-    }
-
-    for (auto s : anti_files) {
-        TLOG("anti-annotation : " << s);
-    }
-
-    for (auto s : qc_files) {
-        TLOG("qc-annotation : " << s);
-    }
-
-    std::vector<std::string> _labels_tot;
-
-    for (Index a = 0; a < num_annot; ++a) {
-        if (ann_files.at(a).size() > 0) {
-            std::vector<std::tuple<std::string, std::string>> _pairs;
-            read_pair_file(ann_files.at(a), _pairs);
-            for (auto pp : _pairs)
-                _labels_tot.emplace_back(std::get<1>(pp));
-        }
-        if (anti_files.at(a).size() > 0) {
-            std::vector<std::tuple<std::string, std::string>> _pairs;
-            read_pair_file(anti_files.at(a), _pairs);
-            for (auto pp : _pairs)
-                _labels_tot.emplace_back(std::get<1>(pp));
-        }
-    }
-
-    auto row_pos = make_position_dict<std::string, Index>(rows);
-    std::vector<std::string> labels;
-    std::unordered_map<std::string, Index> label_pos;
-    std::tie(std::ignore, labels, label_pos) =
-        make_indexed_vector<std::string, Index>(_labels_tot);
-
-    /////////////////////////////////////
-    // Build annotation model and stat //
-    /////////////////////////////////////
-
-    std::vector<std::shared_ptr<annotation_stat_t>> stat_vector;
+    const std::size_t num_annot = stat_vector.size();
     std::vector<std::shared_ptr<annotation_model_t>> model_vector;
 
-    Vec nnz(row_pos.size());
-    nnz.setZero();
+    Vec nnz;
 
     for (Index a = 0; a < num_annot; ++a) {
-        Mat l1, l0;
-        SpMat lq;
-        std::tie(l1, l0, lq) = read_annotation_matched(row_pos,
-                                                       label_pos,
-                                                       ann_files.at(a),
-                                                       anti_files.at(a),
-                                                       qc_files.at(a));
 
-        stat_vector.emplace_back(
-            std::make_shared<annotation_stat_t>(l1, l0, lq));
+        annotation_stat_t &stat = *stat_vector.at(a).get();
 
-        nnz += l1 * Mat::Ones(l1.cols(), 1) +
-            l0.cwiseAbs() * Mat::Ones(l0.cols(), 1);
+        if (a == 0) {
+            nnz.resize(stat.L.rows());
+            nnz.setZero();
+        }
 
-        for (SpMat::InnerIterator it(lq, 0); it; ++it) {
+        nnz += stat.L * Mat::Ones(stat.L.cols(), 1) +
+            stat.L0.cwiseAbs() * Mat::Ones(stat.L0.cols(), 1);
+
+        for (SpMat::InnerIterator it(stat.Lqc, 0); it; ++it) {
             const Index g = it.col();
             nnz(g) += 1;
         }
@@ -651,8 +548,6 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
     for (Index r = 0; r < nnz.size(); ++r) {
         if (nnz(r) > 0) {
             subrow.emplace_back(r);
-            if (options.verbose)
-                TLOG("features: " << rows[r]);
         }
     }
 
@@ -671,22 +566,12 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
             K = stat.L.cols();
     }
 
-    Index batch_size = options.batch_size;
-    const Index max_em_iter = options.max_em_iter;
-    Vec score_trace(max_em_iter);
-
-    const Index D = data_loader.num_rows();
-    const Index N = data_loader.num_columns();
-
-    TLOG("D = " << D << ", N = " << N);
-
-    using DS = discrete_sampler_t<Scalar, Index>;
-
     /////////////////////////////
     // Initial Q/C  assignment //
     /////////////////////////////
 
     std::unordered_set<Index> taboo;
+
     for (Index a = 0; a < num_annot; ++a) {
         annotation_stat_t &stat = *stat_vector.at(a).get();
         SpMat Lqc = stat.Lqc.transpose();
@@ -722,20 +607,6 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
     //////////////////////////////////////////
 
     ASSERT(subrow.size() == M, "subrow and rows(M) disagree");
-
-    running_stat_t<Mat> bias(M, 1);
-
-    for (Index lb = 0; lb < N; lb += batch_size) {
-        const Index ub = std::min(N, batch_size + lb);
-
-        Mat xx = data_loader(lb, ub, subrow);
-        for (Index j = 0; j < xx.cols(); ++j) {
-            bias(xx.col(j));
-        }
-    }
-
-    Mat bias_mean = bias.mean();
-    Mat bias_sd = bias.var().cwiseSqrt();
 
     ///////////////////////////////////////////////////
     // Give contexts to annotation type-specific way //
@@ -779,7 +650,6 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
                 sj.setZero();
 
                 if (options.do_standardize) {
-                    xj = xx.col(j) - bias_mean;
                     xj /= xj.norm();
                 } else {
                     xj = xx.col(j);
@@ -821,7 +691,7 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
 
             if (options.verbose) {
                 annotation_stat_t &stat = *stat_vector.at(0).get();
-
+                std::vector<std::string> &labels = stat.labels;
                 std::cerr << std::setw(10) << lb;
                 for (Index k = 0; k < K; ++k) {
                     std::cerr << " [" << labels[k] << "] " << std::setw(10)
@@ -897,7 +767,6 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
 
                     sj.setZero();
                     if (options.do_standardize) {
-                        xj = xx.col(j) - bias_mean;
                         xj /= xj.norm();
                     } else {
                         xj = xx.col(j);
@@ -948,7 +817,7 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
 
                 if (options.verbose) {
                     annotation_stat_t &stat = *stat_vector.at(0).get();
-
+                    std::vector<std::string> &labels = stat.labels;
                     std::cerr << std::setw(10) << lb;
                     for (Index k = 0; k < K; ++k) {
                         std::cerr << " [" << labels[k] << "] " << std::setw(10)
@@ -998,59 +867,22 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
     monte_carlo_update();
     TLOG("Finished training the main assignment model");
 
-    TLOG("Writing the results ...");
-    std::vector<std::string> markers;
-    markers.reserve(subrow.size());
-    std::for_each(subrow.begin(), subrow.end(), [&](const auto r) {
-        markers.emplace_back(rows.at(r));
-    });
-
-    write_vector_file(options.out + ".marker_names.gz", markers);
-    write_vector_file(options.out + ".label_names.gz", labels);
-    write_vector_file(options.out + ".em_scores.gz", em_score_out);
-
-    for (Index a = 0; a < num_annot; ++a) {
-
-        annotation_model_t &annot = *model_vector.at(a).get();
-        annotation_stat_t &stat = *stat_vector.at(a).get();
-
-        //////////////////////////
-        // constrained profiles //
-        //////////////////////////
-
-        const std::string hdr = options.out + ".marker_" + std::to_string(a);
-
-        write_data_file(hdr + "_profile.gz", annot.mu);
-        write_data_file(hdr + "_profile_anti.gz", annot.mu_anti);
-
-        ////////////////////////////
-        // unconstrained profiles //
-        ////////////////////////////
-
-        Mat mu = stat.unc_stat * stat.nsize.cwiseInverse().asDiagonal();
-        Mat mu_anti =
-            stat.unc_stat_anti * stat.nsize.cwiseInverse().asDiagonal();
-
-        write_data_file(hdr + "_unc.gz", mu);
-        write_data_file(hdr + "_unc_anti.gz", mu_anti);
-    }
-
-    //////////////////////////////////////////////
-    // Assign labels to all the cells (columns) //
-    //////////////////////////////////////////////
-
-    write_vector_file(options.out + ".argmax.gz", membership);
-
-    using out_tup = std::tuple<std::string, std::string, Scalar, Scalar>;
-    std::vector<out_tup> output;
-
-    output.reserve(N);
-    Vec zi(K);
-    Mat Pr(K, N);
-
-    Pr.setZero();
     Vec sj(K);
     Vec xj(M), xja(M);
+    Vec zi(K);
+
+    std::vector<Scalar> max_prob_vec;
+    std::vector<Scalar> max_score_vec;
+    std::vector<std::string> argmax_prob_vec;
+    max_prob_vec.reserve(N);
+    max_score_vec.reserve(N);
+    argmax_prob_vec.reserve(N);
+
+    Mat Pr(K, N);
+    Pr.setZero();
+
+    annotation_stat_t &stat = *stat_vector.at(0).get();
+    std::vector<std::string> &labels = stat.labels;
 
     for (Index lb = 0; lb < N; lb += batch_size) {
         const Index ub = std::min(N, batch_size + lb);
@@ -1060,14 +892,15 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
         for (Index j = 0; j < xx.cols(); ++j) {
             const Index i = j + lb;
             if (taboo.count(i) > 0) {
-                output.emplace_back(columns.at(i), "Incomplete", 0., 0.);
+                max_prob_vec.emplace_back(0);
+                max_score_vec.emplace_back(-0);
+                argmax_prob_vec.emplace_back("Incomplete");
                 continue;
             }
 
             sj.setZero();
 
             if (options.do_standardize) {
-                xj = xx.col(j) - bias_mean;
                 xj /= xj.norm();
             } else {
                 xj = xx.col(j);
@@ -1087,16 +920,18 @@ fit_annotation(const annotation_options_t &options, LOADER &data_loader)
             const Scalar smin = sj.maxCoeff(&argmin);
             Pr.col(i) = zi;
 
-            output.emplace_back(columns[i], labels[argmax], zi(argmax), smax);
+            max_prob_vec.emplace_back(zi(argmax));
+            max_score_vec.emplace_back(smax);
+            argmax_prob_vec.emplace_back(labels[argmax]);
         }
         TLOG("Annotated on the batch [" << lb << ", " << ub << ")");
     }
 
-    Pr.transposeInPlace();
-    write_tuple_file(options.out + ".annot.gz", output);
-    write_data_file(options.out + ".annot_prob.gz", Pr);
-
-    return EXIT_SUCCESS;
+    return std::make_tuple<>(model_vector,
+                             argmax_prob_vec,
+                             max_prob_vec,
+                             max_score_vec,
+                             Pr);
 }
 
 #endif
