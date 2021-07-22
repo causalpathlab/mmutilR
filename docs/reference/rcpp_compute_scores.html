@@ -134,10 +134,10 @@
 <span class='va'>scr</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'>rcpp_compute_scores</span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>mtx</span><span class='op'>)</span>
 <span class='va'>A</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='fu'>Matrix</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Matrix/man/externalFormats.html'>readMM</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>mtx</span><span class='op'>)</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>A</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 0.3 0.6 0.2 0.8 0.9 0.3 0.7 0.6 2.2 1.3</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>col.mean</span>
-</div><div class='output co'>#&gt;  [1] 0.3 0.6 0.2 0.8 0.9 0.3 0.7 0.6 2.2 1.3</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowMeans</a></span><span class='op'>(</span><span class='va'>A</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 1.1 1.2 0.8 0.6 0.5 1.4 0.8 0.2 0.1 1.2</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>row.mean</span>
-</div><div class='output co'>#&gt;  [1] 1.1 1.2 0.8 0.6 0.5 1.4 0.8 0.2 0.1 1.2</div><div class='input'>
+</div><div class='output co'>#&gt;  [1] 0.6 0.5 1.2 1.5 0.7 0.3 0.7 3.0 0.7 1.3</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>col.mean</span>
+</div><div class='output co'>#&gt;  [1] 0.6 0.5 1.2 1.5 0.7 0.3 0.7 3.0 0.7 1.3</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowMeans</a></span><span class='op'>(</span><span class='va'>A</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] 1.2 0.5 0.7 1.6 0.8 1.7 1.4 0.7 0.3 1.6</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>row.mean</span>
+</div><div class='output co'>#&gt;  [1] 1.2 0.5 0.7 1.6 0.8 1.7 1.4 0.7 0.3 1.6</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

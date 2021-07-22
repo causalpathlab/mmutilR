@@ -14,7 +14,11 @@ This `R` package contains a list of functions that can be useful in processing s
 
 ## Installation
 
-`R CMD INSTALL mmutilR_${version}.tar.gz`
+`$ R CMD INSTALL mmutilR_${version}.tar.gz`
+
+or
+
+`> devtools::install_github("YPARK/mmutilR")`
 
 ## Available functions
 
