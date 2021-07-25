@@ -142,12 +142,10 @@
 <span class='va'>scr</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'>rcpp_mmutil_compute_scores</span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>mtx</span><span class='op'>)</span>
 <span class='va'>A</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='fu'>Matrix</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/Matrix/man/externalFormats.html'>readMM</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>mtx</span><span class='op'>)</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>A</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] 0.2 0.4 1.7 0.3 0.3 0.5 0.9 0.2 0.2</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>col</span><span class='op'>$</span><span class='va'>mean</span>
-</div><div class='output co'>#&gt; [1] 0.2 0.4 1.7 0.3 0.3 0.5 0.9 0.2 0.2</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowMeans</a></span><span class='op'>(</span><span class='va'>A</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 0.6666667 0.2222222 0.5555556 0.6666667 0.3333333 0.8888889 0.3333333
-#&gt;  [8] 0.8888889 0.5555556 0.1111111</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>row</span><span class='op'>$</span><span class='va'>mean</span>
-</div><div class='output co'>#&gt;  [1] 0.6666667 0.2222222 0.5555556 0.6666667 0.3333333 0.8888889 0.3333333
-#&gt;  [8] 0.8888889 0.5555556 0.1111111</div><div class='input'>
+</div><div class='output co'>#&gt; [1] 0.5 0.7 0.1 0.2 1.0 0.4 0.1 0.1</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>col</span><span class='op'>$</span><span class='va'>mean</span>
+</div><div class='output co'>#&gt; [1] 0.5 0.7 0.1 0.2 1.0 0.4 0.1 0.1</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowMeans</a></span><span class='op'>(</span><span class='va'>A</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] 0.125 0.375 0.375 0.375 0.250 0.375 0.375 1.375 0.250 0.000</div><div class='input'><span class='va'>scr</span><span class='op'>$</span><span class='va'>row</span><span class='op'>$</span><span class='va'>mean</span>
+</div><div class='output co'>#&gt;  [1] 0.125 0.375 0.375 0.375 0.250 0.375 0.375 1.375 0.250 0.000</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

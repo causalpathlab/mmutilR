@@ -397,7 +397,7 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #' )
 #' ## annotation on the MTX file
 #' out <- mmutilR::rcpp_mmutil_annotate_columns(
-#'        dat$row, dat$col,
+#'        row_file = dat$row, col_file = dat$col,
 #'        mtx_file = dat$mtx, pos_labels = markers)
 #' annot <- out$annotation
 #' ## prepare column to individual
