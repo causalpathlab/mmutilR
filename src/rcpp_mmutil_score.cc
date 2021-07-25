@@ -5,22 +5,27 @@
 //' Collect row-wise and column-wise statistics
 //'
 //' @param mtx_file data file
+//' @param row_file row file
+//' @param col_file column file
+//'
 //' @return a list of stat vectors
 //'
 //' @examples
 //' rr <- rgamma(10, 1, 1) # ten cells
 //' mm <- matrix(rgamma(10 * 3, 1, 1), 10, 3)
-//' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
-//' scr <- mmutilR::rcpp_compute_scores(dat$mtx)
+//' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
+//' scr <- mmutilR::rcpp_mmutil_compute_scores(dat$mtx)
 //' A <- as.matrix(Matrix::readMM(dat$mtx))
 //' colMeans(A)
-//' scr$col.mean
+//' scr$col$mean
 //' rowMeans(A)
-//' scr$row.mean
+//' scr$row$mean
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_compute_scores(const std::string mtx_file)
+rcpp_mmutil_compute_scores(const std::string mtx_file,
+                           const std::string row_file = "",
+                           const std::string col_file = "")
 {
 
     TLOG("collecting statistics... ");
@@ -50,18 +55,52 @@ rcpp_compute_scores(const std::string mtx_file)
                          [](const auto &x) { return x.Col_N; },
                          [](const auto &x) { return x.max_row; });
 
-    return Rcpp::List::create(Rcpp::_["row.nnz"] = row_nvec,
-                              Rcpp::_["row.mean"] = row_mean,
-                              Rcpp::_["row.sd"] = row_sd,
-                              Rcpp::_["row.cv"] = row_cv,
-                              Rcpp::_["row.sum"] = collector.Row_S1,
-                              Rcpp::_["row.sum.sq"] = collector.Row_S2,
-                              Rcpp::_["col.nnz"] = col_nvec,
-                              Rcpp::_["col.mean"] = col_mean,
-                              Rcpp::_["col.sd"] = col_sd,
-                              Rcpp::_["col.cv"] = col_cv,
-                              Rcpp::_["col.sum"] = collector.Col_S1,
-                              Rcpp::_["col.sum.sq"] = collector.Col_S2,
+    std::vector<std::string> row_names;
+    row_names.reserve(row_nvec.size());
+
+    std::vector<std::string> col_names;
+    col_names.reserve(row_nvec.size());
+
+    if (file_exists(row_file)) {
+        read_vector_file(row_file, row_names);
+    } else {
+        for (Index x = 0; x < max_row; ++x) {
+            row_names.emplace_back(std::to_string(x + 1));
+        }
+    }
+
+    if (file_exists(col_file)) {
+        read_vector_file(col_file, col_names);
+    } else {
+        for (Index x = 0; x < max_col; ++x) {
+            col_names.emplace_back(std::to_string(x + 1));
+        }
+    }
+
+    Rcpp::List row_out =
+        Rcpp::List::create(Rcpp::_["name"] =
+                               Rcpp::StringVector(row_names.begin(),
+                                                  row_names.end()),
+                           Rcpp::_["nnz"] = row_nvec,
+                           Rcpp::_["mean"] = row_mean,
+                           Rcpp::_["sd"] = row_sd,
+                           Rcpp::_["cv"] = row_cv,
+                           Rcpp::_["sum"] = collector.Row_S1,
+                           Rcpp::_["sum.sq"] = collector.Row_S2);
+
+    Rcpp::List col_out =
+        Rcpp::List::create(Rcpp::_["name"] =
+                               Rcpp::StringVector(col_names.begin(),
+                                                  col_names.end()),
+                           Rcpp::_["nnz"] = col_nvec,
+                           Rcpp::_["mean"] = col_mean,
+                           Rcpp::_["sd"] = col_sd,
+                           Rcpp::_["cv"] = col_cv,
+                           Rcpp::_["sum"] = collector.Col_S1,
+                           Rcpp::_["sum.sq"] = collector.Col_S2);
+
+    return Rcpp::List::create(Rcpp::_["row"] = row_out,
+                              Rcpp::_["col"] = col_out,
                               Rcpp::_["max.row"] = max_row,
                               Rcpp::_["max.col"] = max_col);
 }

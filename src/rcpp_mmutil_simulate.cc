@@ -14,7 +14,7 @@
 //' rr <- rgamma(20, 1, 1)
 //' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 //' data.hdr <- "test_sim"
-//' .files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, data.hdr)
+//' .files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, data.hdr)
 //' Y <- Matrix::readMM(.files$mtx)
 //' print(Y)
 //' A <- read.table(.files$indv, col.names = c("col", "ind"))
@@ -23,9 +23,9 @@
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_simulate_poisson_data(const Eigen::MatrixXf mu,
-                           const Eigen::VectorXf rho,
-                           const std::string output)
+rcpp_mmutil_simulate_poisson(const Eigen::MatrixXf mu,
+                             const Eigen::VectorXf rho,
+                             const std::string output)
 {
 
     const Index max_row = mu.rows();

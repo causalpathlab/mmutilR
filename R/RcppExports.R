@@ -19,10 +19,10 @@
 #' ## Generate some data
 #' rr <- rgamma(1000, 1, 1) # 1000 cells
 #' mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-#' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
-#' .pc <- mmutilR::rcpp_mmutil_pca(dat$mtx, 3, TAKE_LN = FALSE)
-#' .ind <- read.table(dat$indv)
-#' .col <- unlist(read.table(dat$col))
+#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
+#' .pc <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 3, TAKE_LN = FALSE)
+#' .ind <- read.table(.dat$indv)
+#' .col <- unlist(read.table(.dat$col))
 #' .ind <- .ind[match(.col, .ind$V1), ]
 #' plot(.pc$V[, 1], .pc$V[, 2], col = .ind$V2,
 #'      xlab = "PC1", ylab = "PC2")
@@ -51,20 +51,22 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 #' @param row_weight_file row-wise weight file
 #'
-#' @return a list of (1) U (2) D (3) V
+#' @return a list of (1) factors.adjusted (2) U (3) D (4) V
 #'
 #' @examples
 #' ## Generate some data
-#' rr <- rgamma(1000, 1, 1) # 1000 cells
-#' mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-#' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
-#' .ind <- read.table(dat$indv)
-#' .col <- unlist(read.table(dat$col))
+#' .sim <- mmutilR::simulate_gamma_glm(nind = 5, ncell.ind = 1000)
+#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+#'                                               .sim$rho,
+#'                                               "sim_test")
+#' .ind <- read.table(.dat$indv)
+#' .col <- unlist(read.table(.dat$col))
 #' .ind <- .ind[match(.col, .ind$V1), ]
-#' .bbknn <- mmutilR::rcpp_mmutil_bbknn_pca(dat$mtx,
-#'                   .ind$V2, 10, 3, TAKE_LN = FALSE)
+#' .bbknn <- mmutilR::rcpp_mmutil_bbknn_pca(.dat$mtx,
+#'                   r_batches = .ind$V2,
+#'                   knn = 10, RANK = 3, TAKE_LN = TRUE)
 #' plot(.bbknn$V[, 1], .bbknn$V[, 2], col = .ind$V2,
-#'      xlab = "PC1", ylab = "PC2")
+#'      xlab = "PC1", ylab = "PC2", main = "no BBKNN")
 #' plot(.bbknn$factors.adjusted[, 1], .bbknn$factors.adjusted[, 2],
 #'      col = .ind$V2,
 #'      xlab = "PC1 (BBKNN)", ylab = "PC2 (BBKNN)")
@@ -96,7 +98,7 @@ rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE
 #' mm.2 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 #' mm.2[11:20, ] <- rgamma(5, 1, .1)
 #' mm <- cbind(mm.1, mm.2)
-#' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
+#' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
 #' rows <- read.table(dat$row)$V1
 #' cols <- read.table(dat$col)$V1
 #' ## marker feature
@@ -107,7 +109,8 @@ rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE
 #'   )
 #' )
 #' ## annotation on the MTX file
-#' out <- mmutilR::rcpp_annotate_columns(dat$row, dat$col,
+#' out <- mmutilR::rcpp_mmutil_annotate_columns(
+#'        row_file = dat$row, col_file = dat$col,
 #'        mtx_file = dat$mtx, pos_labels = markers)
 #' annot <- out$annotation
 #' .pca <- mmutilR::rcpp_mmutil_pca(dat$mtx, 3, TAKE_LN = TRUE)
@@ -120,7 +123,8 @@ rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE
 #' ct2 <- which(out.df$argmax == "ct2")
 #' points(out.df$PC.1[ct2], out.df$PC.2[ct2], pch = 19, col = 3)
 #' ## annotation on the PC results
-#' out.2 <- mmutilR::rcpp_annotate_columns(dat$row, dat$col,
+#' out.2 <- mmutilR::rcpp_mmutil_annotate_columns(
+#'          row_file = dat$row, col_file = dat$col,
 #'          pos_labels = markers,
 #'          r_U = .pca$U, r_D = .pca$D, r_V = .pca$V)
 #' annot <- out.2$annotation
@@ -134,8 +138,8 @@ rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE
 #' points(out.df$PC.1[ct2], out.df$PC.2[ct2], pch = 19, col = 3)
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_annotate_columns <- function(row_file, col_file, pos_labels, r_neg_labels = NULL, r_qc_labels = NULL, mtx_file = "", r_U = NULL, r_D = NULL, r_V = NULL, KAPPA_MAX = 100., TAKE_LN = FALSE, BATCH_SIZE = 10000L, EM_ITER = 100L, EM_TOL = 1e-4, VERBOSE = FALSE, DO_STD = FALSE) {
-    .Call('_mmutilR_rcpp_annotate_columns', PACKAGE = 'mmutilR', row_file, col_file, pos_labels, r_neg_labels, r_qc_labels, mtx_file, r_U, r_D, r_V, KAPPA_MAX, TAKE_LN, BATCH_SIZE, EM_ITER, EM_TOL, VERBOSE, DO_STD)
+rcpp_mmutil_annotate_columns <- function(pos_labels, r_rows = NULL, r_cols = NULL, r_neg_labels = NULL, r_qc_labels = NULL, mtx_file = "", row_file = "", col_file = "", r_U = NULL, r_D = NULL, r_V = NULL, KAPPA_MAX = 100., TAKE_LN = FALSE, BATCH_SIZE = 10000L, EM_ITER = 100L, EM_TOL = 1e-4, VERBOSE = FALSE, DO_STD = FALSE) {
+    .Call('_mmutilR_rcpp_mmutil_annotate_columns', PACKAGE = 'mmutilR', pos_labels, r_rows, r_cols, r_neg_labels, r_qc_labels, mtx_file, row_file, col_file, r_U, r_D, r_V, KAPPA_MAX, TAKE_LN, BATCH_SIZE, EM_ITER, EM_TOL, VERBOSE, DO_STD)
 }
 
 #' Merge multiple 10x mtx file sets into one set
@@ -153,10 +157,11 @@ rcpp_annotate_columns <- function(row_file, col_file, pos_labels, r_neg_labels =
 #' options(stringsAsFactors=FALSE)
 #' rr <- rgamma(10, 1, 1) # ten cells
 #' mm <- matrix(rgamma(10 * 3, 1, 1), 10, 3)
-#' t1 <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "test1")
-#' t2 <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "test2")
+#' t1 <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "test1")
+#' t2 <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "test2")
 #' bats <- hdrs <- c("test1","test2")
-#' t3 <- mmutilR::rcpp_merge_file_sets(hdrs, bats, "test3", 0)
+#' t3 <- mmutilR::rcpp_mmutil_merge_file_sets(
+#'                       hdrs, bats, "test3", 0)
 #' A1 <- Matrix::readMM(t1$mtx);
 #' rownames(A1) <- unlist(read.table(gzfile(t1$row)))
 #' A2 <- Matrix::readMM(t2$mtx)
@@ -169,8 +174,8 @@ rcpp_annotate_columns <- function(row_file, col_file, pos_labels, r_neg_labels =
 #' unlink(list.files(pattern = "test2"))
 #' unlink(list.files(pattern = "test3"))
 #'
-rcpp_merge_file_sets <- function(r_headers, r_batches, output, nnz_cutoff = 1, delim = "_") {
-    .Call('_mmutilR_rcpp_merge_file_sets', PACKAGE = 'mmutilR', r_headers, r_batches, output, nnz_cutoff, delim)
+rcpp_mmutil_merge_file_sets <- function(r_headers, r_batches, output, nnz_cutoff = 1, delim = "_") {
+    .Call('_mmutilR_rcpp_mmutil_merge_file_sets', PACKAGE = 'mmutilR', r_headers, r_batches, output, nnz_cutoff, delim)
 }
 
 #' Take a subset of rows and create a new MTX file-set
@@ -192,18 +197,19 @@ rcpp_merge_file_sets <- function(r_headers, r_batches, output, nnz_cutoff = 1, d
 #' rr <- rgamma(20, 1, 1)
 #' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 #' src.hdr <- "test_org"
-#' src.files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, src.hdr)
+#' src.files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, src.hdr)
 #' Y <- Matrix::readMM(src.files$mtx)
 #' rownames(Y) <- read.table(src.files$row)$V1
 #' print(Y)
 #' sub.rows <- sort(read.table(src.files$row)$V1[sample(10,3)])
 #' print(sub.rows)
 #' tgt.hdr <- "test_sub"
-#' tgt.files <- mmutilR::rcpp_copy_selected_rows(src.files$mtx,
-#'                                               src.files$row,
-#'                                               src.files$col,
-#'                                               sub.rows,
-#'                                               tgt.hdr)
+#' tgt.files <- mmutilR::rcpp_mmutil_copy_selected_rows(
+#'                src.files$mtx,
+#'                src.files$row,
+#'                src.files$col,
+#'                sub.rows,
+#'                tgt.hdr)
 #' Y <- Matrix::readMM(tgt.files$mtx)
 #' colnames(Y) <- read.table(tgt.files$col)$V1
 #' rownames(Y) <- read.table(tgt.files$row)$V1
@@ -211,8 +217,8 @@ rcpp_merge_file_sets <- function(r_headers, r_batches, output, nnz_cutoff = 1, d
 #' unlink(list.files(pattern = src.hdr))
 #' unlink(list.files(pattern = tgt.hdr))
 #'
-rcpp_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selected, output) {
-    .Call('_mmutilR_rcpp_copy_selected_rows', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output)
+rcpp_mmutil_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selected, output) {
+    .Call('_mmutilR_rcpp_mmutil_copy_selected_rows', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output)
 }
 
 #' Take a subset of columns and create a new MTX file-set
@@ -228,25 +234,26 @@ rcpp_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selected, ou
 #' rr <- rgamma(20, 1, 1)
 #' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 #' src.hdr <- "test_org"
-#' src.files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, src.hdr)
+#' src.files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, src.hdr)
 #' Y <- Matrix::readMM(src.files$mtx)
 #' colnames(Y) <- read.table(src.files$col)$V1
 #' print(Y)
 #' sub.cols <- sort(read.table(src.files$col)$V1[sample(20,3)])
 #' print(sub.cols)
 #' tgt.hdr <- "test_sub"
-#' tgt.files <- mmutilR::rcpp_copy_selected_columns(src.files$mtx,
-#'                                      src.files$row,
-#'                                      src.files$col,
-#'                                      sub.cols, tgt.hdr)
+#' tgt.files <- mmutilR::rcpp_mmutil_copy_selected_columns(
+#'                          src.files$mtx,
+#'                          src.files$row,
+#'                          src.files$col,
+#'                          sub.cols, tgt.hdr)
 #' Y <- Matrix::readMM(tgt.files$mtx)
 #' colnames(Y) <- read.table(tgt.files$col)$V1
 #' print(Y)
 #' unlink(list.files(pattern = src.hdr))
 #' unlink(list.files(pattern = tgt.hdr))
 #'
-rcpp_copy_selected_columns <- function(mtx_file, row_file, col_file, r_selected, output) {
-    .Call('_mmutilR_rcpp_copy_selected_columns', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output)
+rcpp_mmutil_copy_selected_columns <- function(mtx_file, row_file, col_file, r_selected, output) {
+    .Call('_mmutilR_rcpp_mmutil_copy_selected_columns', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output)
 }
 
 #' Create an index file for a given MTX
@@ -254,12 +261,12 @@ rcpp_copy_selected_columns <- function(mtx_file, row_file, col_file, r_selected,
 #' @param mtx_file data file
 #' @param index_file index file
 #'
-#' @usage rcpp_build_mmutil_index(mtx_file, index_file)
+#' @usage rcpp_mmutil_build_index(mtx_file, index_file)
 #'
 #' @return EXIT_SUCCESS or EXIT_FAILURE
 #'
-rcpp_build_mmutil_index <- function(mtx_file, index_file = "") {
-    .Call('_mmutilR_rcpp_build_mmutil_index', PACKAGE = 'mmutilR', mtx_file, index_file)
+rcpp_mmutil_build_index <- function(mtx_file, index_file = "") {
+    .Call('_mmutilR_rcpp_mmutil_build_index', PACKAGE = 'mmutilR', mtx_file, index_file)
 }
 
 #' Read an index file to R
@@ -268,8 +275,8 @@ rcpp_build_mmutil_index <- function(mtx_file, index_file = "") {
 #'
 #' @return a vector column index (a vector of memory locations)
 #'
-rcpp_read_mmutil_index <- function(index_file) {
-    .Call('_mmutilR_rcpp_read_mmutil_index', PACKAGE = 'mmutilR', index_file)
+rcpp_mmutil_read_index <- function(index_file) {
+    .Call('_mmutilR_rcpp_mmutil_read_index', PACKAGE = 'mmutilR', index_file)
 }
 
 #' Check if the index tab is valid
@@ -279,8 +286,8 @@ rcpp_read_mmutil_index <- function(index_file) {
 #'
 #' @return EXIT_SUCCESS or EXIT_FAILURE
 #'
-rcpp_check_index_tab <- function(mtx_file, index_tab) {
-    .Call('_mmutilR_rcpp_check_index_tab', PACKAGE = 'mmutilR', mtx_file, index_tab)
+rcpp_mmutil_check_index <- function(mtx_file, index_tab) {
+    .Call('_mmutilR_rcpp_mmutil_check_index', PACKAGE = 'mmutilR', mtx_file, index_tab)
 }
 
 #' Read a subset of columns from the data matrix
@@ -295,20 +302,21 @@ rcpp_check_index_tab <- function(mtx_file, index_tab) {
 #' rr <- rgamma(100, 1, 1) # one hundred cells
 #' mm <- matrix(rgamma(10 * 3, 1, 1), 10, 3)
 #' data.hdr <- "test_sim"
-#' .files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, data.hdr)
+#' .files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, data.hdr)
 #' data.file <- .files$mtx
 #' idx.file <- .files$idx
-#' mtx.idx <- mmutilR::rcpp_read_mmutil_index(idx.file)
+#' mtx.idx <- mmutilR::rcpp_mmutil_read_index(idx.file)
 #' Y <- as.matrix(Matrix::readMM(data.file))
 #' col.pos <- c(1,13,77) # 1-based
-#' yy <- mmutilR::rcpp_read_columns(data.file, mtx.idx, col.pos)
+#' yy <- mmutilR::rcpp_mmutil_read_columns(
+#'                  data.file, mtx.idx, col.pos)
 #' all(Y[, col.pos, drop = FALSE] == yy)
 #' print(head(Y[, col.pos, drop = FALSE]))
 #' print(head(yy))
 #' unlink(list.files(pattern = data.hdr))
 #'
-rcpp_read_columns <- function(mtx_file, memory_location, r_column_index) {
-    .Call('_mmutilR_rcpp_read_columns', PACKAGE = 'mmutilR', mtx_file, memory_location, r_column_index)
+rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index) {
+    .Call('_mmutilR_rcpp_mmutil_read_columns', PACKAGE = 'mmutilR', mtx_file, memory_location, r_column_index)
 }
 
 #' Match the columns of two MTX files
@@ -333,7 +341,7 @@ rcpp_read_columns <- function(mtx_file, memory_location, r_column_index) {
 #' ## Generate some data
 #' rr <- rgamma(100, 1, 6) # 100 cells
 #' mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-#' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
+#' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
 #' .matched <- mmutilR::rcpp_mmutil_match_files(dat$mtx, dat$mtx,
 #'                                              knn=1, RANK=5)
 #' ## Do they match well?
@@ -377,7 +385,7 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #' mm.2 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 #' mm.2[11:20, ] <- rgamma(5, 1, .1)
 #' mm <- cbind(mm.1, mm.2)
-#' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
+#' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
 #' rows <- read.table(dat$row)$V1
 #' cols <- read.table(dat$col)$V1
 #' ## marker feature
@@ -388,7 +396,8 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #'   )
 #' )
 #' ## annotation on the MTX file
-#' out <- mmutilR::rcpp_annotate_columns(dat$row, dat$col,
+#' out <- mmutilR::rcpp_mmutil_annotate_columns(
+#'        dat$row, dat$col,
 #'        mtx_file = dat$mtx, pos_labels = markers)
 #' annot <- out$annotation
 #' ## prepare column to individual
@@ -402,9 +411,9 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #' unlink(list.files(pattern = "sim_test"))
 #' ## Case-control simulation
 #' .sim <- mmutilR::simulate_gamma_glm()
-#' .dat <- mmutilR::rcpp_simulate_poisson_data(.sim$obs.mu,
-#'                                             .sim$rho,
-#'                                             "sim_test")
+#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+#'                                              .sim$rho,
+#'                                              "sim_test")
 #' ## find column-wise annotation
 #' .annot <- read.table(.dat$indv,
 #'                      col.names = c("col", "ind"))
@@ -439,21 +448,24 @@ rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols, r_indv, 
 #' Collect row-wise and column-wise statistics
 #'
 #' @param mtx_file data file
+#' @param row_file row file
+#' @param col_file column file
+#'
 #' @return a list of stat vectors
 #'
 #' @examples
 #' rr <- rgamma(10, 1, 1) # ten cells
 #' mm <- matrix(rgamma(10 * 3, 1, 1), 10, 3)
-#' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
-#' scr <- mmutilR::rcpp_compute_scores(dat$mtx)
+#' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
+#' scr <- mmutilR::rcpp_mmutil_compute_scores(dat$mtx)
 #' A <- as.matrix(Matrix::readMM(dat$mtx))
 #' colMeans(A)
-#' scr$col.mean
+#' scr$col$mean
 #' rowMeans(A)
-#' scr$row.mean
+#' scr$row$mean
 #'
-rcpp_compute_scores <- function(mtx_file) {
-    .Call('_mmutilR_rcpp_compute_scores', PACKAGE = 'mmutilR', mtx_file)
+rcpp_mmutil_compute_scores <- function(mtx_file, row_file = "", col_file = "") {
+    .Call('_mmutilR_rcpp_mmutil_compute_scores', PACKAGE = 'mmutilR', mtx_file, row_file, col_file)
 }
 
 #' Simulation Poisson data
@@ -468,14 +480,14 @@ rcpp_compute_scores <- function(mtx_file) {
 #' rr <- rgamma(20, 1, 1)
 #' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 #' data.hdr <- "test_sim"
-#' .files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, data.hdr)
+#' .files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, data.hdr)
 #' Y <- Matrix::readMM(.files$mtx)
 #' print(Y)
 #' A <- read.table(.files$indv, col.names = c("col", "ind"))
 #' head(A)
 #' unlink(list.files(pattern = data.hdr))
 #'
-rcpp_simulate_poisson_data <- function(mu, rho, output) {
-    .Call('_mmutilR_rcpp_simulate_poisson_data', PACKAGE = 'mmutilR', mu, rho, output)
+rcpp_mmutil_simulate_poisson <- function(mu, rho, output) {
+    .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output)
 }
 

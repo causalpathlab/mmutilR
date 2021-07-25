@@ -47,10 +47,10 @@ Approximate PCA
 ## Generate some data
 rr <- rgamma(1000, 1, 1) # 1000 cells
 mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
-.pc <- mmutilR::rcpp_mmutil_pca(dat$mtx, 3, TAKE_LN = FALSE)
-.ind <- read.table(dat$indv)
-.col <- unlist(read.table(dat$col))
+.dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
+.pc <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 3, TAKE_LN = FALSE)
+.ind <- read.table(.dat$indv)
+.col <- unlist(read.table(.dat$col))
 .ind <- .ind[match(.col, .ind$V1), ]
 plot(.pc$V[, 1], .pc$V[, 2], col = .ind$V2,
      xlab = "PC1", ylab = "PC2")

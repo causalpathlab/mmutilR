@@ -48,23 +48,25 @@ rcpp_mmutil_bbknn_pca(
 \item{row_weight_file}{row-wise weight file}
 }
 \value{
-a list of (1) U (2) D (3) V
+a list of (1) factors.adjusted (2) U (3) D (4) V
 }
 \description{
 BBKNN(Batch-balancing kNN)-adjusted PCA
 }
 \examples{
 ## Generate some data
-rr <- rgamma(1000, 1, 1) # 1000 cells
-mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
-.ind <- read.table(dat$indv)
-.col <- unlist(read.table(dat$col))
+.sim <- mmutilR::simulate_gamma_glm(nind = 5, ncell.ind = 1000)
+.dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+                                              .sim$rho,
+                                              "sim_test")
+.ind <- read.table(.dat$indv)
+.col <- unlist(read.table(.dat$col))
 .ind <- .ind[match(.col, .ind$V1), ]
-.bbknn <- mmutilR::rcpp_mmutil_bbknn_pca(dat$mtx,
-                  .ind$V2, 10, 3, TAKE_LN = FALSE)
+.bbknn <- mmutilR::rcpp_mmutil_bbknn_pca(.dat$mtx,
+                  r_batches = .ind$V2,
+                  knn = 10, RANK = 3, TAKE_LN = TRUE)
 plot(.bbknn$V[, 1], .bbknn$V[, 2], col = .ind$V2,
-     xlab = "PC1", ylab = "PC2")
+     xlab = "PC1", ylab = "PC2", main = "no BBKNN")
 plot(.bbknn$factors.adjusted[, 1], .bbknn$factors.adjusted[, 2],
      col = .ind$V2,
      xlab = "PC1 (BBKNN)", ylab = "PC2 (BBKNN)")

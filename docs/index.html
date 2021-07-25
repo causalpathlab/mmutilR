@@ -12,7 +12,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Utility functions for Matrix Market-formatted data">
-<meta property="og:description" content="Single-cell sequencing data often come in a matrix market format, which consists of triplets in each line (row, column, value). ">
+<meta property="og:description" content="Single-cell sequencing data often come in a matrix market
+  format, which consists of triplets in each line (row, column, value).">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -87,17 +88,16 @@
 <h3 class="hasAnchor">
 <a href="#data-editing" class="anchor"></a>Data editing</h3>
 <ul>
-<li><p><code><a href="reference/rcpp_copy_selected_columns.html">mmutilR::rcpp_copy_selected_columns</a></code></p></li>
-<li><p><code><a href="reference/rcpp_copy_selected_rows.html">mmutilR::rcpp_copy_selected_rows</a></code></p></li>
-<li><p><code><a href="reference/rcpp_merge_file_sets.html">mmutilR::rcpp_merge_file_sets</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_copy_selected_columns.html">mmutilR::rcpp_mmutil_copy_selected_columns</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_copy_selected_rows.html">mmutilR::rcpp_mmutil_copy_selected_rows</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_merge_file_sets.html">mmutilR::rcpp_mmutil_merge_file_sets</a></code></p></li>
 </ul>
 </div>
 <div id="data-analysis" class="section level3">
 <h3 class="hasAnchor">
 <a href="#data-analysis" class="anchor"></a>Data analysis</h3>
 <ul>
-<li><p><code><a href="reference/rcpp_annotate_columns.html">mmutilR::rcpp_annotate_columns</a></code></p></li>
-<li><p><code><a href="reference/rcpp_compute_scores.html">mmutilR::rcpp_compute_scores</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_compute_scores.html">mmutilR::rcpp_mmutil_compute_scores</a></code></p></li>
 <li><p><code><a href="reference/rcpp_mmutil_aggregate.html">mmutilR::rcpp_mmutil_aggregate</a></code></p></li>
 <li><p><code><a href="reference/rcpp_mmutil_bbknn_pca.html">mmutilR::rcpp_mmutil_bbknn_pca</a></code></p></li>
 <li><p><code><a href="reference/rcpp_mmutil_pca.html">mmutilR::rcpp_mmutil_pca</a></code></p></li>
@@ -107,17 +107,18 @@
 <h3 class="hasAnchor">
 <a href="#random-access" class="anchor"></a>Random access</h3>
 <ul>
-<li><p><code><a href="reference/rcpp_read_mmutil_index.html">mmutilR::rcpp_read_mmutil_index</a></code></p></li>
-<li><p><code><a href="reference/rcpp_build_mmutil_index.html">mmutilR::rcpp_build_mmutil_index</a></code></p></li>
-<li><p><code><a href="reference/rcpp_check_index_tab.html">mmutilR::rcpp_check_index_tab</a></code></p></li>
-<li><p><code><a href="reference/rcpp_read_columns.html">mmutilR::rcpp_read_columns</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_read_index.html">mmutilR::rcpp_mmutil_read_index</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_build_index.html">mmutilR::rcpp_mmutil_build_index</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_check_index.html">mmutilR::rcpp_mmutil_check_index</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_read_columns.html">mmutilR::rcpp_mmutil_read_columns</a></code></p></li>
 </ul>
 </div>
 <div id="marker-based-cell-type-annotation" class="section level3">
 <h3 class="hasAnchor">
 <a href="#marker-based-cell-type-annotation" class="anchor"></a>Marker-based cell type annotation</h3>
 <ul>
-<li><code><a href="reference/run.annotation.html">mmutilR::run.annotation</a></code></li>
+<li><p><code><a href="reference/rcpp_mmutil_annotate_columns.html">mmutilR::rcpp_mmutil_annotate_columns</a></code></p></li>
+<li><p><code><a href="reference/run.annotation.html">mmutilR::run.annotation</a></code></p></li>
 </ul>
 </div>
 <div id="matching-between-columns" class="section level3">
@@ -132,7 +133,7 @@
 <a href="#simulation" class="anchor"></a>Simulation</h3>
 <ul>
 <li><p><code><a href="reference/simulate_gamma_glm.html">mmutilR::simulate_gamma_glm</a></code></p></li>
-<li><p><code><a href="reference/rcpp_simulate_poisson_data.html">mmutilR::rcpp_simulate_poisson_data</a></code></p></li>
+<li><p><code><a href="reference/rcpp_mmutil_simulate_poisson.html">mmutilR::rcpp_mmutil_simulate_poisson</a></code></p></li>
 </ul>
 </div>
 </div>
@@ -155,7 +156,7 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li> <br><small class="roles"> Maintainer </small>  </li>
+<li>Yongjin Park <br><small class="roles"> Author, maintainer </small>  </li>
 </ul>
 </div>
 
@@ -164,7 +165,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by .</p>
+  <p>Developed by Yongjin Park.</p>
 </div>
 
 <div class="pkgdown">

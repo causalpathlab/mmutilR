@@ -218,7 +218,7 @@
 <span class='va'>mm.2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/GammaDist.html'>rgamma</a></span><span class='op'>(</span><span class='fl'>100</span> <span class='op'>*</span> <span class='fl'>3</span>, <span class='fl'>1</span>, <span class='fl'>1</span><span class='op'>)</span>, <span class='fl'>100</span>, <span class='fl'>3</span><span class='op'>)</span>
 <span class='va'>mm.2</span><span class='op'>[</span><span class='fl'>11</span><span class='op'>:</span><span class='fl'>20</span>, <span class='op'>]</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/GammaDist.html'>rgamma</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>1</span>, <span class='fl'>.1</span><span class='op'>)</span>
 <span class='va'>mm</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span><span class='op'>(</span><span class='va'>mm.1</span>, <span class='va'>mm.2</span><span class='op'>)</span>
-<span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='rcpp_simulate_poisson_data.html'>rcpp_simulate_poisson_data</a></span><span class='op'>(</span><span class='va'>mm</span>, <span class='va'>rr</span>, <span class='st'>"sim_test"</span><span class='op'>)</span>
+<span class='va'>dat</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='rcpp_mmutil_simulate_poisson.html'>rcpp_mmutil_simulate_poisson</a></span><span class='op'>(</span><span class='va'>mm</span>, <span class='va'>rr</span>, <span class='st'>"sim_test"</span><span class='op'>)</span>
 <span class='va'>rows</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.table</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>row</span><span class='op'>)</span><span class='op'>$</span><span class='va'>V1</span>
 <span class='va'>cols</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.table</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>col</span><span class='op'>)</span><span class='op'>$</span><span class='va'>V1</span>
 <span class='co'>## marker feature</span>
@@ -229,43 +229,24 @@
   <span class='op'>)</span>
 <span class='op'>)</span>
 <span class='co'>## annotation on the MTX file</span>
-<span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='rcpp_annotate_columns.html'>rcpp_annotate_columns</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>row</span>, <span class='va'>dat</span><span class='op'>$</span><span class='va'>col</span>,
+<span class='va'>out</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='rcpp_mmutil_annotate_columns.html'>rcpp_mmutil_annotate_columns</a></span><span class='op'>(</span>
+       <span class='va'>dat</span><span class='op'>$</span><span class='va'>row</span>, <span class='va'>dat</span><span class='op'>$</span><span class='va'>col</span>,
        mtx_file <span class='op'>=</span> <span class='va'>dat</span><span class='op'>$</span><span class='va'>mtx</span>, pos_labels <span class='op'>=</span> <span class='va'>markers</span><span class='op'>)</span>
-<span class='va'>annot</span> <span class='op'>&lt;-</span> <span class='va'>out</span><span class='op'>$</span><span class='va'>annotation</span>
-<span class='co'>## prepare column to individual</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in mmutilR::rcpp_mmutil_annotate_columns(dat$row, dat$col, mtx_file = dat$mtx,     pos_labels = markers): assertion failed</span></div><div class='input'><span class='va'>annot</span> <span class='op'>&lt;-</span> <span class='va'>out</span><span class='op'>$</span><span class='va'>annotation</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'out' not found</span></div><div class='input'><span class='co'>## prepare column to individual</span>
 <span class='va'>.ind</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.table</a></span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>indv</span>, col.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"col"</span>, <span class='st'>"ind"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='va'>.annot.ind</span> <span class='op'>&lt;-</span> <span class='va'>.ind</span><span class='op'>$</span><span class='va'>ind</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/match.html'>match</a></span><span class='op'>(</span><span class='va'>annot</span><span class='op'>$</span><span class='va'>col</span>, <span class='va'>.ind</span><span class='op'>$</span><span class='va'>col</span><span class='op'>)</span><span class='op'>]</span>
-<span class='co'>## aggregate</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in match(annot$col, .ind$col): object 'annot' not found</span></div><div class='input'><span class='co'>## aggregate</span>
 <span class='va'>agg</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'>rcpp_mmutil_aggregate</span><span class='op'>(</span><span class='va'>dat</span><span class='op'>$</span><span class='va'>mtx</span>, <span class='va'>dat</span><span class='op'>$</span><span class='va'>row</span>, <span class='va'>dat</span><span class='op'>$</span><span class='va'>col</span>,
         <span class='va'>annot</span><span class='op'>$</span><span class='va'>col</span>, <span class='va'>.annot.ind</span>, <span class='va'>annot</span><span class='op'>$</span><span class='va'>argmax</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ct1"</span>, <span class='st'>"ct2"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='co'>## show average marker features</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in mmutilR::rcpp_mmutil_aggregate(dat$mtx, dat$row, dat$col, annot$col,     .annot.ind, annot$argmax, c("ct1", "ct2")): object 'annot' not found</span></div><div class='input'><span class='co'>## show average marker features</span>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>agg</span><span class='op'>$</span><span class='va'>mean</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>20</span>, <span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;      1_ct1 1_ct2 2_ct1 2_ct2 3_ct1 3_ct2 4_ct1 4_ct2 5_ct1 5_ct2 6_ct1 6_ct2
-#&gt; r001    22     0    22     0    28     0     0     0     0     0     0     1
-#&gt; r002     6     0     6     0     7     0     0     0     0     2     0     1
-#&gt; r003    84     0    85     0   108     0     0     0     0     1     1     1
-#&gt; r004     9     0    10     0    12     0     0     1     0     1     0     0
-#&gt; r005     4     0     4     0     5     0     0     0     0     3     0     0
-#&gt; r006    22     0    22     0    28     0     0     0     0     1     0     2
-#&gt; r007     6     1     6     0     8     0     0     1     0     0     0     0
-#&gt; r008    84     0    85     0   108     0     0     2     0     1     0     1
-#&gt; r009    10     0    10     0    13     0     0     0     0     1     0     0
-#&gt; r010     4     0     3     0     4     0     0     1     0     0     0     0
-#&gt; r011     1     0     0     0     2     0     0     2     0     2     0     2
-#&gt; r012     3     0     0     0     0     0     0    20     0    20     1    20
-#&gt; r013     0     1     0     0     3     0     0     8     0     9     0     9
-#&gt; r014     2     0     5     0     4     0     0    10     0    10     0    10
-#&gt; r015     3     0     0     0     0     0     0     1     0     1     0     1
-#&gt; r016     1     0     0     0     1     0     0     2     0     2     0     2
-#&gt; r017     3     0     0     0     1     0     0    20     0    20     0    20
-#&gt; r018     0     0     2     0     3     0     0     9     0     8     0     8
-#&gt; r019     1     0     2     0     0     0     0    10     0    10     0    10
-#&gt; r020     2     0     1     1     1     0     0     1     0     1     0     1</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span><span class='op'>(</span>pattern <span class='op'>=</span> <span class='st'>"sim_test"</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in print(round(agg$mean[1:20, ])): object 'agg' not found</span></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span><span class='op'>(</span>pattern <span class='op'>=</span> <span class='st'>"sim_test"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='co'>## Case-control simulation</span>
 <span class='va'>.sim</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='simulate_gamma_glm.html'>simulate_gamma_glm</a></span><span class='op'>(</span><span class='op'>)</span>
-<span class='va'>.dat</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='rcpp_simulate_poisson_data.html'>rcpp_simulate_poisson_data</a></span><span class='op'>(</span><span class='va'>.sim</span><span class='op'>$</span><span class='va'>obs.mu</span>,
-                                            <span class='va'>.sim</span><span class='op'>$</span><span class='va'>rho</span>,
-                                            <span class='st'>"sim_test"</span><span class='op'>)</span>
+<span class='va'>.dat</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='rcpp_mmutil_simulate_poisson.html'>rcpp_mmutil_simulate_poisson</a></span><span class='op'>(</span><span class='va'>.sim</span><span class='op'>$</span><span class='va'>obs.mu</span>,
+                                             <span class='va'>.sim</span><span class='op'>$</span><span class='va'>rho</span>,
+                                             <span class='st'>"sim_test"</span><span class='op'>)</span>
 <span class='co'>## find column-wise annotation</span>
 <span class='va'>.annot</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/utils/read.table.html'>read.table</a></span><span class='op'>(</span><span class='va'>.dat</span><span class='op'>$</span><span class='va'>indv</span>,
                      col.names <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"col"</span>, <span class='st'>"ind"</span><span class='op'>)</span><span class='op'>)</span>
@@ -305,7 +286,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by .</p>
+  <p>Developed by Yongjin Park.</p>
 </div>
 
 <div class="pkgdown">

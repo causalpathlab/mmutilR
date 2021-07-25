@@ -74,7 +74,7 @@ mm.1[1:10, ] <- rgamma(5, 1, .1)
 mm.2 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 mm.2[11:20, ] <- rgamma(5, 1, .1)
 mm <- cbind(mm.1, mm.2)
-dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
+dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
 rows <- read.table(dat$row)$V1
 cols <- read.table(dat$col)$V1
 ## marker feature
@@ -85,7 +85,8 @@ markers <- list(
   )
 )
 ## annotation on the MTX file
-out <- mmutilR::rcpp_annotate_columns(dat$row, dat$col,
+out <- mmutilR::rcpp_mmutil_annotate_columns(
+       dat$row, dat$col,
        mtx_file = dat$mtx, pos_labels = markers)
 annot <- out$annotation
 ## prepare column to individual
@@ -99,9 +100,9 @@ print(round(agg$mean[1:20, ]))
 unlink(list.files(pattern = "sim_test"))
 ## Case-control simulation
 .sim <- mmutilR::simulate_gamma_glm()
-.dat <- mmutilR::rcpp_simulate_poisson_data(.sim$obs.mu,
-                                            .sim$rho,
-                                            "sim_test")
+.dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+                                             .sim$rho,
+                                             "sim_test")
 ## find column-wise annotation
 .annot <- read.table(.dat$indv,
                      col.names = c("col", "ind"))

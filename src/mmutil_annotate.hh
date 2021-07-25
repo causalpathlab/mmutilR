@@ -242,10 +242,10 @@ struct mm_data_loader_t {
         , log_scale(options.log_scale)
     {
 
-        CHECK(mmutil::bgzf::peek_bgzf_header(mtx_file, info));
-
         if (!is_file_bgz(mtx_file))
             CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
+
+        CHECK(mmutil::bgzf::peek_bgzf_header(mtx_file, info));
 
         if (!file_exists(idx_file)) {
             mmutil::index::build_mmutil_index(options.mtx_file, idx_file);
@@ -406,65 +406,86 @@ std::tuple<SpMat, SpMat, SpMat>
 read_annotation_matched(
     const std::unordered_map<std::string, Index> &row_pos,
     const std::unordered_map<std::string, Index> &label_pos,
-    std::vector<std::tuple<std::string, std::string>> &ann_pair_vec,
-    std::vector<std::tuple<std::string, std::string>> &anti_pair_vec,
-    std::vector<std::tuple<std::string, Scalar>> &qc_pair_vec)
+    const std::vector<std::tuple<std::string, std::string>> &ann_pair_vec,
+    const std::vector<std::tuple<std::string, std::string>> &anti_pair_vec,
+    const std::vector<std::tuple<std::string, Scalar>> &qc_pair_vec)
 {
-    using ET = Eigen::Triplet<Scalar>;
-    std::vector<ET> triples;
-
-    for (auto pp : ann_pair_vec) {
-        if (row_pos.count(std::get<0>(pp)) > 0 &&
-            label_pos.count(std::get<1>(pp)) > 0) {
-            Index r = row_pos.at(std::get<0>(pp));
-            Index l = label_pos.at(std::get<1>(pp));
-            triples.push_back(ET(r, l, 1.0));
-        }
-    }
-
-    std::vector<ET> anti_triples;
-    for (auto pp : anti_pair_vec) {
-        if (row_pos.count(std::get<0>(pp)) > 0 &&
-            label_pos.count(std::get<1>(pp)) > 0) {
-            Index r = row_pos.at(std::get<0>(pp));
-            Index l = label_pos.at(std::get<1>(pp));
-            anti_triples.push_back(ET(r, l, 1.0));
-        }
-    }
-
-    std::vector<ET> qc_triples;
-    for (auto pp : qc_pair_vec) {
-        if (row_pos.count(std::get<0>(pp)) > 0) {
-            Index r = row_pos.at(std::get<0>(pp));
-            Scalar threshold = std::get<1>(pp);
-            qc_triples.push_back(ET(r, 0, threshold));
-        }
-    }
 
     const Index max_rows = row_pos.size();
     const Index max_labels = label_pos.size();
 
     SpMat L(max_rows, max_labels);
-    L.reserve(triples.size());
-    L.setFromTriplets(triples.begin(), triples.end());
-
     SpMat L0(max_rows, max_labels);
-    L0.reserve(anti_triples.size());
-    L0.setFromTriplets(anti_triples.begin(), anti_triples.end());
-
     SpMat Lqc(max_rows, 1);
-    Lqc.reserve(qc_triples.size());
-    Lqc.setFromTriplets(qc_triples.begin(), qc_triples.end());
+    L.setZero();
+    L0.setZero();
+    Lqc.setZero();
 
-    std::vector<std::string> labels(max_labels);
-    std::vector<std::string> rows(max_rows);
+    TLOG(max_rows << " rows and " << max_labels << " labels");
 
-    for (auto pp : label_pos)
-        labels[std::get<1>(pp)] = std::get<0>(pp);
+    using ET = Eigen::Triplet<Scalar>;
 
-    for (auto l : labels) {
-        TLOG("Annotation Labels: " << l);
+    if (ann_pair_vec.size() > 0) {
+        std::vector<ET> triples;
+        triples.reserve(ann_pair_vec.size());
+        std::string kr, kl;
+        for (auto pp : ann_pair_vec) {
+            std::tie(kr, kl) = pp;
+            if (row_pos.count(kr) > 0 && label_pos.count(kl) > 0) {
+                const Index r = row_pos.at(kr);
+                const Index l = label_pos.at(kl);
+                if (r >= max_rows || l >= max_labels) {
+                    WLOG(kr << "[" << r << "] " << kl << "[" << l
+                            << "] will be ignored");
+                    continue;
+                }
+                triples.push_back(ET(r, l, 1.0));
+            }
+        }
+        L.reserve(triples.size());
+        L.setFromTriplets(triples.begin(), triples.end());
+        TLOG("Built the L matrix");
     }
+
+    if (anti_pair_vec.size() > 0) {
+        std::vector<ET> triples;
+        triples.reserve(anti_pair_vec.size());
+        std::string kr, kl;
+        for (auto pp : anti_pair_vec) {
+            std::tie(kr, kl) = pp;
+            if (row_pos.count(kr) > 0 && label_pos.count(kl) > 0) {
+                const Index r = row_pos.at(kr);
+                const Index l = label_pos.at(kl);
+                if (r >= max_rows || l >= max_labels) {
+                    WLOG(kr << "[" << r << "] " << kl << "[" << l
+                            << "] will be ignored");
+                    continue;
+                }
+                triples.push_back(ET(r, l, 1.0));
+            }
+        }
+        L0.reserve(triples.size());
+        L0.setFromTriplets(triples.begin(), triples.end());
+
+        TLOG("Built the L0 matrix");
+    }
+
+    if (qc_pair_vec.size() > 0) {
+        std::vector<ET> qc_triples;
+        qc_triples.reserve(qc_pair_vec.size());
+        for (auto pp : qc_pair_vec) {
+            if (row_pos.count(std::get<0>(pp)) > 0) {
+                Index r = row_pos.at(std::get<0>(pp));
+                Scalar threshold = std::get<1>(pp);
+                if (r < max_rows) {
+                    qc_triples.push_back(ET(r, 0, threshold));
+                }
+            }
+        }
+        Lqc.reserve(qc_triples.size());
+        Lqc.setFromTriplets(qc_triples.begin(), qc_triples.end());
+    }
+    TLOG("Built the Lqc matrix");
 
     return std::make_tuple(L, L0, Lqc);
 }
@@ -692,12 +713,12 @@ train_model(std::vector<std::shared_ptr<STAT>> &stat_vector,
             if (options.verbose) {
                 annotation_stat_t &stat = *stat_vector.at(0).get();
                 std::vector<std::string> &labels = stat.labels;
-                std::cerr << std::setw(10) << lb;
+                Rcpp::Rcerr << std::setw(10) << lb;
                 for (Index k = 0; k < K; ++k) {
-                    std::cerr << " [" << labels[k] << "] " << std::setw(10)
-                              << stat.nsize(k);
+                    Rcpp::Rcerr << " [" << labels[k] << "] " << std::setw(10)
+                                << stat.nsize(k);
                 }
-                std::cerr << std::endl;
+                Rcpp::Rcerr << std::endl;
             }
         }
 
@@ -818,12 +839,12 @@ train_model(std::vector<std::shared_ptr<STAT>> &stat_vector,
                 if (options.verbose) {
                     annotation_stat_t &stat = *stat_vector.at(0).get();
                     std::vector<std::string> &labels = stat.labels;
-                    std::cerr << std::setw(10) << lb;
+                    Rcpp::Rcerr << std::setw(10) << lb;
                     for (Index k = 0; k < K; ++k) {
-                        std::cerr << " [" << labels[k] << "] " << std::setw(10)
-                                  << stat.nsize(k);
+                        Rcpp::Rcerr << " [" << labels[k] << "] "
+                                    << std::setw(10) << stat.nsize(k);
                     }
-                    std::cerr << std::endl;
+                    Rcpp::Rcerr << std::endl;
                 }
 
             } // end of batch iteration

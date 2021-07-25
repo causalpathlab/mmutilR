@@ -24,17 +24,15 @@ or
 
 ### Data editing
 
-* `mmutilR::rcpp_copy_selected_columns` 
+* `mmutilR::rcpp_mmutil_copy_selected_columns` 
 
-* `mmutilR::rcpp_copy_selected_rows`
+* `mmutilR::rcpp_mmutil_copy_selected_rows`
 
-* `mmutilR::rcpp_merge_file_sets`
+* `mmutilR::rcpp_mmutil_merge_file_sets`
 
 ### Data analysis
 
-* `mmutilR::rcpp_annotate_columns`
-
-* `mmutilR::rcpp_compute_scores`
+* `mmutilR::rcpp_mmutil_compute_scores`
 
 * `mmutilR::rcpp_mmutil_aggregate`
 
@@ -44,15 +42,17 @@ or
 
 ### Random access
 
-* `mmutilR::rcpp_read_mmutil_index`
+* `mmutilR::rcpp_mmutil_read_index`
 
-* `mmutilR::rcpp_build_mmutil_index`
+* `mmutilR::rcpp_mmutil_build_index`
 
-* `mmutilR::rcpp_check_index_tab`
+* `mmutilR::rcpp_mmutil_check_index`
 
-* `mmutilR::rcpp_read_columns`
+* `mmutilR::rcpp_mmutil_read_columns`
 
 ### Marker-based cell type annotation
+
+* `mmutilR::rcpp_mmutil_annotate_columns`
 
 * `mmutilR::run.annotation`
 
@@ -64,7 +64,7 @@ or
 
 * `mmutilR::simulate_gamma_glm`
 
-* `mmutilR::rcpp_simulate_poisson_data`
+* `mmutilR::rcpp_mmutil_simulate_poisson`
 
 ## Contact
 

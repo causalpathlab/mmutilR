@@ -20,10 +20,11 @@
 //' options(stringsAsFactors=FALSE)
 //' rr <- rgamma(10, 1, 1) # ten cells
 //' mm <- matrix(rgamma(10 * 3, 1, 1), 10, 3)
-//' t1 <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "test1")
-//' t2 <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "test2")
+//' t1 <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "test1")
+//' t2 <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "test2")
 //' bats <- hdrs <- c("test1","test2")
-//' t3 <- mmutilR::rcpp_merge_file_sets(hdrs, bats, "test3", 0)
+//' t3 <- mmutilR::rcpp_mmutil_merge_file_sets(
+//'                       hdrs, bats, "test3", 0)
 //' A1 <- Matrix::readMM(t1$mtx);
 //' rownames(A1) <- unlist(read.table(gzfile(t1$row)))
 //' A2 <- Matrix::readMM(t2$mtx)
@@ -38,11 +39,11 @@
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_merge_file_sets(const Rcpp::StringVector &r_headers,
-                     const Rcpp::StringVector &r_batches,
-                     const std::string output,
-                     const double nnz_cutoff = 1,
-                     const std::string delim = "_")
+rcpp_mmutil_merge_file_sets(const Rcpp::StringVector &r_headers,
+                            const Rcpp::StringVector &r_batches,
+                            const std::string output,
+                            const double nnz_cutoff = 1,
+                            const std::string delim = "_")
 {
     std::vector<std::string> headers = copy(r_headers);
     std::vector<std::string> batches = copy(r_batches);
@@ -153,18 +154,19 @@ rcpp_merge_file_sets(const Rcpp::StringVector &r_headers,
 //' rr <- rgamma(20, 1, 1)
 //' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 //' src.hdr <- "test_org"
-//' src.files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, src.hdr)
+//' src.files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, src.hdr)
 //' Y <- Matrix::readMM(src.files$mtx)
 //' rownames(Y) <- read.table(src.files$row)$V1
 //' print(Y)
 //' sub.rows <- sort(read.table(src.files$row)$V1[sample(10,3)])
 //' print(sub.rows)
 //' tgt.hdr <- "test_sub"
-//' tgt.files <- mmutilR::rcpp_copy_selected_rows(src.files$mtx,
-//'                                               src.files$row,
-//'                                               src.files$col,
-//'                                               sub.rows,
-//'                                               tgt.hdr)
+//' tgt.files <- mmutilR::rcpp_mmutil_copy_selected_rows(
+//'                src.files$mtx,
+//'                src.files$row,
+//'                src.files$col,
+//'                sub.rows,
+//'                tgt.hdr)
 //' Y <- Matrix::readMM(tgt.files$mtx)
 //' colnames(Y) <- read.table(tgt.files$col)$V1
 //' rownames(Y) <- read.table(tgt.files$row)$V1
@@ -174,11 +176,11 @@ rcpp_merge_file_sets(const Rcpp::StringVector &r_headers,
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_copy_selected_rows(const std::string mtx_file,
-                        const std::string row_file,
-                        const std::string col_file,
-                        const Rcpp::StringVector &r_selected,
-                        const std::string output)
+rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
+                               const std::string row_file,
+                               const std::string col_file,
+                               const Rcpp::StringVector &r_selected,
+                               const std::string output)
 {
 
     ASSERT(file_exists(mtx_file), "missing the MTX file");
@@ -244,17 +246,18 @@ rcpp_copy_selected_rows(const std::string mtx_file,
 //' rr <- rgamma(20, 1, 1)
 //' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 //' src.hdr <- "test_org"
-//' src.files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, src.hdr)
+//' src.files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, src.hdr)
 //' Y <- Matrix::readMM(src.files$mtx)
 //' colnames(Y) <- read.table(src.files$col)$V1
 //' print(Y)
 //' sub.cols <- sort(read.table(src.files$col)$V1[sample(20,3)])
 //' print(sub.cols)
 //' tgt.hdr <- "test_sub"
-//' tgt.files <- mmutilR::rcpp_copy_selected_columns(src.files$mtx,
-//'                                      src.files$row,
-//'                                      src.files$col,
-//'                                      sub.cols, tgt.hdr)
+//' tgt.files <- mmutilR::rcpp_mmutil_copy_selected_columns(
+//'                          src.files$mtx,
+//'                          src.files$row,
+//'                          src.files$col,
+//'                          sub.cols, tgt.hdr)
 //' Y <- Matrix::readMM(tgt.files$mtx)
 //' colnames(Y) <- read.table(tgt.files$col)$V1
 //' print(Y)
@@ -263,11 +266,11 @@ rcpp_copy_selected_rows(const std::string mtx_file,
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_copy_selected_columns(const std::string mtx_file,
-                           const std::string row_file,
-                           const std::string col_file,
-                           const Rcpp::StringVector &r_selected,
-                           const std::string output)
+rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
+                                  const std::string row_file,
+                                  const std::string col_file,
+                                  const Rcpp::StringVector &r_selected,
+                                  const std::string output)
 {
 
     ASSERT(file_exists(mtx_file), "missing the MTX file");

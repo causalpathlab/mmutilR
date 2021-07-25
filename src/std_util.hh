@@ -44,7 +44,11 @@ make_position_dict(const std::vector<S> &name_vec)
 
     for (IDX i = 0; i < name_vec.size(); ++i) {
         const S &j = name_vec.at(i);
-        name_to_id[j] = i;
+        if (name_to_id.count(j) == 0) {
+            name_to_id[j] = i;
+        } else {
+            WLOG("Found a duplicate key: " << j);
+        }
     }
 
     return name_to_id;

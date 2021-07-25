@@ -1,4 +1,5 @@
 #include "mmutil.hh"
+#include "mmutil_util.hh"
 #include "mmutil_index.hh"
 
 //' Create an index file for a given MTX
@@ -6,17 +7,17 @@
 //' @param mtx_file data file
 //' @param index_file index file
 //'
-//' @usage rcpp_build_mmutil_index(mtx_file, index_file)
+//' @usage rcpp_mmutil_build_index(mtx_file, index_file)
 //'
 //' @return EXIT_SUCCESS or EXIT_FAILURE
 //'
 // [[Rcpp::export]]
 int
-rcpp_build_mmutil_index(const std::string mtx_file,
+rcpp_mmutil_build_index(const std::string mtx_file,
                         const std::string index_file = "")
 {
     using namespace mmutil::index;
-
+    CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
     return build_mmutil_index(mtx_file, index_file);
 }
 
@@ -28,7 +29,7 @@ rcpp_build_mmutil_index(const std::string mtx_file,
 //'
 // [[Rcpp::export]]
 Rcpp::NumericVector
-rcpp_read_mmutil_index(const std::string index_file)
+rcpp_mmutil_read_index(const std::string index_file)
 {
     using namespace mmutil::index;
 
@@ -48,9 +49,10 @@ rcpp_read_mmutil_index(const std::string index_file)
 //'
 // [[Rcpp::export]]
 int
-rcpp_check_index_tab(const std::string mtx_file,
-                     const Rcpp::NumericVector &index_tab)
+rcpp_mmutil_check_index(const std::string mtx_file,
+                        const Rcpp::NumericVector &index_tab)
 {
+    CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
     using namespace mmutil::index;
     std::vector<Index> _idx(index_tab.begin(), index_tab.end());
     return check_index_tab(mtx_file, _idx);

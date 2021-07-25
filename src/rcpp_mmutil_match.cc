@@ -25,7 +25,7 @@
 //' ## Generate some data
 //' rr <- rgamma(100, 1, 6) # 100 cells
 //' mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-//' dat <- mmutilR::rcpp_simulate_poisson_data(mm, rr, "sim_test")
+//' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
 //' .matched <- mmutilR::rcpp_mmutil_match_files(dat$mtx, dat$mtx,
 //'                                              knn=1, RANK=5)
 //' ## Do they match well?

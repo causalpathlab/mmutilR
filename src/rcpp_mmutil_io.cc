@@ -23,13 +23,14 @@
 //' rr <- rgamma(100, 1, 1) # one hundred cells
 //' mm <- matrix(rgamma(10 * 3, 1, 1), 10, 3)
 //' data.hdr <- "test_sim"
-//' .files <- mmutilR::rcpp_simulate_poisson_data(mm, rr, data.hdr)
+//' .files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, data.hdr)
 //' data.file <- .files$mtx
 //' idx.file <- .files$idx
-//' mtx.idx <- mmutilR::rcpp_read_mmutil_index(idx.file)
+//' mtx.idx <- mmutilR::rcpp_mmutil_read_index(idx.file)
 //' Y <- as.matrix(Matrix::readMM(data.file))
 //' col.pos <- c(1,13,77) # 1-based
-//' yy <- mmutilR::rcpp_read_columns(data.file, mtx.idx, col.pos)
+//' yy <- mmutilR::rcpp_mmutil_read_columns(
+//'                  data.file, mtx.idx, col.pos)
 //' all(Y[, col.pos, drop = FALSE] == yy)
 //' print(head(Y[, col.pos, drop = FALSE]))
 //' print(head(yy))
@@ -37,12 +38,15 @@
 //'
 // [[Rcpp::export]]
 Rcpp::NumericMatrix
-rcpp_read_columns(const std::string mtx_file,
-                  const Rcpp::NumericVector &memory_location,
-                  const Rcpp::NumericVector &r_column_index)
+rcpp_mmutil_read_columns(const std::string mtx_file,
+                         const Rcpp::NumericVector &memory_location,
+                         const Rcpp::NumericVector &r_column_index)
 {
 
     using namespace mmutil::io;
+    using namespace mmutil::bgzf;
+
+    CHECK(convert_bgzip(mtx_file));
 
     mm_info_reader_t info;
     CHK_ERR_RETM(peek_bgzf_header(mtx_file, info),
