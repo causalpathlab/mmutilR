@@ -7,6 +7,7 @@
 //' @param Mu depth-adjusted mean matrix (M x n), M=#features and n=#indv
 //' @param Rho column depth vector (N x 1), N=#cells
 //' @param output header for ${output}.{mtx.gz,cols.gz,indv.gz}
+//' @param r_indv N x 1 individual membership (1-based, [1 .. n])
 //'
 //' @return a list of file names: {output}.{mtx,rows,cols}.gz
 //'
@@ -23,11 +24,12 @@
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_mmutil_simulate_poisson(const Eigen::MatrixXf mu,
-                             const Eigen::VectorXf rho,
-                             const std::string output)
+rcpp_mmutil_simulate_poisson(
+    const Eigen::MatrixXf mu,
+    const Eigen::VectorXf rho,
+    const std::string output,
+    Rcpp::Nullable<Rcpp::IntegerVector> r_indv = R_NilValue)
 {
-
     const Index max_row = mu.rows();
     const Index Nind = mu.cols();
     const Index Nsample = rho.rows();
@@ -44,11 +46,25 @@ rcpp_mmutil_simulate_poisson(const Eigen::MatrixXf mu,
     };
 
     std::vector<Index> indv;
-    indv.resize(Nsample);
-    std::transform(std::begin(indv),
-                   std::end(indv),
-                   std::begin(indv),
-                   _sample_ind);
+    if (r_indv.isNotNull()) {
+        TLOG("Column to individual memberships were provided");
+        Rcpp::IntegerVector _indv(r_indv);
+        ASSERT(_indv.size() == Nsample, "Must have the same number of samples");
+        indv.reserve(Nsample);
+        for (Index j = 0; j < _indv.size(); ++j) {
+            const Index i = _indv[j];
+            if (i >= 1 && i <= Nind)
+                indv.emplace_back(i - 1);
+        }
+        ASSERT(indv.size() == Nsample, "Incomplete membership information");
+    } else {
+        TLOG("Sampling column to individual memberships");
+        indv.resize(Nsample);
+        std::transform(std::begin(indv),
+                       std::end(indv),
+                       std::begin(indv),
+                       _sample_ind);
+    }
 
     const auto partition = make_index_vec_vec(indv);
 

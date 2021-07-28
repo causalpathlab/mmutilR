@@ -22,3 +22,12 @@ copy(const Rcpp::StringVector &r_vec)
     }
     return vec;
 }
+
+void
+copy(const Rcpp::StringVector &r_vec, std::vector<std::string> &vec)
+{
+    vec.reserve(r_vec.size());
+    for (Index j = 0; j < r_vec.size(); ++j) {
+        vec.emplace_back(r_vec(j));
+    }
+}

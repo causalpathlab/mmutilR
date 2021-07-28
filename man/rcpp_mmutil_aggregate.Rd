@@ -8,14 +8,14 @@ rcpp_mmutil_aggregate(
   mtx_file,
   row_file,
   col_file,
-  r_cols,
-  r_indv,
-  r_annot,
-  r_lab_name,
+  r_cols = NULL,
+  r_indv = NULL,
+  r_annot = NULL,
+  r_lab_name = NULL,
   r_trt = NULL,
   r_V = NULL,
-  a0 = 1e-04,
-  b0 = 1e-04,
+  a0 = 1,
+  b0 = 1,
   eps = 1e-08,
   knn = 10L,
   KNN_BILINK = 10L,
@@ -31,21 +31,21 @@ rcpp_mmutil_aggregate(
 
 \item{col_file}{column file}
 
-\item{r_cols}{column names}
+\item{r_cols}{cell (col) names}
 
-\item{r_indv}{individual annotation}
+\item{r_indv}{membership for the cells (\code{r_cols})}
 
-\item{r_annot}{label annotation}
+\item{r_annot}{label annotation for the (\code{r_cols})}
 
-\item{r_lab_name}{label names}
+\item{r_lab_name}{label names (default: everything in \code{r_annot})}
 
 \item{r_trt}{treatment assignment (default: NULL)}
 
 \item{r_V}{SVD factors (default: NULL)}
 
-\item{a0}{hyperparameter for gamma(a0, b0) (default: 1e-4)}
+\item{a0}{hyperparameter for gamma(a0, b0) (default: 1)}
 
-\item{b0}{hyperparameter for gamma(a0, b0) (default: 1e-4)}
+\item{b0}{hyperparameter for gamma(a0, b0) (default: 1)}
 
 \item{eps}{small number (default: 1e-8)}
 
@@ -68,6 +68,7 @@ Create pseudo-bulk data by aggregating columns
 \examples{
 options(stringsAsFactors = FALSE)
 ## combine two different mu matrices
+set.seed(1)
 rr <- rgamma(1000, 1, 1) # 1000 cells
 mm.1 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 mm.1[1:10, ] <- rgamma(5, 1, .1)

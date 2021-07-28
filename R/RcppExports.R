@@ -17,6 +17,7 @@
 #'
 #' @examples
 #' ## Generate some data
+#' set.seed(1)
 #' rr <- rgamma(1000, 1, 1) # 1000 cells
 #' mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 #' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
@@ -55,6 +56,7 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #'
 #' @examples
 #' ## Generate some data
+#' set.seed(1)
 #' .sim <- mmutilR::simulate_gamma_glm(nind = 5, ncell.ind = 1000)
 #' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
 #'                                               .sim$rho,
@@ -359,14 +361,14 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #' @param mtx_file data file
 #' @param row_file row file
 #' @param col_file column file
-#' @param r_cols column names
-#' @param r_indv individual annotation
-#' @param r_annot label annotation
-#' @param r_lab_name label names
+#' @param r_cols cell (col) names
+#' @param r_indv membership for the cells (\code{r_cols})
+#' @param r_annot label annotation for the (\code{r_cols})
+#' @param r_lab_name label names (default: everything in \code{r_annot})
 #' @param r_trt treatment assignment (default: NULL)
 #' @param r_V SVD factors (default: NULL)
-#' @param a0 hyperparameter for gamma(a0, b0) (default: 1e-4)
-#' @param b0 hyperparameter for gamma(a0, b0) (default: 1e-4)
+#' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
+#' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
 #' @param eps small number (default: 1e-8)
 #' @param knn k-NN matching
 #' @param KNN_BILINK # of bidirectional links (default: 10)
@@ -379,6 +381,7 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #' @examples
 #' options(stringsAsFactors = FALSE)
 #' ## combine two different mu matrices
+#' set.seed(1)
 #' rr <- rgamma(1000, 1, 1) # 1000 cells
 #' mm.1 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 #' mm.1[1:10, ] <- rgamma(5, 1, .1)
@@ -441,7 +444,7 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_lab_name, r_trt = NULL, r_V = NULL, a0 = 1e-4, b0 = 1e-4, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
+rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
     .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
 }
 
@@ -473,6 +476,7 @@ rcpp_mmutil_compute_scores <- function(mtx_file, row_file = "", col_file = "") {
 #' @param Mu depth-adjusted mean matrix (M x n), M=#features and n=#indv
 #' @param Rho column depth vector (N x 1), N=#cells
 #' @param output header for ${output}.{mtx.gz,cols.gz,indv.gz}
+#' @param r_indv N x 1 individual membership (1-based, [1 .. n])
 #'
 #' @return a list of file names: {output}.{mtx,rows,cols}.gz
 #'
@@ -487,7 +491,83 @@ rcpp_mmutil_compute_scores <- function(mtx_file, row_file = "", col_file = "") {
 #' head(A)
 #' unlink(list.files(pattern = data.hdr))
 #'
-rcpp_mmutil_simulate_poisson <- function(mu, rho, output) {
-    .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output)
+rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL) {
+    .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output, r_indv)
+}
+
+#' Compute RNA velocity comparing the spliced and unspliced
+#' at the pseudo-bulk level (individual and cell type)
+#'
+#' @param spliced_mtx_file spliced data file
+#' @param unspliced_mtx_file unspliced data file
+#' @param spliced_col_file column file for the spliced mtx
+#' @param unspliced_col_file column file for the unspliced
+#' @param row_file row file (shared)
+#' @param col_file column file (shared)
+#' @param r_cols cell (col) names
+#' @param r_indv membership for the cells (\code{r_cols})
+#' @param r_annot label annotation for the (\code{r_cols})
+#' @param r_lab_name label names (default: everything in \code{r_annot})
+#' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
+#' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
+#' @param MAX_ITER maximum iteration for the delta estimation
+#' @param TOL tolerance level for convergence test
+#' @param NUM_THREADS number of threads (useful for many individuals)
+#'
+#' @return a list of inference results
+#'
+#' @examples
+#'
+#' options(stringsAsFactors = FALSE)
+#' set.seed(1)
+#' nn <- 3000
+#' rr <- rgamma(nn, 6.25, 6.25) # 1000 cells
+#' uu <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
+#' dd <- matrix(rgamma(100 * 3, 1, 1/10), 100, 3)
+#' ss <- uu / (dd + 1e-2)
+#' ind <- sample(3, nn, replace=TRUE)
+#' 
+#' spliced <- mmutilR::rcpp_mmutil_simulate_poisson(ss, rr,
+#'                                                  "sim_test_raw_spliced",
+#'                                                  r_indv = ind)
+#' 
+#' unspliced <- mmutilR::rcpp_mmutil_simulate_poisson(uu, rr,
+#'                                                    "sim_test_raw_unspliced",
+#'                                                    r_indv = ind)
+#' 
+#' .col <- sort(intersect(read.table(spliced$col)$V1,
+#'                        read.table(unspliced$col)$V1))
+#' 
+#' spliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
+#'                         spliced$mtx,
+#'                         spliced$row,
+#'                         spliced$col,
+#'                         .col,
+#'                         "sim_test_spliced")
+#' 
+#' unspliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
+#'                         unspliced$mtx,
+#'                         unspliced$row,
+#'                         unspliced$col,
+#'                         .col,
+#'                         "sim_test_unspliced")
+#' 
+#' .out <- mmutilR::rcpp_mmutil_aggregate_velocity(
+#'                      spliced$mtx,
+#'                      unspliced$mtx,
+#'                      spliced$row,
+#'                      spliced$col,
+#'                      r_col = .col,
+#'                      r_indv = ind[.col],
+#'                      a0 = 1, b0 = 1)
+#' 
+#' u.by.s <- log((1 + uu)/(1 + ss))
+#' plot(u.by.s, .out$ln.delta)
+#' 
+#' ## clean up temp directory
+#' unlink(list.files(pattern = "sim_test"))
+#'
+rcpp_mmutil_aggregate_velocity <- function(spliced_mtx_file, unspliced_mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, MAX_ITER = 100L, TOL = 1e-4, NUM_THREADS = 1L) {
+    .Call('_mmutilR_rcpp_mmutil_aggregate_velocity', PACKAGE = 'mmutilR', spliced_mtx_file, unspliced_mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_lab_name, a0, b0, MAX_ITER, TOL, NUM_THREADS)
 }
 

@@ -4,10 +4,12 @@
 \alias{rcpp_mmutil_simulate_poisson}
 \title{Simulation Poisson data}
 \usage{
-rcpp_mmutil_simulate_poisson(mu, rho, output)
+rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv = NULL)
 }
 \arguments{
 \item{output}{header for ${output}.{mtx.gz,cols.gz,indv.gz}}
+
+\item{r_indv}{N x 1 individual membership (1-based, [1 .. n])}
 
 \item{Mu}{depth-adjusted mean matrix (M x n), M=#features and n=#indv}
 

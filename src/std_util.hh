@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
+#include <set>
 #include <tuple>
 #include <string>
 #include <sstream>
@@ -52,6 +53,15 @@ make_position_dict(const std::vector<S> &name_vec)
     }
 
     return name_to_id;
+}
+
+template <typename S>
+void
+make_unique(const std::vector<S> &name_vec, std::vector<S> &ret)
+{
+    std::set<S> name_set(name_vec.begin(), name_vec.end());
+    ret.reserve(name_set.size());
+    ret.insert(ret.end(), name_set.begin(), name_set.end());
 }
 
 template <typename S, typename IDX>

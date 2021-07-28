@@ -20,14 +20,14 @@
 //' @param mtx_file data file
 //' @param row_file row file
 //' @param col_file column file
-//' @param r_cols column names
-//' @param r_indv individual annotation
-//' @param r_annot label annotation
-//' @param r_lab_name label names
+//' @param r_cols cell (col) names
+//' @param r_indv membership for the cells (\code{r_cols})
+//' @param r_annot label annotation for the (\code{r_cols})
+//' @param r_lab_name label names (default: everything in \code{r_annot})
 //' @param r_trt treatment assignment (default: NULL)
 //' @param r_V SVD factors (default: NULL)
-//' @param a0 hyperparameter for gamma(a0, b0) (default: 1e-4)
-//' @param b0 hyperparameter for gamma(a0, b0) (default: 1e-4)
+//' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
+//' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
 //' @param eps small number (default: 1e-8)
 //' @param knn k-NN matching
 //' @param KNN_BILINK # of bidirectional links (default: 10)
@@ -40,6 +40,7 @@
 //' @examples
 //' options(stringsAsFactors = FALSE)
 //' ## combine two different mu matrices
+//' set.seed(1)
 //' rr <- rgamma(1000, 1, 1) # 1000 cells
 //' mm.1 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 //' mm.1[1:10, ] <- rgamma(5, 1, .1)
@@ -104,43 +105,76 @@
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_mmutil_aggregate(const std::string mtx_file,
-                      const std::string row_file,
-                      const std::string col_file,
-                      Rcpp::StringVector r_cols,
-                      Rcpp::StringVector r_indv,
-                      Rcpp::StringVector r_annot,
-                      Rcpp::StringVector r_lab_name,
-                      Rcpp::Nullable<Rcpp::StringVector> r_trt = R_NilValue,
-                      Rcpp::Nullable<Rcpp::NumericMatrix> r_V = R_NilValue,
-                      const double a0 = 1e-4,
-                      const double b0 = 1e-4,
-                      const double eps = 1e-8,
-                      const std::size_t knn = 10,
-                      const std::size_t KNN_BILINK = 10,
-                      const std::size_t KNN_NNLIST = 10,
-                      const std::size_t NUM_THREADS = 1,
-                      const bool IMPUTE_BY_KNN = false)
+rcpp_mmutil_aggregate(
+    const std::string mtx_file,
+    const std::string row_file,
+    const std::string col_file,
+    Rcpp::Nullable<Rcpp::StringVector> r_cols = R_NilValue,
+    Rcpp::Nullable<Rcpp::StringVector> r_indv = R_NilValue,
+    Rcpp::Nullable<Rcpp::StringVector> r_annot = R_NilValue,
+    Rcpp::Nullable<Rcpp::StringVector> r_lab_name = R_NilValue,
+    Rcpp::Nullable<Rcpp::StringVector> r_trt = R_NilValue,
+    Rcpp::Nullable<Rcpp::NumericMatrix> r_V = R_NilValue,
+    const double a0 = 1.0,
+    const double b0 = 1.0,
+    const double eps = 1e-8,
+    const std::size_t knn = 10,
+    const std::size_t KNN_BILINK = 10,
+    const std::size_t KNN_NNLIST = 10,
+    const std::size_t NUM_THREADS = 1,
+    const bool IMPUTE_BY_KNN = false)
 {
 
     CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
+
+    std::vector<std::string> mtx_cols;
+    CHECK(read_vector_file(col_file, mtx_cols));
 
     //////////////////////////////
     // check column annotations //
     //////////////////////////////
 
-    std::vector<std::string> cols = copy(r_cols);
-    std::vector<std::string> indv = copy(r_indv);
-    std::vector<std::string> annot = copy(r_annot);
-    std::vector<std::string> lab_name = copy(r_lab_name);
+    std::vector<std::string> cols;
+    std::vector<std::string> indv;
+    std::vector<std::string> annot;
+    std::vector<std::string> lab_name;
+
+    if (r_cols.isNotNull() && r_indv.isNotNull()) {
+        copy(Rcpp::StringVector(r_cols), cols);
+        copy(Rcpp::StringVector(r_indv), indv);
+    } else {
+        cols.reserve(mtx_cols.size());
+        std::copy(std::begin(mtx_cols),
+                  std::end(mtx_cols),
+                  std::back_inserter(cols));
+        indv.resize(mtx_cols.size());
+        std::string _indv = "ind1";
+        std::fill(std::begin(indv), std::end(indv), _indv);
+    }
+
+    if (r_annot.isNotNull()) {
+        copy(Rcpp::StringVector(r_annot), annot);
+    } else {
+        const std::string _lab = "ct1";
+        annot.resize(cols.size());
+        std::fill(std::begin(annot), std::end(annot), _lab);
+    }
+
+    if (r_lab_name.isNotNull()) {
+        copy(Rcpp::StringVector(r_lab_name), lab_name);
+    } else {
+        make_unique(annot, lab_name);
+    }
 
     const Index K = lab_name.size();
 
     ASSERT(cols.size() == indv.size(), "|cols| != |indv|");
     ASSERT(cols.size() == annot.size(), "|cols| != |annot|");
 
-    std::vector<std::string> mtx_cols;
-    CHECK(read_vector_file(col_file, mtx_cols));
+    ////////////////////////
+    // universal position //
+    ////////////////////////
+
     const Index Nsample = mtx_cols.size();
     auto mtx_pos = make_position_dict<std::string, Index>(mtx_cols);
     auto lab_pos = make_position_dict<std::string, Index>(lab_name);
@@ -233,7 +267,10 @@ rcpp_mmutil_aggregate(const std::string mtx_file,
 
     const Index Ntrt = matched_data.num_treatment();
 
-    ASSERT(Nind > 1, "Must have at least two individuals");
+    if (do_cocoa) {
+        ASSERT(Nind > 1,
+               "Must have at least two individual for confounder estimation");
+    }
 
     ///////////////////////////
     // For each individual i //

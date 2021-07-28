@@ -58,4 +58,6 @@ parse_triplet(const Eigen::Triplet<Scalar> &tt);
 
 std::vector<std::string> copy(const Rcpp::StringVector &r_vec);
 
+void copy(const Rcpp::StringVector &r_vec, std::vector<std::string> &vec);
+
 #endif

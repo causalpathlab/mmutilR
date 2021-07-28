@@ -24,6 +24,65 @@ namespace mmutil { namespace io {
 using namespace mmutil::bgzf;
 using namespace mmutil::index;
 
+//////////////////////////
+// read just one column //
+//////////////////////////
+
+// An example:
+//
+// Index target_col;
+// one_column_reader_t reader(target_col);
+// peek_bgzf_header(mtx_file, reader);
+// Index lb_mem = idx_tab[target_col];
+// Index ub_mem = 0;
+// if((target_col + 1) < idx_tab.size()) ub_mem = idx_tab[target_col + 1];
+// visit_bgzf_block(mtx_file, lb_mem, ub_mem, reader);
+//
+struct one_column_reader_t {
+    using scalar_t = float;
+    using index_t = std::ptrdiff_t;
+
+    explicit one_column_reader_t(const index_t &dim, const index_t &_col)
+        : data(dim, 1)
+        , target_col(_col)
+    {
+        max_row = 0;
+        max_col = 0;
+        max_elem = 0;
+    }
+
+    void set_file(BGZF *_fp) { fp = _fp; }
+
+    void eval_after_header(const index_t r, const index_t c, const index_t e)
+    {
+        max_row = r;
+        max_col = c;
+        max_elem = e;
+
+        if (data.rows() != max_row) {
+            data.resize(max_row, 1);
+            data.setZero();
+        }
+    }
+
+    void eval(const index_t row, const index_t col, const scalar_t weight)
+    {
+        if (col == target_col && row < data.rows()) {
+            data(row, 0) = weight;
+        }
+    }
+
+    void eval_end_of_file() {}
+
+    BGZF *fp;
+
+    index_t max_row;
+    index_t max_col;
+    index_t max_elem;
+    Mat data;
+    const index_t &target_col;
+};
+
 /////////////////////////////////////////////////////////////
 // read matrix market triplets and construct sparse matrix //
 /////////////////////////////////////////////////////////////
@@ -283,17 +342,17 @@ struct memory_block_t {
     Index ub_mem;
 };
 
-template <typename IDXVEC1, typename IDXVEC2>
+template <typename VEC1, typename VEC2>
 std::vector<memory_block_t>
-find_consecutive_blocks(const IDXVEC1 &index_tab,
-                        const IDXVEC2 &subcol,
+find_consecutive_blocks(const VEC1 &index_tab,
+                        const VEC2 &subcol,
                         const Index gap = 10)
 {
 
     const Index N = index_tab.size();
     ASSERT(N > 1, "Empty index map");
 
-    IDXVEC2 sorted(subcol.size());
+    VEC2 sorted(subcol.size());
     std::copy(subcol.begin(), subcol.end(), sorted.begin());
     std::sort(sorted.begin(), sorted.end());
 
@@ -527,202 +586,23 @@ private:
     }
 };
 
-template <typename VEC>
-SpMat
-read_eigen_sparse_subset_col(const std::string mtx_file,
-                             const std::vector<Index> &index_tab,
-                             const VEC &subcol)
-{
+SpMat read_eigen_sparse_subset_col(const std::string mtx_file,
+                                   const std::vector<Index> &index_tab,
+                                   const std::vector<Index> &subcol);
 
-    mm_info_reader_t info;
-    CHECK(peek_bgzf_header(mtx_file, info));
+SpMat read_eigen_sparse_subset_col(const std::string mtx_file,
+                                   const std::string index_file,
+                                   const std::vector<Index> &subcol);
 
-    using _reader_t = eigen_triplet_reader_remapped_cols_t;
-    using Index = _reader_t::index_t;
-#ifdef DEBUG
-    CHECK(check_index_tab(mtx_file, index_tab));
+SpMat read_eigen_sparse_subset_row_col(const std::string mtx_file,
+                                       const std::vector<Index> &index_tab,
+                                       const std::vector<Index> &subrow,
+                                       const std::vector<Index> &subcol);
+
+SpMat read_eigen_sparse_subset_row_col(const std::string mtx_file,
+                                       const std::string index_file,
+                                       const std::vector<Index> &subrow,
+                                       const std::vector<Index> &subcol);
+
+}} // namespace mmutil::io
 #endif
-
-    Index max_col = 0;                   // Make sure that
-    _reader_t::index_map_t subcol_order; // we keep the same order
-    for (auto k : subcol) {              // of subcol
-        subcol_order[k] = max_col++;
-    }
-
-    const auto blocks = find_consecutive_blocks(index_tab, subcol);
-
-    _reader_t::TripletVec Tvec; // keep accumulating this
-    Tvec.clear();
-    Index max_row = info.max_row;
-    for (auto block : blocks) {
-        _reader_t::index_map_t loc_map;
-
-        for (Index j = block.lb; j < block.ub; ++j) {
-            //////////////////////////////////////////////////////////
-            // Caution: the blocks with discontinuous subcol vector //
-            //////////////////////////////////////////////////////////
-            if (subcol_order.count(j) > 0)
-                loc_map[j] = subcol_order[j];
-        }
-
-        _reader_t reader(Tvec, loc_map);
-
-        CHECK(visit_bgzf_block(mtx_file, block.lb_mem, block.ub_mem, reader));
-    }
-
-    SpMat X(max_row, max_col);
-    X.setZero();
-    X.reserve(Tvec.size());
-    X.setFromTriplets(Tvec.begin(), Tvec.end());
-
-#ifdef DEBUG
-    TLOG("Constructed a sparse matrix with m = " << X.nonZeros());
-#endif
-
-    return X;
-}
-
-template <typename VEC>
-SpMat
-read_eigen_sparse_subset_col(const std::string mtx_file,
-                             const std::string index_file,
-                             const VEC &subcol)
-{
-    std::vector<Index> index_tab;
-    CHECK(read_mmutil_index(index_file, index_tab));
-    CHECK(check_index_tab(mtx_file, index_tab));
-    return read_eigen_sparse_subset_col(mtx_file, index_tab, subcol);
-}
-
-template <typename VEC>
-SpMat
-read_eigen_sparse_subset_row_col(const std::string mtx_file,
-                                 const std::vector<Index> &index_tab,
-                                 const VEC &subrow,
-                                 const VEC &subcol)
-{
-
-    using _reader_t = eigen_triplet_reader_remapped_rows_cols_t;
-    using Index = _reader_t::index_t;
-
-    Index max_col = 0;                   // Make sure that
-    _reader_t::index_map_t subcol_order; // we keep the same order
-    for (auto k : subcol) {              // of subcol
-        subcol_order[k] = max_col++;
-    }
-
-    const auto blocks = find_consecutive_blocks(index_tab, subcol);
-
-    _reader_t::index_map_t remap_row;
-    for (Index new_index = 0; new_index < subrow.size(); ++new_index) {
-        const Index old_index = subrow.at(new_index);
-        remap_row[old_index] = new_index;
-    }
-
-    _reader_t::TripletVec Tvec; // keep accumulating this
-
-    Index max_row = subrow.size();
-    for (auto block : blocks) {
-        _reader_t::index_map_t remap_col;
-        for (Index old_index = block.lb; old_index < block.ub; ++old_index) {
-            remap_col[old_index] = subcol_order[old_index];
-        }
-        _reader_t reader(Tvec, remap_row, remap_col);
-        CHECK(visit_bgzf_block(mtx_file, block.lb_mem, block.ub_mem, reader));
-    }
-
-    SpMat X(max_row, max_col);
-    X.reserve(Tvec.size());
-    X.setFromTriplets(Tvec.begin(), Tvec.end());
-
-#ifdef DEBUG
-    TLOG("Constructed a sparse matrix with m = " << X.nonZeros());
-#endif
-
-    return X;
-}
-
-template <typename VEC>
-SpMat
-read_eigen_sparse_subset_row_col(const std::string mtx_file,
-                                 const std::string index_file,
-                                 const VEC &subrow,
-                                 const VEC &subcol)
-{
-
-    std::vector<Index> index_tab;
-    CHECK(read_mmutil_index(index_file, index_tab));
-    return read_eigen_sparse_subset_row_col(mtx_file,
-                                            index_tab,
-                                            subrow,
-                                            subcol);
-}
-
-} // namespace io
-} // namespace mmutil
-#endif
-
-////////////////
-// Deprecated //
-////////////////
-
-// template <typename VEC>
-// Eigen::SparseMatrix<eigen_triplet_reader_t::scalar_t, //
-//                     Eigen::RowMajor,                  //
-//                     std::ptrdiff_t>
-// read_eigen_sparse_subset_cols(const std::string mtx_file, //
-//                               const VEC &subcol)
-// {
-
-//     using _reader_t = eigen_triplet_reader_remapped_cols_t;
-//     using Index = _reader_t::index_t;
-
-//     _reader_t::index_map_t Remap;
-//     for (Index new_index = 0; new_index < subcol.size(); ++new_index) {
-//         const Index old_index = subcol.at(new_index);
-//         Remap[old_index] = new_index;
-//     }
-
-//     _reader_t::TripletVec Tvec;
-//     _reader_t reader(Tvec, Remap, subcol.size() * 1e4); // estimate NNZ
-
-//     TLOG("This might be slow... consider building an index file.");
-//     visit_matrix_market_file(mtx_file, reader);
-//     const Index max_row = reader.max_row;
-//     const Index max_col = subcol.size();
-//     return build_eigen_sparse(Tvec, max_row, max_col);
-// }
-
-// template <typename Vec>
-// Eigen::SparseMatrix<eigen_triplet_reader_t::scalar_t, //
-//                     Eigen::RowMajor,                  //
-//                     std::ptrdiff_t>
-// read_eigen_sparse_subset_rows_cols(const std::string mtx_file,
-//                                    const Vec &subrow,
-//                                    const Vec &subcol)
-// {
-
-//     using _reader_t = eigen_triplet_reader_remapped_rows_cols_t;
-//     using Index = _reader_t::index_t;
-
-//     _reader_t::index_map_t RemapCol;
-//     for (Index new_index = 0; new_index < subcol.size(); ++new_index) {
-//         const Index old_index = subcol.at(new_index);
-//         RemapCol[old_index] = new_index;
-//     }
-
-//     _reader_t::index_map_t RemapRow;
-//     for (Index new_index = 0; new_index < subrow.size(); ++new_index) {
-//         const Index old_index = subrow.at(new_index);
-//         RemapRow[old_index] = new_index;
-//     }
-
-//     _reader_t::TripletVec Tvec;
-//     _reader_t reader(Tvec, RemapRow, RemapCol, subcol.size() * 1e4);
-//     visit_matrix_market_file(mtx_file, reader);
-
-//     const Index max_row = subrow.size();
-//     const Index max_col = subcol.size();
-
-//     return build_eigen_sparse(Tvec, max_row, max_col);
-// }

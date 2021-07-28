@@ -45,6 +45,7 @@ Approximate PCA
 }
 \examples{
 ## Generate some data
+set.seed(1)
 rr <- rgamma(1000, 1, 1) # 1000 cells
 mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 .dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")

@@ -216,16 +216,25 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
         rename_file(temp_row_file, out_row_file);
     }
 
+    ASSERT(file_exists(out_row_file),
+           "unable to create the row file: " << out_row_file)
+
+    ASSERT(file_exists(out_col_file),
+           "unable to create the column file: " << out_col_file)
+
+    ASSERT(file_exists(out_mtx_file),
+           "unable to create the mtx file: " << out_mtx_file)
+
     ////////////////////////
     // index new mtx file //
     ////////////////////////
 
-    const std::string out_idx_file = mtx_file + ".index";
+    const std::string out_idx_file = out_mtx_file + ".index";
 
     if (file_exists(out_idx_file))
         remove_file(out_idx_file);
 
-    CHECK(mmutil::index::build_mmutil_index(mtx_file, out_idx_file));
+    CHECK(mmutil::index::build_mmutil_index(out_mtx_file, out_idx_file));
 
     return Rcpp::List::create(Rcpp::_["mtx"] = out_mtx_file,
                               Rcpp::_["row"] = out_row_file,
@@ -280,11 +289,19 @@ rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
     std::vector<std::string> selected = copy(r_selected);
 
     const std::string out_row_file = output + ".rows.gz";
-    copy_file(out_row_file, row_file);
+    copy_file(row_file, out_row_file);
     copy_selected_columns(mtx_file, col_file, selected, output);
 
+    ASSERT(file_exists(out_row_file),
+           "unable to create the row file: " << out_row_file)
+
     std::string out_col_file = output + ".cols.gz";
+    ASSERT(file_exists(out_col_file),
+           "unable to create the column file: " << out_col_file)
+
     std::string out_mtx_file = output + ".mtx.gz";
+    ASSERT(file_exists(out_mtx_file),
+           "unable to create the mtx file: " << out_mtx_file)
 
     ////////////////////////
     // index new mtx file //

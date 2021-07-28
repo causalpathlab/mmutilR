@@ -55,6 +55,7 @@ BBKNN(Batch-balancing kNN)-adjusted PCA
 }
 \examples{
 ## Generate some data
+set.seed(1)
 .sim <- mmutilR::simulate_gamma_glm(nind = 5, ncell.ind = 1000)
 .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
                                               .sim$rho,

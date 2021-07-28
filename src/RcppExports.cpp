@@ -200,7 +200,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_aggregate
-Rcpp::List rcpp_mmutil_aggregate(const std::string mtx_file, const std::string row_file, const std::string col_file, Rcpp::StringVector r_cols, Rcpp::StringVector r_indv, Rcpp::StringVector r_annot, Rcpp::StringVector r_lab_name, Rcpp::Nullable<Rcpp::StringVector> r_trt, Rcpp::Nullable<Rcpp::NumericMatrix> r_V, const double a0, const double b0, const double eps, const std::size_t knn, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS, const bool IMPUTE_BY_KNN);
+Rcpp::List rcpp_mmutil_aggregate(const std::string mtx_file, const std::string row_file, const std::string col_file, Rcpp::Nullable<Rcpp::StringVector> r_cols, Rcpp::Nullable<Rcpp::StringVector> r_indv, Rcpp::Nullable<Rcpp::StringVector> r_annot, Rcpp::Nullable<Rcpp::StringVector> r_lab_name, Rcpp::Nullable<Rcpp::StringVector> r_trt, Rcpp::Nullable<Rcpp::NumericMatrix> r_V, const double a0, const double b0, const double eps, const std::size_t knn, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS, const bool IMPUTE_BY_KNN);
 RcppExport SEXP _mmutilR_rcpp_mmutil_aggregate(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP r_colsSEXP, SEXP r_indvSEXP, SEXP r_annotSEXP, SEXP r_lab_nameSEXP, SEXP r_trtSEXP, SEXP r_VSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP epsSEXP, SEXP knnSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP, SEXP IMPUTE_BY_KNNSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -208,10 +208,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string >::type mtx_file(mtx_fileSEXP);
     Rcpp::traits::input_parameter< const std::string >::type row_file(row_fileSEXP);
     Rcpp::traits::input_parameter< const std::string >::type col_file(col_fileSEXP);
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type r_cols(r_colsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type r_indv(r_indvSEXP);
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type r_annot(r_annotSEXP);
-    Rcpp::traits::input_parameter< Rcpp::StringVector >::type r_lab_name(r_lab_nameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_cols(r_colsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_indv(r_indvSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_annot(r_annotSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_lab_name(r_lab_nameSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_trt(r_trtSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type r_V(r_VSEXP);
     Rcpp::traits::input_parameter< const double >::type a0(a0SEXP);
@@ -240,15 +240,39 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_simulate_poisson
-Rcpp::List rcpp_mmutil_simulate_poisson(const Eigen::MatrixXf mu, const Eigen::VectorXf rho, const std::string output);
-RcppExport SEXP _mmutilR_rcpp_mmutil_simulate_poisson(SEXP muSEXP, SEXP rhoSEXP, SEXP outputSEXP) {
+Rcpp::List rcpp_mmutil_simulate_poisson(const Eigen::MatrixXf mu, const Eigen::VectorXf rho, const std::string output, Rcpp::Nullable<Rcpp::IntegerVector> r_indv);
+RcppExport SEXP _mmutilR_rcpp_mmutil_simulate_poisson(SEXP muSEXP, SEXP rhoSEXP, SEXP outputSEXP, SEXP r_indvSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::MatrixXf >::type mu(muSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXf >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const std::string >::type output(outputSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_simulate_poisson(mu, rho, output));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::IntegerVector> >::type r_indv(r_indvSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_mmutil_aggregate_velocity
+Rcpp::List rcpp_mmutil_aggregate_velocity(const std::string spliced_mtx_file, const std::string unspliced_mtx_file, const std::string row_file, const std::string col_file, Rcpp::Nullable<Rcpp::StringVector> r_cols, Rcpp::Nullable<Rcpp::StringVector> r_indv, Rcpp::Nullable<Rcpp::StringVector> r_annot, Rcpp::Nullable<Rcpp::StringVector> r_lab_name, const float a0, const float b0, const std::size_t MAX_ITER, const float TOL, const std::size_t NUM_THREADS);
+RcppExport SEXP _mmutilR_rcpp_mmutil_aggregate_velocity(SEXP spliced_mtx_fileSEXP, SEXP unspliced_mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP r_colsSEXP, SEXP r_indvSEXP, SEXP r_annotSEXP, SEXP r_lab_nameSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP NUM_THREADSSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type spliced_mtx_file(spliced_mtx_fileSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type unspliced_mtx_file(unspliced_mtx_fileSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type row_file(row_fileSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type col_file(col_fileSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_cols(r_colsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_indv(r_indvSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_annot(r_annotSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_lab_name(r_lab_nameSEXP);
+    Rcpp::traits::input_parameter< const float >::type a0(a0SEXP);
+    Rcpp::traits::input_parameter< const float >::type b0(b0SEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type MAX_ITER(MAX_ITERSEXP);
+    Rcpp::traits::input_parameter< const float >::type TOL(TOLSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_aggregate_velocity(spliced_mtx_file, unspliced_mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_lab_name, a0, b0, MAX_ITER, TOL, NUM_THREADS));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -267,7 +291,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 13},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 17},
     {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 3},
-    {"_mmutilR_rcpp_mmutil_simulate_poisson", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson, 3},
+    {"_mmutilR_rcpp_mmutil_simulate_poisson", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson, 4},
+    {"_mmutilR_rcpp_mmutil_aggregate_velocity", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate_velocity, 13},
     {NULL, NULL, 0}
 };
 

@@ -21,6 +21,7 @@
 //'
 //' @examples
 //' ## Generate some data
+//' set.seed(1)
 //' rr <- rgamma(1000, 1, 1) # 1000 cells
 //' mm <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 //' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
@@ -127,6 +128,7 @@ rcpp_mmutil_pca(const std::string mtx_file,
 //'
 //' @examples
 //' ## Generate some data
+//' set.seed(1)
 //' .sim <- mmutilR::simulate_gamma_glm(nind = 5, ncell.ind = 1000)
 //' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
 //'                                               .sim$rho,
