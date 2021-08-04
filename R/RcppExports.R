@@ -526,32 +526,32 @@ rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL) {
 #' dd <- matrix(rgamma(100 * 3, 1, 1/10), 100, 3)
 #' ss <- uu / (dd + 1e-2)
 #' ind <- sample(3, nn, replace=TRUE)
-#' 
+#'
 #' spliced <- mmutilR::rcpp_mmutil_simulate_poisson(ss, rr,
 #'                                                  "sim_test_raw_spliced",
 #'                                                  r_indv = ind)
-#' 
+#'
 #' unspliced <- mmutilR::rcpp_mmutil_simulate_poisson(uu, rr,
 #'                                                    "sim_test_raw_unspliced",
 #'                                                    r_indv = ind)
-#' 
+#'
 #' .col <- sort(intersect(read.table(spliced$col)$V1,
 #'                        read.table(unspliced$col)$V1))
-#' 
+#'
 #' spliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
 #'                         spliced$mtx,
 #'                         spliced$row,
 #'                         spliced$col,
 #'                         .col,
 #'                         "sim_test_spliced")
-#' 
+#'
 #' unspliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
 #'                         unspliced$mtx,
 #'                         unspliced$row,
 #'                         unspliced$col,
 #'                         .col,
 #'                         "sim_test_unspliced")
-#' 
+#'
 #' .out <- mmutilR::rcpp_mmutil_aggregate_velocity(
 #'                      spliced$mtx,
 #'                      unspliced$mtx,
@@ -560,10 +560,35 @@ rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL) {
 #'                      r_col = .col,
 #'                      r_indv = ind[.col],
 #'                      a0 = 1, b0 = 1)
+#'
+#' .agg.u <- mmutilR::rcpp_mmutil_aggregate(
+#'                        unspliced$mtx,
+#'                        unspliced$row,
+#'                        unspliced$col,
+#'                        r_col = .col,
+#'                        r_indv = ind[.col],
+#'                        a0 = 1, b0 = 1)
 #' 
-#' u.by.s <- log((1 + uu)/(1 + ss))
-#' plot(u.by.s, .out$ln.delta)
+#' .agg.s <- mmutilR::rcpp_mmutil_aggregate(
+#'                        spliced$mtx,
+#'                        spliced$row,
+#'                        spliced$col,
+#'                        r_col = .col,
+#'                        r_indv = ind[.col],
+#'                        a0 = 1, b0 = 1)
 #' 
+#' par(mfrow=c(1, ncol(.out$delta)))
+#' for(k in 1:ncol(.out$delta)){
+#'     plot(.agg.u$mu[,k]/.agg.s$mu[,k],
+#'          .out$delta[,k],         
+#'          log = "xy",
+#'          pch = 1,
+#'          ylab = "predicted",
+#'          xlab = "true")
+#'     abline(a=0, b=1, col=3)
+#' }
+#' 
+#'
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'

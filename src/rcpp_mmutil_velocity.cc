@@ -43,32 +43,32 @@
 //' dd <- matrix(rgamma(100 * 3, 1, 1/10), 100, 3)
 //' ss <- uu / (dd + 1e-2)
 //' ind <- sample(3, nn, replace=TRUE)
-//' 
+//'
 //' spliced <- mmutilR::rcpp_mmutil_simulate_poisson(ss, rr,
 //'                                                  "sim_test_raw_spliced",
 //'                                                  r_indv = ind)
-//' 
+//'
 //' unspliced <- mmutilR::rcpp_mmutil_simulate_poisson(uu, rr,
 //'                                                    "sim_test_raw_unspliced",
 //'                                                    r_indv = ind)
-//' 
+//'
 //' .col <- sort(intersect(read.table(spliced$col)$V1,
 //'                        read.table(unspliced$col)$V1))
-//' 
+//'
 //' spliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
 //'                         spliced$mtx,
 //'                         spliced$row,
 //'                         spliced$col,
 //'                         .col,
 //'                         "sim_test_spliced")
-//' 
+//'
 //' unspliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
 //'                         unspliced$mtx,
 //'                         unspliced$row,
 //'                         unspliced$col,
 //'                         .col,
 //'                         "sim_test_unspliced")
-//' 
+//'
 //' .out <- mmutilR::rcpp_mmutil_aggregate_velocity(
 //'                      spliced$mtx,
 //'                      unspliced$mtx,
@@ -77,10 +77,35 @@
 //'                      r_col = .col,
 //'                      r_indv = ind[.col],
 //'                      a0 = 1, b0 = 1)
+//'
+//' .agg.u <- mmutilR::rcpp_mmutil_aggregate(
+//'                        unspliced$mtx,
+//'                        unspliced$row,
+//'                        unspliced$col,
+//'                        r_col = .col,
+//'                        r_indv = ind[.col],
+//'                        a0 = 1, b0 = 1)
 //' 
-//' u.by.s <- log((1 + uu)/(1 + ss))
-//' plot(u.by.s, .out$ln.delta)
+//' .agg.s <- mmutilR::rcpp_mmutil_aggregate(
+//'                        spliced$mtx,
+//'                        spliced$row,
+//'                        spliced$col,
+//'                        r_col = .col,
+//'                        r_indv = ind[.col],
+//'                        a0 = 1, b0 = 1)
 //' 
+//' par(mfrow=c(1, ncol(.out$delta)))
+//' for(k in 1:ncol(.out$delta)){
+//'     plot(.agg.u$mu[,k]/.agg.s$mu[,k],
+//'          .out$delta[,k],         
+//'          log = "xy",
+//'          pch = 1,
+//'          ylab = "predicted",
+//'          xlab = "true")
+//'     abline(a=0, b=1, col=3)
+//' }
+//' 
+//'
 //' ## clean up temp directory
 //' unlink(list.files(pattern = "sim_test"))
 //'
@@ -285,10 +310,13 @@ rcpp_mmutil_aggregate_velocity(
         // initialize UC and PhiC matrix //
         ///////////////////////////////////
 
+        const Scalar nj = static_cast<Scalar>(cols_i.size());
+
         aggregated_delta_model_t model(NGENES{ Ngene },
                                        NTYPES{ K },
                                        A0{ a0 },
-                                       B0{ b0 });
+                                       B0{ b0 },
+                                       EPS{ 1. / nj });
 
         data_loader_t loader(spliced_mtx_file,
                              unspliced_mtx_file,

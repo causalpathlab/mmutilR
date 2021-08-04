@@ -104,8 +104,33 @@ unspliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
                      r_indv = ind[.col],
                      a0 = 1, b0 = 1)
 
-u.by.s <- log((1 + uu)/(1 + ss))
-plot(u.by.s, .out$ln.delta)
+.agg.u <- mmutilR::rcpp_mmutil_aggregate(
+                       unspliced$mtx,
+                       unspliced$row,
+                       unspliced$col,
+                       r_col = .col,
+                       r_indv = ind[.col],
+                       a0 = 1, b0 = 1)
+
+.agg.s <- mmutilR::rcpp_mmutil_aggregate(
+                       spliced$mtx,
+                       spliced$row,
+                       spliced$col,
+                       r_col = .col,
+                       r_indv = ind[.col],
+                       a0 = 1, b0 = 1)
+
+par(mfrow=c(1, ncol(.out$delta)))
+for(k in 1:ncol(.out$delta)){
+    plot(.agg.u$mu[,k]/.agg.s$mu[,k],
+         .out$delta[,k],         
+         log = "xy",
+         pch = 1,
+         ylab = "predicted",
+         xlab = "true")
+    abline(a=0, b=1, col=3)
+}
+
 
 ## clean up temp directory
 unlink(list.files(pattern = "sim_test"))
