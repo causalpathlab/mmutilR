@@ -4,7 +4,12 @@
 \alias{rcpp_mmutil_read_columns}
 \title{Read a subset of columns from the data matrix}
 \usage{
-rcpp_mmutil_read_columns(mtx_file, memory_location, r_column_index)
+rcpp_mmutil_read_columns(
+  mtx_file,
+  memory_location,
+  r_column_index,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{mtx_file}{data file}

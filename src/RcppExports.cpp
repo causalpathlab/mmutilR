@@ -164,15 +164,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_read_columns
-Rcpp::NumericMatrix rcpp_mmutil_read_columns(const std::string mtx_file, const Rcpp::NumericVector& memory_location, const Rcpp::NumericVector& r_column_index);
-RcppExport SEXP _mmutilR_rcpp_mmutil_read_columns(SEXP mtx_fileSEXP, SEXP memory_locationSEXP, SEXP r_column_indexSEXP) {
+Rcpp::NumericMatrix rcpp_mmutil_read_columns(const std::string mtx_file, const Rcpp::NumericVector& memory_location, const Rcpp::NumericVector& r_column_index, const bool verbose);
+RcppExport SEXP _mmutilR_rcpp_mmutil_read_columns(SEXP mtx_fileSEXP, SEXP memory_locationSEXP, SEXP r_column_indexSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string >::type mtx_file(mtx_fileSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type memory_location(memory_locationSEXP);
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type r_column_index(r_column_indexSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_read_columns(mtx_file, memory_location, r_column_index));
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_read_columns(mtx_file, memory_location, r_column_index, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -287,7 +288,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_build_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_build_index, 2},
     {"_mmutilR_rcpp_mmutil_read_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_index, 1},
     {"_mmutilR_rcpp_mmutil_check_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_check_index, 2},
-    {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 3},
+    {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 4},
     {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 13},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 17},
     {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 3},

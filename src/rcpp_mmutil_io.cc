@@ -40,7 +40,8 @@
 Rcpp::NumericMatrix
 rcpp_mmutil_read_columns(const std::string mtx_file,
                          const Rcpp::NumericVector &memory_location,
-                         const Rcpp::NumericVector &r_column_index)
+                         const Rcpp::NumericVector &r_column_index,
+                         const bool verbose = false)
 {
 
     using namespace mmutil::io;
@@ -53,8 +54,9 @@ rcpp_mmutil_read_columns(const std::string mtx_file,
                  "Failed to read the mtx file:" << mtx_file);
     const Index max_row = info.max_row;
 
-    TLOG("info: " << info.max_row << ", " << info.max_col << " --> "
-                  << info.max_elem);
+    if (verbose)
+        TLOG("info: " << info.max_row << " x " << info.max_col << " ("
+                      << info.max_elem << " elements)");
 
     using triplet_reader_t = eigen_triplet_reader_remapped_cols_t;
     using Index = triplet_reader_t::index_t;
@@ -117,7 +119,8 @@ rcpp_mmutil_read_columns(const std::string mtx_file,
                                                     << block.ub << ")");
     }
 
-    TLOG("Successfully read " << blocks.size() << " block(s)");
+    if (verbose)
+        TLOG("Successfully read " << blocks.size() << " block(s)");
 
     /////////////////////////////////////////
     // populate items in the return matrix //

@@ -317,8 +317,8 @@ rcpp_mmutil_check_index <- function(mtx_file, index_tab) {
 #' print(head(yy))
 #' unlink(list.files(pattern = data.hdr))
 #'
-rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index) {
-    .Call('_mmutilR_rcpp_mmutil_read_columns', PACKAGE = 'mmutilR', mtx_file, memory_location, r_column_index)
+rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index, verbose = FALSE) {
+    .Call('_mmutilR_rcpp_mmutil_read_columns', PACKAGE = 'mmutilR', mtx_file, memory_location, r_column_index, verbose)
 }
 
 #' Match the columns of two MTX files
