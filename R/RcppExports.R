@@ -292,6 +292,16 @@ rcpp_mmutil_check_index <- function(mtx_file, index_tab) {
     .Call('_mmutilR_rcpp_mmutil_check_index', PACKAGE = 'mmutilR', mtx_file, index_tab)
 }
 
+#' Just read the header information
+#'
+#' @param mtx_file data file
+#'
+#' @return info
+#'
+rcpp_mmutil_info <- function(mtx_file) {
+    .Call('_mmutilR_rcpp_mmutil_info', PACKAGE = 'mmutilR', mtx_file)
+}
+
 #' Read a subset of columns from the data matrix
 #' @param mtx_file data file
 #' @param memory_location column -> memory location

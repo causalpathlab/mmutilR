@@ -11,6 +11,30 @@
 #include <string>
 #include <unordered_set>
 
+//' Just read the header information
+//'
+//' @param mtx_file data file
+//'
+//' @return info
+//'
+// [[Rcpp::export]]
+Rcpp::List
+rcpp_mmutil_info(const std::string mtx_file)
+{
+    using namespace mmutil::io;
+    using namespace mmutil::bgzf;
+
+    CHECK(convert_bgzip(mtx_file));
+
+    mm_info_reader_t info;
+    CHK_ERR_EXIT(peek_bgzf_header(mtx_file, info),
+                 "Failed to read the mtx file:" << mtx_file);
+
+    return Rcpp::List::create(Rcpp::_["max.row"] = info.max_row,
+                              Rcpp::_["max.col"] = info.max_col,
+                              Rcpp::_["max.elem"] = info.max_elem);
+}
+
 //' Read a subset of columns from the data matrix
 //' @param mtx_file data file
 //' @param memory_location column -> memory location

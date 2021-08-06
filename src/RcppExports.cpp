@@ -163,6 +163,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_mmutil_info
+Rcpp::List rcpp_mmutil_info(const std::string mtx_file);
+RcppExport SEXP _mmutilR_rcpp_mmutil_info(SEXP mtx_fileSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type mtx_file(mtx_fileSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_info(mtx_file));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_mmutil_read_columns
 Rcpp::NumericMatrix rcpp_mmutil_read_columns(const std::string mtx_file, const Rcpp::NumericVector& memory_location, const Rcpp::NumericVector& r_column_index, const bool verbose);
 RcppExport SEXP _mmutilR_rcpp_mmutil_read_columns(SEXP mtx_fileSEXP, SEXP memory_locationSEXP, SEXP r_column_indexSEXP, SEXP verboseSEXP) {
@@ -288,6 +299,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_build_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_build_index, 2},
     {"_mmutilR_rcpp_mmutil_read_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_index, 1},
     {"_mmutilR_rcpp_mmutil_check_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_check_index, 2},
+    {"_mmutilR_rcpp_mmutil_info", (DL_FUNC) &_mmutilR_rcpp_mmutil_info, 1},
     {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 4},
     {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 13},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 17},
