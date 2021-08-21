@@ -233,7 +233,6 @@ struct histogram_collector_t {
     std::unordered_map<Index, Index> freq_map;
 };
 
-template <typename Scalar, typename Index>
 struct discrete_sampler_t {
     explicit discrete_sampler_t(const Index k)
         : K(k)
@@ -295,10 +294,9 @@ private:
 // Index sampler excluding itself //
 ////////////////////////////////////
 
-template <typename Scalar, typename Index>
 struct cf_index_sampler_t {
 
-    using DS = discrete_sampler_t<Scalar, Index>;
+    using DS = discrete_sampler_t;
 
     using Vec = typename Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
 

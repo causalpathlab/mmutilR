@@ -85,7 +85,7 @@
 //'                        r_col = .col,
 //'                        r_indv = ind[.col],
 //'                        a0 = 1, b0 = 1)
-//' 
+//'
 //' .agg.s <- mmutilR::rcpp_mmutil_aggregate(
 //'                        spliced$mtx,
 //'                        spliced$row,
@@ -93,18 +93,18 @@
 //'                        r_col = .col,
 //'                        r_indv = ind[.col],
 //'                        a0 = 1, b0 = 1)
-//' 
+//'
 //' par(mfrow=c(1, ncol(.out$delta)))
 //' for(k in 1:ncol(.out$delta)){
 //'     plot(.agg.u$mu[,k]/.agg.s$mu[,k],
-//'          .out$delta[,k],         
+//'          .out$delta[,k],
 //'          log = "xy",
 //'          pch = 1,
 //'          ylab = "predicted",
 //'          xlab = "true")
 //'     abline(a=0, b=1, col=3)
 //' }
-//' 
+//'
 //'
 //' ## clean up temp directory
 //' unlink(list.files(pattern = "sim_test"))
@@ -311,12 +311,13 @@ rcpp_mmutil_aggregate_velocity(
         ///////////////////////////////////
 
         const Scalar nj = static_cast<Scalar>(cols_i.size());
+        const float eps = static_cast<float>(1. / nj);
 
         aggregated_delta_model_t model(NGENES{ Ngene },
                                        NTYPES{ K },
                                        A0{ a0 },
                                        B0{ b0 },
-                                       EPS{ 1. / nj });
+                                       EPS{ eps });
 
         data_loader_t loader(spliced_mtx_file,
                              unspliced_mtx_file,

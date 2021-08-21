@@ -536,7 +536,6 @@ train_model(std::vector<std::shared_ptr<STAT>> &stat_vector,
     const Index N = data_loader.num_columns();
 
     TLOG("D = " << D << ", N = " << N);
-    using DS = discrete_sampler_t<Scalar, Index>;
 
     //////////////////
     // build models //
@@ -659,7 +658,7 @@ train_model(std::vector<std::shared_ptr<STAT>> &stat_vector,
 
             Mat xx = data_loader(lb, ub, subrow);
 
-            DS sampler_k(K); // sample discrete from log-mass
+            discrete_sampler_t sampler_k(K); // sample discrete from log-mass
             Vec sj(K);
 
             for (Index j = 0; j < xx.cols(); ++j) {
@@ -772,8 +771,8 @@ train_model(std::vector<std::shared_ptr<STAT>> &stat_vector,
             for (Index lb = 0; lb < N; lb += batch_size) {     // batch
                 const Index ub = std::min(N, batch_size + lb); //
 
-                DS sampler_k(K); // sample discrete from log-mass
-                Vec sj(K);       // type x 1 score vector
+                discrete_sampler_t sampler_k(K);
+                Vec sj(K); // type x 1 score vector
 
                 const Mat xx = data_loader(lb, ub, subrow);
 

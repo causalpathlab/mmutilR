@@ -123,7 +123,7 @@ unspliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
 par(mfrow=c(1, ncol(.out$delta)))
 for(k in 1:ncol(.out$delta)){
     plot(.agg.u$mu[,k]/.agg.s$mu[,k],
-         .out$delta[,k],         
+         .out$delta[,k],
          log = "xy",
          pch = 1,
          ylab = "predicted",
