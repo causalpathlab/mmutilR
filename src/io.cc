@@ -35,7 +35,9 @@ copy_file(const std::string _src, const std::string _dst)
 void
 remove_file(const std::string _file)
 {
-    std::remove(_file.c_str());
+    if (file_exists(_file)) {
+        std::remove(_file.c_str());
+    }
 }
 
 void

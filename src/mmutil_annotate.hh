@@ -316,10 +316,10 @@ struct svd_data_loader_t {
                       const Mat &dd,
                       const Mat &vv,
                       const bool _log_scale)
-        : log_scale(_log_scale)
-        , U(uu)
+        : U(uu)
         , D(dd)
         , Vt(vv)
+        , log_scale(_log_scale)
     {
         Vt.transposeInPlace();
         TLOG("U: " << U.rows() << " x " << U.cols());

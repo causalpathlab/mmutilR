@@ -32,7 +32,7 @@
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 10L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "") {
+rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "") {
     .Call('_mmutilR_rcpp_mmutil_pca', PACKAGE = 'mmutilR', mtx_file, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file)
 }
 
@@ -74,8 +74,8 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #'      xlab = "PC1 (BBKNN)", ylab = "PC2 (BBKNN)")
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
-#' 
-rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 10L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "") {
+#'
+rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "") {
     .Call('_mmutilR_rcpp_mmutil_bbknn_pca', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file)
 }
 
@@ -142,6 +142,15 @@ rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE
 #'
 rcpp_mmutil_annotate_columns <- function(pos_labels, r_rows = NULL, r_cols = NULL, r_neg_labels = NULL, r_qc_labels = NULL, mtx_file = "", row_file = "", col_file = "", r_U = NULL, r_D = NULL, r_V = NULL, KAPPA_MAX = 100., TAKE_LN = FALSE, BATCH_SIZE = 10000L, EM_ITER = 100L, EM_TOL = 1e-4, VERBOSE = FALSE, DO_STD = FALSE) {
     .Call('_mmutilR_rcpp_mmutil_annotate_columns', PACKAGE = 'mmutilR', pos_labels, r_rows, r_cols, r_neg_labels, r_qc_labels, mtx_file, row_file, col_file, r_U, r_D, r_V, KAPPA_MAX, TAKE_LN, BATCH_SIZE, EM_ITER, EM_TOL, VERBOSE, DO_STD)
+}
+
+#' Cell type deconvolution of bulk data based on single-cell data
+#'
+#' Salamander (semi-supervised annotation of latent states by marker
+#' gene-derived regression model)
+#'
+rcpp_mmutil_deconvolve_svd <- function(mtx_file = "", row_file = "", col_file = "", r_U = NULL, r_D = NULL, r_V = NULL, r_rows = NULL, r_cols = NULL, TAKE_LN = FALSE, VERBOSE = FALSE) {
+    .Call('_mmutilR_rcpp_mmutil_deconvolve_svd', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_U, r_D, r_V, r_rows, r_cols, TAKE_LN, VERBOSE)
 }
 
 #' Merge multiple 10x mtx file sets into one set
@@ -366,6 +375,61 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
     .Call('_mmutilR_rcpp_mmutil_match_files', PACKAGE = 'mmutilR', src_mtx, tgt_mtx, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, LU_ITER, KNN_BILINK, KNN_NNLIST, row_weight_file)
 }
 
+#' Clustering columns of the network mtx file (feature incidence matrix)
+#'
+#' @param mtx_file data file (feature x edge)
+#' @param row_file row file (feature x 1)
+#' @param col_file col file (sample x 1)
+#' @param output a file header for result/temporary files
+#' @param nnz_cutoff Only consider edge with NNZ >= nnz_cutoff (default: 1)
+#'
+rcpp_mmutil_network_edge_cluster <- function(mtx_file, row_file, col_file, output, num_clust = 10L, num_gibbs = 100L, num_burnin = 100L, nnz_cutoff = 1L, A0 = 1., B0 = 1., Dir0 = 1., verbose = TRUE) {
+    .Call('_mmutilR_rcpp_mmutil_network_edge_cluster', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, output, num_clust, num_gibbs, num_burnin, nnz_cutoff, A0, B0, Dir0, verbose)
+}
+
+#' Construct a kNN cell-cell interaction network and identify gene topics
+#'
+#' @param mtx_file data file (feature x n)
+#' @param knn kNN parameter
+#' @param output a file header for resulting files
+#' @param CUTOFF expression present/absent call cutoff (default: 1e-2)
+#' @param WEIGHTED keep weights for edges (default: FALSE)
+#' @param MAXW maximum weight (default: 1)
+#' @param r_batches batch info (default: NULL)
+#' @param r_U SVD for kNN network construction (X = UDV')
+#' @param r_D SVD for kNN network construction (X = UDV')
+#' @param r_V SVD for kNN network construction (X = UDV')
+#' @param RANK SVD rank
+#' @param TAKE_LN take log(1 + x) trans or not
+#' @param TAU regularization parameter (default = 1)
+#' @param COL_NORM column normalization for SVD
+#' @param EM_ITER EM iteration for factorization (default: 10)
+#' @param EM_TOL EM convergence (default: 1e-4)
+#' @param LU_ITER LU iteration
+#' @param KNN_BILINK # of bidirectional links (default: 10)
+#' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+#' @param row_weight_file row-wise weight file
+#'
+#' @return feature.incidence, sample.incidence, edges, adjacency matrix files
+#'
+#' @examples
+#' ## Generate some data
+#' set.seed(1)
+#' .sim <- mmutilR::simulate_gamma_glm(nind = 3, ncell.ind = 10, ngene = 20)
+#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+#'                                               .sim$rho,
+#'                                               "sim_test")
+#' .data <- mmutilR::rcpp_mmutil_network_topic_data(.dat$mtx,
+#'                   knn = 3, output = "net_data",
+#'                   RANK = 3, TAKE_LN = TRUE)
+#' ## clean up temp directory
+#' unlink(list.files(pattern = "sim_test"))
+#' unlink(list.files(pattern = "net_data"))
+#'
+rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2, WEIGHTED = FALSE, MAXW = 1, col_file = "", row_file = "", r_batches = NULL, r_U = NULL, r_D = NULL, r_V = NULL, RANK = 0L, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "") {
+    .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, knn, output, CUTOFF, WEIGHTED, MAXW, col_file, row_file, r_batches, r_U, r_D, r_V, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file)
+}
+
 #' Create pseudo-bulk data by aggregating columns
 #'
 #' @param mtx_file data file
@@ -477,7 +541,7 @@ rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r
 #' rowMeans(A)
 #' scr$row$mean
 #'
-rcpp_mmutil_compute_scores <- function(mtx_file, row_file = "", col_file = "") {
+rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NULL) {
     .Call('_mmutilR_rcpp_mmutil_compute_scores', PACKAGE = 'mmutilR', mtx_file, row_file, col_file)
 }
 

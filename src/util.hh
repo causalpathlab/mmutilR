@@ -30,6 +30,15 @@ std::string zeropad(const int t, const int tmax);
         Rcpp::Rcerr << "[" << curr_time() << "] [Warning] " << msg \
                     << std::endl;                                  \
     }
+
+#define ERR_RET(cond, msg)       \
+    {                            \
+        if (cond) {              \
+            ELOG(msg);           \
+            return EXIT_FAILURE; \
+        }                        \
+    }
+
 #define ASSERT(cond, msg)                   \
     {                                       \
         if (!(cond)) {                      \
@@ -54,6 +63,14 @@ std::string zeropad(const int t, const int tmax);
         }                                  \
     }
 
+#define ASSERT_RETL(cond, msg)           \
+    {                                    \
+        if (!(cond)) {                   \
+            ELOG(msg);                   \
+            return Rcpp::List::create(); \
+        }                                \
+    }
+
 #define CHECK(cond)                   \
     {                                 \
         if ((cond) != EXIT_SUCCESS) { \
@@ -69,7 +86,35 @@ std::string zeropad(const int t, const int tmax);
         }                             \
     }
 
-#define CHK_ERR_RET(cond, msg)        \
+#define CHK_RET(cond)                 \
+    {                                 \
+        if ((cond) != EXIT_SUCCESS) { \
+            return EXIT_FAILURE;      \
+        }                             \
+    }
+
+#define CHK_BRK(cond)                 \
+    {                                 \
+        if ((cond) != EXIT_SUCCESS) { \
+            break;                    \
+        }                             \
+    }
+
+#define CHK_RETM(cond)                     \
+    {                                      \
+        if ((cond) != EXIT_SUCCESS) {      \
+            return Rcpp::NumericMatrix(0); \
+        }                                  \
+    }
+
+#define CHK_RETL(cond)                   \
+    {                                    \
+        if ((cond) != EXIT_SUCCESS) {    \
+            return Rcpp::List::create(); \
+        }                                \
+    }
+
+#define CHK_RET_(cond, msg)           \
     {                                 \
         if ((cond) != EXIT_SUCCESS) { \
             ELOG(msg);                \
@@ -77,7 +122,7 @@ std::string zeropad(const int t, const int tmax);
         }                             \
     }
 
-#define CHK_ERR_RETM(cond, msg)            \
+#define CHK_RETM_(cond, msg)               \
     {                                      \
         if ((cond) != EXIT_SUCCESS) {      \
             ELOG(msg);                     \
@@ -85,12 +130,12 @@ std::string zeropad(const int t, const int tmax);
         }                                  \
     }
 
-#define ERR_RET(cond, msg)       \
-    {                            \
-        if ((cond)) {            \
-            ELOG(msg);           \
-            return EXIT_FAILURE; \
-        }                        \
+#define CHK_RETL_(cond, msg)             \
+    {                                    \
+        if ((cond) != EXIT_SUCCESS) {    \
+            ELOG(msg);                   \
+            return Rcpp::List::create(); \
+        }                                \
     }
 
 #endif

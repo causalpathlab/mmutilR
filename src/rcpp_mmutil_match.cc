@@ -68,16 +68,16 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     // check input data //
     //////////////////////
 
-    ASSERT(file_exists(src_mtx), "No source data file");
-    ASSERT(file_exists(tgt_mtx), "No target data file");
+    ASSERT_RETL(file_exists(src_mtx), "No source data file");
+    ASSERT_RETL(file_exists(tgt_mtx), "No target data file");
 
-    CHECK(mmutil::bgzf::convert_bgzip(src_mtx));
-    CHECK(mmutil::bgzf::convert_bgzip(tgt_mtx));
-    CHECK(mmutil::index::build_mmutil_index(src_mtx, src_mtx + ".index"));
-    CHECK(mmutil::index::build_mmutil_index(tgt_mtx, tgt_mtx + ".index"));
+    CHK_RETL(mmutil::bgzf::convert_bgzip(src_mtx));
+    CHK_RETL(mmutil::bgzf::convert_bgzip(tgt_mtx));
+    CHK_RETL(mmutil::index::build_mmutil_index(src_mtx, src_mtx + ".index"));
+    CHK_RETL(mmutil::index::build_mmutil_index(tgt_mtx, tgt_mtx + ".index"));
 
     mmutil::index::mm_info_reader_t info;
-    CHECK(mmutil::bgzf::peek_bgzf_header(tgt_mtx, info));
+    CHK_RETL(mmutil::bgzf::peek_bgzf_header(tgt_mtx, info));
     const Index D = info.max_row;
     const Index Nsample = info.max_col;
 
@@ -88,7 +88,7 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     Vec weights;
     if (file_exists(row_weight_file)) {
         std::vector<Scalar> ww;
-        CHECK(read_vector_file(row_weight_file, ww));
+        CHK_RETL(read_vector_file(row_weight_file, ww));
         weights = eigen_vector(ww);
     }
 
@@ -96,7 +96,7 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     ww.setOnes();
 
     if (weights.size() > 0) {
-        ASSERT(weights.rows() == D, "Found invalid weight vector");
+        ASSERT_RETL(weights.rows() == D, "Found invalid weight vector");
         ww = weights;
     }
 
@@ -121,9 +121,9 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     // step 3. search kNN pairs //
     //////////////////////////////
 
-    ASSERT(src.cols() == tgt.cols(),
-           "Found different number of spectral features:"
-               << src.cols() << " vs. " << tgt.cols());
+    ASSERT_RETL(src.cols() == tgt.cols(),
+                "Found different number of spectral features:"
+                    << src.cols() << " vs. " << tgt.cols());
 
     src.transposeInPlace(); // rank x samples
     tgt.transposeInPlace(); // rank x samples
@@ -154,12 +154,12 @@ rcpp_mmutil_match_files(const std::string src_mtx,
         param_nnlist = knn + 1;
     }
 
-    CHECK(search_knn(SrcDataT(src.data(), src.rows(), src.cols()),
-                     TgtDataT(tgt.data(), tgt.rows(), tgt.cols()),
-                     KNN(knn),
-                     BILINK(param_bilink),
-                     NNLIST(param_nnlist),
-                     out_index));
+    CHK_RETL(search_knn(SrcDataT(src.data(), src.rows(), src.cols()),
+                        TgtDataT(tgt.data(), tgt.rows(), tgt.cols()),
+                        KNN(knn),
+                        BILINK(param_bilink),
+                        NNLIST(param_nnlist),
+                        out_index));
 
     TLOG("Done");
 

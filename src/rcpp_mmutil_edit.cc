@@ -48,8 +48,8 @@ rcpp_mmutil_merge_file_sets(const Rcpp::StringVector &r_headers,
     std::vector<std::string> headers = copy(r_headers);
     std::vector<std::string> batches = copy(r_batches);
 
-    ASSERT(headers.size() == batches.size(),
-           "Must have a list of batch names matching the list of headers");
+    ASSERT_RETL(headers.size() == batches.size(),
+                "Must have a list of batch names matching the list of headers");
 
     std::unordered_set<std::string> _rows; // Take a unique set of
     std::vector<std::string> glob_rows;    // row names
@@ -64,17 +64,17 @@ rcpp_mmutil_merge_file_sets(const Rcpp::StringVector &r_headers,
         std::string mtx_file_s = s + ".mtx.gz";
         std::string col_file_s = s + ".cols.gz";
 
-        ASSERT(file_exists(mtx_file_s),
-               "unable to find the mtx file: " << mtx_file_s);
+        ASSERT_RETL(file_exists(mtx_file_s),
+                    "unable to find the mtx file: " << mtx_file_s);
 
-        ASSERT(file_exists(row_file_s),
-               "unable to find the row file: " << row_file_s);
+        ASSERT_RETL(file_exists(row_file_s),
+                    "unable to find the row file: " << row_file_s);
 
-        ASSERT(file_exists(col_file_s),
-               "unable to find the col file: " << col_file_s);
+        ASSERT_RETL(file_exists(col_file_s),
+                    "unable to find the col file: " << col_file_s);
 
-        ASSERT(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
-               "unable to read the row file: " << row_file_s);
+        ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
+                    "unable to read the row file: " << row_file_s);
 
         for (auto r : rows_s) {
             _rows.insert(r);
@@ -183,9 +183,9 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
                                const std::string output)
 {
 
-    ASSERT(file_exists(mtx_file), "missing the MTX file");
-    ASSERT(file_exists(row_file), "missing the ROW file");
-    ASSERT(file_exists(col_file), "missing the COL file");
+    ASSERT_RETL(file_exists(mtx_file), "missing the MTX file");
+    ASSERT_RETL(file_exists(row_file), "missing the ROW file");
+    ASSERT_RETL(file_exists(col_file), "missing the COL file");
 
     std::vector<std::string> selected = copy(r_selected);
 
@@ -193,8 +193,9 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
     copy_selected_rows(mtx_file, row_file, selected, output + "-temp");
 
     std::string temp_mtx_file = output + "-temp.mtx.gz";
+
     // Second pass: squeeze out empty columns
-    filter_col_by_nnz(1, temp_mtx_file, col_file, output);
+    CHK_RETL(filter_col_by_nnz(1, temp_mtx_file, col_file, output));
 
     if (file_exists(temp_mtx_file)) {
         std::remove(temp_mtx_file.c_str());
@@ -216,14 +217,14 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
         rename_file(temp_row_file, out_row_file);
     }
 
-    ASSERT(file_exists(out_row_file),
-           "unable to create the row file: " << out_row_file)
+    ASSERT_RETL(file_exists(out_row_file),
+                "unable to create the row file: " << out_row_file)
 
-    ASSERT(file_exists(out_col_file),
-           "unable to create the column file: " << out_col_file)
+    ASSERT_RETL(file_exists(out_col_file),
+                "unable to create the column file: " << out_col_file)
 
-    ASSERT(file_exists(out_mtx_file),
-           "unable to create the mtx file: " << out_mtx_file)
+    ASSERT_RETL(file_exists(out_mtx_file),
+                "unable to create the mtx file: " << out_mtx_file)
 
     ////////////////////////
     // index new mtx file //
@@ -282,9 +283,9 @@ rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
                                   const std::string output)
 {
 
-    ASSERT(file_exists(mtx_file), "missing the MTX file");
-    ASSERT(file_exists(row_file), "missing the ROW file");
-    ASSERT(file_exists(col_file), "missing the COL file");
+    ASSERT_RETL(file_exists(mtx_file), "missing the MTX file");
+    ASSERT_RETL(file_exists(row_file), "missing the ROW file");
+    ASSERT_RETL(file_exists(col_file), "missing the COL file");
 
     std::vector<std::string> selected = copy(r_selected);
 
@@ -292,16 +293,16 @@ rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
     copy_file(row_file, out_row_file);
     copy_selected_columns(mtx_file, col_file, selected, output);
 
-    ASSERT(file_exists(out_row_file),
-           "unable to create the row file: " << out_row_file)
+    ASSERT_RETL(file_exists(out_row_file),
+                "unable to create the row file: " << out_row_file)
 
     std::string out_col_file = output + ".cols.gz";
-    ASSERT(file_exists(out_col_file),
-           "unable to create the column file: " << out_col_file)
+    ASSERT_RETL(file_exists(out_col_file),
+                "unable to create the column file: " << out_col_file)
 
     std::string out_mtx_file = output + ".mtx.gz";
-    ASSERT(file_exists(out_mtx_file),
-           "unable to create the mtx file: " << out_mtx_file)
+    ASSERT_RETL(file_exists(out_mtx_file),
+                "unable to create the mtx file: " << out_mtx_file)
 
     ////////////////////////
     // index new mtx file //

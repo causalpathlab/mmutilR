@@ -112,13 +112,13 @@ struct aggregated_delta_model_t {
         , delta_agg(Ngenes, 1)
         , delta_old_agg(Ngenes, 1)
         , eps(_Eps.val)
-        , phi_new_j(Ngenes)
-        , phi_old_j(Ngenes)
         , update_phi_op(_Eps.val)
         , update_delta_op(_a0.val, _b0.val)
         , rate_sd_op(_a0.val, _b0.val)
         , rate_ln_op(_a0.val, _b0.val)
         , rate_sd_ln_op(_a0.val)
+        , phi_new_j(Ngenes)
+        , phi_old_j(Ngenes)
     {
         UC.setZero();
         PhiC.setZero();
@@ -205,55 +205,18 @@ struct aggregated_delta_model_t {
                 PhiC.row(g) += c_j.transpose() * d_phi;
             }
         }
-
-        // for (Index k = 0; k < Ntypes; ++k)
-        //     PhiC.col(k) += (phi_new_j - phi_old_j) * c_j(k);
     }
 
     // UC += U * C + e
     // phi =  (U + S + e) / (1 + delta)
     // PhiC += phi * C
-    // template <typename U, typename S, typename C>
-    // void add_stat_bulk(const Eigen::SparseMatrixBase<U> &_u,
-    //                    const Eigen::SparseMatrixBase<S> &_s,
-    //                    const Eigen::MatrixBase<C> &_c)
-    // {
-    //     const U &uu = _u.derived();
-    //     const S &ss = _s.derived();
-    //     const C &cc = _c.derived();
-    //     ASSERT(uu.cols() == ss.cols(), "cols(U) !=  cols(S)");
-    //     UC += ((uu * cc.transpose()).array() + eps).matrix();
-    //     for (Index j = 0; j < uu.cols(); ++j) {
-    //         phi_new_j = uu.col(j) + ss.col(j);
-    //         PhiC += (phi_new_j.binaryExpr(delta * cc.col(j), update_phi_op))
-    //         *
-    //             cc.col(j).transpose();
-    //     }
-    //     n += uu.cols();
-    // }
+    void add_stat_bulk(const SpMat &uu, const SpMat &ss, const Mat &cc);
 
     // phi[g,j] =  (U[g,j] + S[g,j]) / (1 + delta[g])
     // update Phi * C accordingly
     // (1) remove old phi[g,j] information
     // (2) add new phi[g,j] information
-    // template <typename U, typename S, typename C>
-    // void update_phi_stat_bulk(const Eigen::SparseMatrixBase<U> &_u,
-    //                           const Eigen::SparseMatrixBase<S> &_s,
-    //                           const Eigen::MatrixBase<C> &_c)
-    // {
-    //     const U &uu = _u.derived();
-    //     const S &ss = _s.derived();
-    //     const C &cc = _c.derived();
-    //     for (Index j = 0; j < uu.cols(); ++j) {
-    //         phi_new_j = uu.col(j) + ss.col(j);
-    //         phi_old_j = uu.col(j) + ss.col(j);
-    //         PhiC +=
-    //             (phi_new_j.binaryExpr(delta * cc.col(j), update_phi_op) -
-    //              phi_old_j.binaryExpr(delta_old * cc.col(j), update_phi_op))
-    //              *
-    //             cc.col(j).transpose();
-    //     }
-    // }
+    void update_phi_stat_bulk(const SpMat &uu, const SpMat &ss, const Mat &cc);
 
     void update_delta_stat();
 

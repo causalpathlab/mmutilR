@@ -23,9 +23,10 @@
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_mmutil_compute_scores(const std::string mtx_file,
-                           const std::string row_file = "",
-                           const std::string col_file = "")
+rcpp_mmutil_compute_scores(
+    const std::string mtx_file,
+    Rcpp::Nullable<const std::string> row_file = R_NilValue,
+    Rcpp::Nullable<const std::string> col_file = R_NilValue)
 {
 
     TLOG("collecting statistics... ");
@@ -40,20 +41,22 @@ rcpp_mmutil_compute_scores(const std::string mtx_file,
     Vec row_cv, row_sd, row_mean;
     IntVec row_nvec;
     std::tie(row_mean, row_sd, row_cv, row_nvec, max_row, max_col) =
-        compute_mtx_stat(collector,
-                         [](const auto &x) { return x.Row_S1; },
-                         [](const auto &x) { return x.Row_S2; },
-                         [](const auto &x) { return x.Row_N; },
-                         [](const auto &x) { return x.max_col; });
+        compute_mtx_stat(
+            collector,
+            [](const auto &x) { return x.Row_S1; },
+            [](const auto &x) { return x.Row_S2; },
+            [](const auto &x) { return x.Row_N; },
+            [](const auto &x) { return x.max_col; });
 
     Vec col_cv, col_sd, col_mean;
     IntVec col_nvec;
     std::tie(col_mean, col_sd, col_cv, col_nvec, std::ignore, std::ignore) =
-        compute_mtx_stat(collector,
-                         [](const auto &x) { return x.Col_S1; },
-                         [](const auto &x) { return x.Col_S2; },
-                         [](const auto &x) { return x.Col_N; },
-                         [](const auto &x) { return x.max_row; });
+        compute_mtx_stat(
+            collector,
+            [](const auto &x) { return x.Col_S1; },
+            [](const auto &x) { return x.Col_S2; },
+            [](const auto &x) { return x.Col_N; },
+            [](const auto &x) { return x.max_row; });
 
     std::vector<std::string> row_names;
     row_names.reserve(row_nvec.size());
@@ -61,16 +64,24 @@ rcpp_mmutil_compute_scores(const std::string mtx_file,
     std::vector<std::string> col_names;
     col_names.reserve(row_nvec.size());
 
-    if (file_exists(row_file)) {
-        read_vector_file(row_file, row_names);
+    std::string _row_file = "", _col_file = "";
+
+    if (row_file.isNotNull())
+        _row_file = Rcpp::as<std::string>(row_file);
+
+    if (col_file.isNotNull())
+        _col_file = Rcpp::as<std::string>(col_file);
+
+    if (file_exists(_row_file)) {
+        read_vector_file(_row_file, row_names);
     } else {
         for (Index x = 0; x < max_row; ++x) {
             row_names.emplace_back(std::to_string(x + 1));
         }
     }
 
-    if (file_exists(col_file)) {
-        read_vector_file(col_file, col_names);
+    if (file_exists(_col_file)) {
+        read_vector_file(_col_file, col_names);
     } else {
         for (Index x = 0; x < max_col; ++x) {
             col_names.emplace_back(std::to_string(x + 1));

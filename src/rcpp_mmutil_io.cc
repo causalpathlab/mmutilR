@@ -24,11 +24,11 @@ rcpp_mmutil_info(const std::string mtx_file)
     using namespace mmutil::io;
     using namespace mmutil::bgzf;
 
-    CHECK(convert_bgzip(mtx_file));
+    CHK_RETL(convert_bgzip(mtx_file));
 
     mm_info_reader_t info;
-    CHK_ERR_EXIT(peek_bgzf_header(mtx_file, info),
-                 "Failed to read the mtx file:" << mtx_file);
+    CHK_RETL_(peek_bgzf_header(mtx_file, info),
+              "Failed to read the mtx file:" << mtx_file);
 
     return Rcpp::List::create(Rcpp::_["max.row"] = info.max_row,
                               Rcpp::_["max.col"] = info.max_col,
@@ -71,11 +71,11 @@ rcpp_mmutil_read_columns(const std::string mtx_file,
     using namespace mmutil::io;
     using namespace mmutil::bgzf;
 
-    CHECK(convert_bgzip(mtx_file));
+    CHK_RETM(convert_bgzip(mtx_file));
 
     mm_info_reader_t info;
-    CHK_ERR_RETM(peek_bgzf_header(mtx_file, info),
-                 "Failed to read the mtx file:" << mtx_file);
+    CHK_RETM_(peek_bgzf_header(mtx_file, info),
+              "Failed to read the mtx file:" << mtx_file);
     const Index max_row = info.max_row;
 
     if (verbose)
@@ -135,12 +135,11 @@ rcpp_mmutil_read_columns(const std::string mtx_file,
 
         triplet_reader_t reader(Tvec, loc_map);
 
-        CHK_ERR_RETM(visit_bgzf_block(mtx_file,
-                                      block.lb_mem,
-                                      block.ub_mem,
-                                      reader),
-                     "Failed to read this block: [" << block.lb << ", "
-                                                    << block.ub << ")");
+        CHK_RETM_(visit_bgzf_block(mtx_file,
+                                   block.lb_mem,
+                                   block.ub_mem,
+                                   reader),
+                  "Failed on [" << block.lb << ", " << block.ub << ")");
     }
 
     if (verbose)

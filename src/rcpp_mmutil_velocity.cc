@@ -127,34 +127,37 @@ rcpp_mmutil_aggregate_velocity(
     const std::size_t NUM_THREADS = 1)
 {
 
-    CHECK(mmutil::bgzf::convert_bgzip(spliced_mtx_file));
-    CHECK(mmutil::bgzf::convert_bgzip(unspliced_mtx_file));
+    CHK_RETL(mmutil::bgzf::convert_bgzip(spliced_mtx_file));
+    CHK_RETL(mmutil::bgzf::convert_bgzip(unspliced_mtx_file));
 
     std::vector<std::string> mtx_cols;
-    CHECK(read_vector_file(col_file, mtx_cols));
+    CHK_RETL(read_vector_file(col_file, mtx_cols));
 
     const Index Nsample = mtx_cols.size();
 
     mmutil::io::mm_info_reader_t s_info;
-    CHECK(mmutil::bgzf::peek_bgzf_header(spliced_mtx_file, s_info));
+    CHK_RETL(mmutil::bgzf::peek_bgzf_header(spliced_mtx_file, s_info));
 
-    ASSERT(Nsample == s_info.max_col, "Should have matched spliced .mtx.gz");
+    ASSERT_RETL(Nsample == s_info.max_col,
+                "Should have matched spliced .mtx.gz");
 
     mmutil::io::mm_info_reader_t u_info;
-    CHECK(mmutil::bgzf::peek_bgzf_header(unspliced_mtx_file, u_info));
+    CHK_RETL(mmutil::bgzf::peek_bgzf_header(unspliced_mtx_file, u_info));
 
-    ASSERT(Nsample == u_info.max_col, "Should have matched unspliced .mtx.gz");
+    ASSERT_RETL(Nsample == u_info.max_col,
+                "Should have matched unspliced .mtx.gz");
 
-    ASSERT(s_info.max_row == u_info.max_row,
-           "The spliced and unspliced must have been on the same features.")
+    ASSERT_RETL(
+        s_info.max_row == u_info.max_row,
+        "The spliced and unspliced must have been on the same features.")
 
     const Index Ngene = s_info.max_row;
 
     std::vector<std::string> out_row_names;
     out_row_names.reserve(Ngene);
     if (file_exists(row_file)) {
-        CHECK(read_vector_file(row_file, out_row_names));
-        ASSERT(Ngene == out_row_names.size(), "invalid row file");
+        CHK_RETL(read_vector_file(row_file, out_row_names));
+        ASSERT_RETL(Ngene == out_row_names.size(), "invalid row file");
     } else {
         for (Index g = 0; g < Ngene; ++g)
             out_row_names.emplace_back(std::to_string(g + 1));
@@ -198,8 +201,8 @@ rcpp_mmutil_aggregate_velocity(
 
     const Index K = lab_name.size();
 
-    ASSERT(cols.size() == indv.size(), "|cols| != |indv|");
-    ASSERT(cols.size() == annot.size(), "|cols| != |annot|");
+    ASSERT_RETL(cols.size() == indv.size(), "|cols| != |indv|");
+    ASSERT_RETL(cols.size() == annot.size(), "|cols| != |annot|");
 
     ////////////////////////
     // universal position //
@@ -257,10 +260,10 @@ rcpp_mmutil_aggregate_velocity(
         std::string _ifile = spliced_mtx_file + ".index";
 
         if (!file_exists(_ifile)) // if needed
-            CHECK(build_mmutil_index(spliced_mtx_file, _ifile));
+            CHK_RETL(build_mmutil_index(spliced_mtx_file, _ifile));
 
-        CHECK(read_mmutil_index(_ifile, spliced_idx_tab));
-        CHECK(check_index_tab(spliced_mtx_file, spliced_idx_tab));
+        CHK_RETL(read_mmutil_index(_ifile, spliced_idx_tab));
+        CHK_RETL(check_index_tab(spliced_mtx_file, spliced_idx_tab));
     }
 
     {
@@ -268,10 +271,10 @@ rcpp_mmutil_aggregate_velocity(
         std::string _ifile = unspliced_mtx_file + ".index";
 
         if (!file_exists(_ifile)) // if needed
-            CHECK(build_mmutil_index(unspliced_mtx_file, _ifile));
+            CHK_RETL(build_mmutil_index(unspliced_mtx_file, _ifile));
 
-        CHECK(read_mmutil_index(_ifile, unspliced_idx_tab));
-        CHECK(check_index_tab(unspliced_mtx_file, unspliced_idx_tab));
+        CHK_RETL(read_mmutil_index(_ifile, unspliced_idx_tab));
+        CHK_RETL(check_index_tab(unspliced_mtx_file, unspliced_idx_tab));
     }
 
     /////////////////////////
@@ -313,11 +316,20 @@ rcpp_mmutil_aggregate_velocity(
         const Scalar nj = static_cast<Scalar>(cols_i.size());
         const float eps = static_cast<float>(1. / nj);
 
-        aggregated_delta_model_t model(NGENES{ Ngene },
-                                       NTYPES{ K },
-                                       A0{ a0 },
-                                       B0{ b0 },
-                                       EPS{ eps });
+        aggregated_delta_model_t model(NGENES { Ngene },
+                                       NTYPES { K },
+                                       A0 { a0 },
+                                       B0 { b0 },
+                                       EPS { eps });
+
+        // TODO
+        // SpMat S = read_eigen_sparse_subset_col(spliced_mtx_file,
+        //                                        spliced_idx_tab,
+        //                                        cols_i);
+
+        // SpMat U = read_eigen_sparse_subset_col(unspliced_mtx_file,
+        //                                        unspliced_idx_tab,
+        //                                        cols_i);
 
         data_loader_t loader(spliced_mtx_file,
                              unspliced_mtx_file,
@@ -326,7 +338,7 @@ rcpp_mmutil_aggregate_velocity(
                              Ngene);
 
         for (auto j : cols_i) {
-            CHECK(loader.read(j));
+            loader.read(j);
             model.add_stat(loader.unspliced(), loader.spliced(), Ctot.col(j));
         }
 
@@ -353,7 +365,7 @@ rcpp_mmutil_aggregate_velocity(
             ////////////////////////////
 
             for (auto j : cols_i) {
-                CHECK(loader.read(j));
+                loader.read(j);
                 model.update_phi_stat(loader.unspliced(),
                                       loader.spliced(),
                                       Ctot.col(j));

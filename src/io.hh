@@ -72,7 +72,7 @@ read_dict_stream(IFS &ifs, std::unordered_map<T1, T2> &in)
     while (ifs >> v >> w) {
         in[v] = w;
     }
-    ERR_RET(in.size() == 0, "empty file");
+    ASSERT_RET(in.size() > 0, "empty file");
     return EXIT_SUCCESS;
 }
 
@@ -104,7 +104,7 @@ read_pair_stream(IFS &ifs, std::vector<std::tuple<T1, T2>> &in)
     while (ifs >> v >> w) {
         in.emplace_back(std::make_tuple(v, w));
     }
-    ERR_RET(in.size() == 0, "empty file");
+    ASSERT_RET(in.size() > 0, "empty file");
     return EXIT_SUCCESS;
 }
 
@@ -135,7 +135,7 @@ read_vector_stream(IFS &ifs, std::vector<T> &in)
     while (ifs >> v) {
         in.push_back(v);
     }
-    ERR_RET(in.size() == 0, "empty vector");
+    ASSERT_RET(in.size() > 0, "empty vector");
     return EXIT_SUCCESS;
 }
 
@@ -447,11 +447,12 @@ read_data_stream(IFS &ifs, T &in)
 #endif
 
     auto mtot = data.size();
-    ERR_RET(mtot != (nr * nc),
-            "# data points: " << mtot << " elements in " << nr << " x " << nc
-                              << " matrix");
-    ERR_RET(mtot < 1, "empty file");
-    ERR_RET(nr < 1, "zero number of rows; incomplete line?");
+    ASSERT_RET(mtot == (nr * nc),
+               "# data points: " << mtot << " elements in " << nr << " x " << nc
+                                 << " matrix");
+
+    ASSERT_RET(mtot > 0, "empty file");
+    ASSERT_RET(nr > 0, "zero number of rows; incomplete line?");
     in = Eigen::Map<T>(data.data(), nc, nr);
     in.transposeInPlace();
 
@@ -483,7 +484,7 @@ template <typename T>
 auto
 read_data_file(const std::string filename)
 {
-    typename std::shared_ptr<T> ret(new T{});
+    typename std::shared_ptr<T> ret(new T {});
     auto &in = *ret.get();
 
     if (is_file_gz(filename)) {

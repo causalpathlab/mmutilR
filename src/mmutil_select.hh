@@ -37,8 +37,8 @@ copy_selected_rows(const std::string mtx_file,
     using index_map_t = copier_t::index_map_t;
 
     std::vector<Str> features(0);
-    CHK_ERR_RET(read_vector_file(full_row_file, features),
-                "Failed to read features");
+    CHK_RET_(read_vector_file(full_row_file, features),
+             "Failed to read features");
 
     std::unordered_set<Str> selected(_selected.begin(), _selected.end());
 
@@ -86,7 +86,7 @@ copy_selected_rows(const std::string mtx_file,
     TLOG("Finished copying submatrix data");
 
     // std::string idx_file = output_mtx_file + ".index";
-    // CHK_ERR_RET(mmutil::index::build_mmutil_index(output_mtx_file, idx_file),
+    // CHK_RET_(mmutil::index::build_mmutil_index(output_mtx_file, idx_file),
     //             "Failed to construct an index file: " << idx_file);
 
     TLOG("Done");
@@ -114,16 +114,16 @@ copy_selected_columns(const std::string mtx_file,
     std::unordered_set<Str> selected(_selected.begin(), _selected.end());
 
     std::vector<Str> full_column_names(0);
-    CHK_ERR_RET(read_vector_file(full_column_file, full_column_names),
-                "Failed to read column names");
+    CHK_RET_(read_vector_file(full_column_file, full_column_names),
+             "Failed to read column names");
 
     col_stat_collector_t collector;
     visit_matrix_market_file(mtx_file, collector);
     const IntVec &nnz_col = collector.Col_N;
     const Index max_row = collector.max_row, max_col = collector.max_col;
 
-    ASSERT(full_column_names.size() >= max_col,
-           "Insufficient number of columns");
+    ASSERT_RET(full_column_names.size() >= max_col,
+               "Insufficient number of columns");
 
     std::vector<Index> cols(max_col);
     std::iota(std::begin(cols), std::end(cols), 0);
@@ -164,15 +164,6 @@ copy_selected_columns(const std::string mtx_file,
     visit_matrix_market_file(mtx_file, copier);
 
     TLOG("Finished copying submatrix data");
-
-    // CHK_ERR_RET(mmutil::bgzf::convert_bgzip(output_mtx_file),
-    //             "Failed to bgzip " << output_mtx_file);
-
-    // std::string idx_file = output_mtx_file + ".index";
-    // CHK_ERR_RET(mmutil::index::build_mmutil_index(output_mtx_file, idx_file),
-    //             "Failed to construct an index file: " << idx_file);
-
-    TLOG("Done");
     return EXIT_SUCCESS;
 }
 

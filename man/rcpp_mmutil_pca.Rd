@@ -10,7 +10,7 @@ rcpp_mmutil_pca(
   TAKE_LN = TRUE,
   TAU = 1,
   COL_NORM = 10000,
-  EM_ITER = 10L,
+  EM_ITER = 0L,
   EM_TOL = 1e-04,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,

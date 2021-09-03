@@ -4,7 +4,7 @@
 \alias{rcpp_mmutil_compute_scores}
 \title{Collect row-wise and column-wise statistics}
 \usage{
-rcpp_mmutil_compute_scores(mtx_file, row_file = "", col_file = "")
+rcpp_mmutil_compute_scores(mtx_file, row_file = NULL, col_file = NULL)
 }
 \arguments{
 \item{mtx_file}{data file}

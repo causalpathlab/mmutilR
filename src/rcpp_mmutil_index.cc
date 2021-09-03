@@ -17,7 +17,7 @@ rcpp_mmutil_build_index(const std::string mtx_file,
                         const std::string index_file = "")
 {
     using namespace mmutil::index;
-    CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
+    CHK_RET(mmutil::bgzf::convert_bgzip(mtx_file));
     return build_mmutil_index(mtx_file, index_file);
 }
 
@@ -52,7 +52,7 @@ int
 rcpp_mmutil_check_index(const std::string mtx_file,
                         const Rcpp::NumericVector &index_tab)
 {
-    CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
+    CHK_RET(mmutil::bgzf::convert_bgzip(mtx_file));
     using namespace mmutil::index;
     std::vector<Index> _idx(index_tab.begin(), index_tab.end());
     return check_index_tab(mtx_file, _idx);

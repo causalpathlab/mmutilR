@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mmutilR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -243,26 +243,26 @@
 <span class='co'>## show average marker features</span>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='va'>agg</span><span class='op'>$</span><span class='va'>mean</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>20</span>, <span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;      1_ct1 1_ct2 2_ct1 2_ct2 3_ct1 3_ct2 4_ct1 4_ct2 5_ct1 5_ct2 6_ct1 6_ct2
-#&gt; r001    10     0     9     0     9     0     0     1     1     2     0     4
+#&gt; r001     9     0    10     0     9     0     0     1     0     2     1     4
 #&gt; r002     2     0     2     0     2     0     0     1     0     1     0     0
-#&gt; r003     3     0     3     0     3     1     0     1     1     2     0     0
-#&gt; r004    16     1    17     0    17     0     0     1     2     2     0     0
-#&gt; r005     1     1     1     0     1     0     0     1     0     0     0     1
+#&gt; r003     3     0     3     0     3     0     0     1     0     2     0     0
+#&gt; r004    17     0    17     0    17     0     0     1     0     3     0     0
+#&gt; r005     1     0     0     0     0     0     0     1     0     0     0     1
 #&gt; r006     9     0     9     0     9     0     0     1     0     1     0     0
 #&gt; r007     2     0     2     0     2     0     0     2     0     0     0     2
-#&gt; r008     2     0     3     0     3     0     0     1     0     0     0     0
-#&gt; r009    16     0    16     0    17     0     0     1     0     1     0     1
-#&gt; r010     0     0     1     0     0     0     0     1     0     0     0     0
-#&gt; r011     0     0     1     0     3     0     0     4     1     4     0     5
-#&gt; r012     0     0     2     0     0     0     0     4     1     4     0     4
-#&gt; r013     3     0     1     0     3     1     0     4     1     4     0     4
+#&gt; r008     3     0     3     0     3     0     0     1     0     0     0     0
+#&gt; r009    17     0    17     0    17     0     0     1     0     1     0     1
+#&gt; r010     1     0     0     0     1     1     0     1     0     0     0     1
+#&gt; r011     0     0     1     0     3     0     0     4     0     4     0     4
+#&gt; r012     0     0     2     1     0     0     0     4     0     4     1     4
+#&gt; r013     3     0     2     0     3     0     0     4     0     4     0     4
 #&gt; r014     0     0     0     0     1     0     0     8     0     8     0     9
-#&gt; r015     1     0     0     0     1     0     0     5     1     5     0     5
+#&gt; r015     1     0     0     0     1     0     0     5     0     5     0     5
 #&gt; r016     1     0     0     0     3     0     0     4     0     4     0     5
-#&gt; r017     0     0     0     0     0     0     0     4     1     4     0     5
-#&gt; r018     1     1     0     0     0     0     0     4     0     4     0     4
-#&gt; r019     2     1     1     0     0     0     0     8     1     8     0     9
-#&gt; r020     1     0     0     0     2     0     0     5     1     5     0     6</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span><span class='op'>(</span>pattern <span class='op'>=</span> <span class='st'>"sim_test"</span><span class='op'>)</span><span class='op'>)</span>
+#&gt; r017     0     0     0     0     0     0     0     3     0     4     0     4
+#&gt; r018     1     0     0     0     0     0     0     3     0     4     0     4
+#&gt; r019     2     0     1     0     0     0     0     8     0     8     0     8
+#&gt; r020     1     0     0     0     2     0     0     5     0     5     0     5</div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/unlink.html'>unlink</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.files.html'>list.files</a></span><span class='op'>(</span>pattern <span class='op'>=</span> <span class='st'>"sim_test"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='co'>## Case-control simulation</span>
 <span class='va'>.sim</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='simulate_gamma_glm.html'>simulate_gamma_glm</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='va'>.dat</span> <span class='op'>&lt;-</span> <span class='fu'>mmutilR</span><span class='fu'>::</span><span class='fu'><a href='rcpp_mmutil_simulate_poisson.html'>rcpp_mmutil_simulate_poisson</a></span><span class='op'>(</span><span class='va'>.sim</span><span class='op'>$</span><span class='va'>obs.mu</span>,

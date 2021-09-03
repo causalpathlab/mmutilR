@@ -387,10 +387,12 @@ rcpp_mmutil_annotate_columns(
     std::vector<std::string> columns;
     if (r_cols.isNotNull()) {
         columns = copy(Rcpp::StringVector(r_cols));
-        ASSERT(columns.size() >= argmax.size(), "insufficient column names");
+        ASSERT_RETL(columns.size() >= argmax.size(),
+                    "insufficient column names");
     } else if (file_exists(col_file)) {
-        CHECK(read_vector_file(col_file, columns));
-        ASSERT(columns.size() >= argmax.size(), "insufficient column names");
+        CHK_RETL(read_vector_file(col_file, columns));
+        ASSERT_RETL(columns.size() >= argmax.size(),
+                    "insufficient column names");
     } else {
         columns.reserve(argmax.size());
         for (auto j = 0; j < argmax.size(); ++j)

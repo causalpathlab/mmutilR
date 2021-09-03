@@ -125,10 +125,10 @@ rcpp_mmutil_aggregate(
     const bool IMPUTE_BY_KNN = false)
 {
 
-    CHECK(mmutil::bgzf::convert_bgzip(mtx_file));
+    CHK_RETL(mmutil::bgzf::convert_bgzip(mtx_file));
 
     std::vector<std::string> mtx_cols;
-    CHECK(read_vector_file(col_file, mtx_cols));
+    CHK_RETL(read_vector_file(col_file, mtx_cols));
 
     //////////////////////////////
     // check column annotations //
@@ -168,8 +168,8 @@ rcpp_mmutil_aggregate(
 
     const Index K = lab_name.size();
 
-    ASSERT(cols.size() == indv.size(), "|cols| != |indv|");
-    ASSERT(cols.size() == annot.size(), "|cols| != |annot|");
+    ASSERT_RETL(cols.size() == indv.size(), "|cols| != |indv|");
+    ASSERT_RETL(cols.size() == annot.size(), "|cols| != |annot|");
 
     ////////////////////////
     // universal position //
@@ -225,16 +225,16 @@ rcpp_mmutil_aggregate(
     std::vector<Index> mtx_idx_tab;
 
     if (!file_exists(idx_file)) // if needed
-        CHECK(mmutil::index::build_mmutil_index(mtx_file, idx_file));
+        CHK_RETL(mmutil::index::build_mmutil_index(mtx_file, idx_file));
 
-    CHECK(mmutil::index::read_mmutil_index(idx_file, mtx_idx_tab));
+    CHK_RETL(mmutil::index::read_mmutil_index(idx_file, mtx_idx_tab));
 
-    CHECK(mmutil::index::check_index_tab(mtx_file, mtx_idx_tab));
+    CHK_RETL(mmutil::index::check_index_tab(mtx_file, mtx_idx_tab));
 
     mmutil::io::mm_info_reader_t info;
-    CHECK(mmutil::bgzf::peek_bgzf_header(mtx_file, info));
+    CHK_RETL(mmutil::bgzf::peek_bgzf_header(mtx_file, info));
 
-    ASSERT(Nsample == info.max_col, "Should have matched .mtx.gz");
+    ASSERT_RETL(Nsample == info.max_col, "Should have matched .mtx.gz");
 
     ////////////////////////////////////////////////////////
     // A wrapper data structure to retrieve matched cells //
@@ -260,16 +260,15 @@ rcpp_mmutil_aggregate(
     ////////////////////////////////////////
 
     if (r_V.isNotNull()) {
-        CHECK(matched_data.build_dictionary(Rcpp::NumericMatrix(r_V),
-                                            NUM_THREADS));
+        CHK_RETL(matched_data.build_dictionary(Rcpp::NumericMatrix(r_V),
+                                               NUM_THREADS));
         do_cocoa = true;
     }
 
     const Index Ntrt = matched_data.num_treatment();
 
     if (do_cocoa) {
-        ASSERT(Nind > 1,
-               "Must have at least two individual for confounder estimation");
+        ASSERT_RETL(Nind > 1, "at least two individuals");
     }
 
     ///////////////////////////
@@ -434,7 +433,7 @@ rcpp_mmutil_aggregate(
 
     TLOG("Writing down the estimated effects");
     std::vector<std::string> out_row_names;
-    CHECK(read_vector_file(row_file, out_row_names));
+    CHK_RETL(read_vector_file(row_file, out_row_names));
 
     auto named_mat = [&out_row_names, &out_col_names](const Mat &xx) {
         Rcpp::NumericMatrix x = Rcpp::wrap(xx);

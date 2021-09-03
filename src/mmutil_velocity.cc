@@ -17,12 +17,12 @@ data_loader_t::read(const Index j)
     unspliced_reader.data.setZero();
 
     set_mem_loc(spliced_idx_tab);
-    CHK_ERR_RET(visit_bgzf_block(spliced_file, lb, ub, spliced_reader),
-                "unable to read spliced mtx file [" << j << "]");
+    CHK_RET_(visit_bgzf_block(spliced_file, lb, ub, spliced_reader),
+             "unable to read spliced mtx file [" << j << "]");
 
     set_mem_loc(unspliced_idx_tab);
-    CHK_ERR_RET(visit_bgzf_block(unspliced_file, lb, ub, unspliced_reader),
-                "unable to read unspliced mtx file [" << j << "]");
+    CHK_RET_(visit_bgzf_block(unspliced_file, lb, ub, unspliced_reader),
+             "unable to read unspliced mtx file [" << j << "]");
 
     return EXIT_SUCCESS;
 }
@@ -50,6 +50,38 @@ data_loader_t::set_mem_loc(const std::vector<Index> &_idx_tab)
 /////////////////////////////////////////////
 // implementations for the aggregated stat //
 /////////////////////////////////////////////
+
+void
+aggregated_delta_model_t::update_phi_stat_bulk(const SpMat &uu,
+                                               const SpMat &ss,
+                                               const Mat &cc)
+{
+    ASSERT(1 == 0, "Not implemented");
+    // for (Index j = 0; j < uu.cols(); ++j) {
+    //     phi_new_j = uu.col(j) + ss.col(j);
+    //     phi_old_j = uu.col(j) + ss.col(j);
+    //     PhiC += (phi_new_j.binaryExpr(delta * cc.col(j), update_phi_op) -
+    //              phi_old_j.binaryExpr(delta_old * cc.col(j), update_phi_op))
+    //              *
+    //         cc.col(j).transpose();
+    // }
+}
+
+void
+aggregated_delta_model_t::add_stat_bulk(const SpMat &uu,
+                                        const SpMat &ss,
+                                        const Mat &cc)
+{
+    ASSERT(1 == 0, "Not implemented");
+    // ASSERT(uu.cols() == ss.cols(), "cols(U) !=  cols(S)");
+    // UC += ((uu * cc.transpose()).array() + eps).matrix();
+    // for (Index j = 0; j < uu.cols(); ++j) {
+    //     phi_new_j = uu.col(j) + ss.col(j);
+    //     PhiC += (phi_new_j.binaryExpr(delta * cc.col(j), update_phi_op)) *
+    //         cc.col(j).transpose();
+    // }
+    // n += uu.cols();
+}
 
 Index
 aggregated_delta_model_t::nsample() const

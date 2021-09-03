@@ -37,7 +37,7 @@ rcpp_mmutil_simulate_poisson(
     TLOG(Nind << " individuals, " << Nsample << " cells");
 
     // Partition columns into individuals
-    std::minstd_rand rng{ std::random_device{}() };
+    std::minstd_rand rng { std::random_device {}() };
     std::uniform_int_distribution<Index> unif_ind(0, Nind - 1);
     std::uniform_int_distribution<Index> unif_rho(0, Nsample - 1);
 
@@ -49,14 +49,16 @@ rcpp_mmutil_simulate_poisson(
     if (r_indv.isNotNull()) {
         TLOG("Column to individual memberships were provided");
         Rcpp::IntegerVector _indv(r_indv);
-        ASSERT(_indv.size() == Nsample, "Must have the same number of samples");
+        ASSERT_RETL(_indv.size() == Nsample,
+                    "Must have the same number of samples");
         indv.reserve(Nsample);
         for (Index j = 0; j < _indv.size(); ++j) {
             const Index i = _indv[j];
             if (i >= 1 && i <= Nind)
                 indv.emplace_back(i - 1);
         }
-        ASSERT(indv.size() == Nsample, "Incomplete membership information");
+        ASSERT_RETL(indv.size() == Nsample,
+                    "Incomplete membership information");
     } else {
         TLOG("Sampling column to individual memberships");
         indv.resize(Nsample);
@@ -177,9 +179,9 @@ rcpp_mmutil_simulate_poisson(
 
     write_vector_file(row_file, row_names);
 
-    ASSERT(file_exists(mtx_file), "missing file: " << mtx_file);
-    ASSERT(file_exists(col_file), "missing file: " << col_file);
-    ASSERT(file_exists(row_file), "missing file: " << row_file);
+    ASSERT_RETL(file_exists(mtx_file), "missing file: " << mtx_file);
+    ASSERT_RETL(file_exists(col_file), "missing file: " << col_file);
+    ASSERT_RETL(file_exists(row_file), "missing file: " << row_file);
 
     if (file_exists(mtx_file + ".index"))
         remove_file(mtx_file + ".index");

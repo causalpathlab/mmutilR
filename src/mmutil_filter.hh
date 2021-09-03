@@ -5,9 +5,9 @@
 #ifndef MMUTIL_FILTER_HH_
 #define MMUTIL_FILTER_HH_
 
-void filter_col_by_nnz(const Index column_threshold,  //
-                       const std::string mtx_file,    //
-                       const std::string column_file, //
-                       const std::string output);
+int filter_col_by_nnz(const Index column_threshold,  //
+                      const std::string mtx_file,    //
+                      const std::string column_file, //
+                      const std::string output);
 
 #endif

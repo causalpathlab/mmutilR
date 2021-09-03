@@ -95,10 +95,9 @@ struct glob_triplet_copier_t {
     void eval(const index_t row, const index_t col, const scalar_t weight)
     {
         if (remap_col.count(col) > 0 && remap_row.count(row) > 0) {
-            const index_t i =
-                remap_row.at(row) + 1; // fix zero-based to one-based
-            const index_t j =
-                remap_col.at(col) + 1; // fix zero-based to one-based
+            // fix zero-based to one-based
+            const index_t i = remap_row.at(row) + 1;
+            const index_t j = remap_col.at(col) + 1;
             ofs << i << FS << j << FS << weight << std::endl;
         }
     }

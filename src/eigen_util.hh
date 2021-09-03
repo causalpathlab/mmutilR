@@ -224,6 +224,24 @@ row_sub(const Eigen::MatrixBase<Derived> &_mat, const ROWS &sub_rows)
     return ret;
 }
 
+template <typename FUN, typename DATA>
+inline void
+visit_sparse_matrix(const DATA &data, FUN &fun)
+{
+    using Scalar = typename DATA::Scalar;
+    using Index = typename DATA::Index;
+
+    fun.eval_after_header(data.rows(), data.cols(), data.nonZeros());
+
+    for (Index o = 0; o < data.outerSize(); ++o) {
+        for (typename DATA::InnerIterator it(data, o); it; ++it) {
+            fun.eval(it.row(), it.col(), it.value());
+        }
+    }
+
+    fun.eval_end_of_data();
+}
+
 template <typename Derived>
 inline Eigen::
     SparseMatrix<typename Derived::Scalar, Eigen::RowMajor, std::ptrdiff_t>

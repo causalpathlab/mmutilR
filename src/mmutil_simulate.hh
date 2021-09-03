@@ -18,11 +18,11 @@
 // - Combine them by streaming	         //
 ///////////////////////////////////////////
 
-/// @param mu D x 1
-/// @param rho N x 1
-/// @param col_offset column index offset
-/// @param ofs write out sparse triplets here
-/// @return number of non-zero elements
+/// mu: D x 1
+/// rho: N x 1
+/// col_offset: column index offset
+/// ofs: write out sparse triplets here
+/// returns number of non-zero elements
 template <typename OFS>
 Index
 sample_poisson_data(const Vec mu,
