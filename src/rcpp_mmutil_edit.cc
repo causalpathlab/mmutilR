@@ -9,6 +9,9 @@
 //'
 //' @param r_headers file set headers
 //' @param r_batches unique batch names for each header
+//' @param r_mtx A list of mtx files
+//' @param r_row A list of row files
+//' @param r_col A list of col files
 //' @param output output file header
 //' @param nnz_cutoff number of non-zero cutoff for columns
 //' @param delim delimiter in the column name
@@ -39,17 +42,28 @@
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_mmutil_merge_file_sets(const Rcpp::StringVector &r_headers,
-                            const Rcpp::StringVector &r_batches,
-                            const std::string output,
-                            const double nnz_cutoff = 1,
-                            const std::string delim = "_")
+rcpp_mmutil_merge_file_sets(
+    Rcpp::Nullable<const Rcpp::StringVector> r_headers = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_batches = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_mtx = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_row = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_col = R_NilValue,
+    const std::string output = "output",
+    const double nnz_cutoff = 1,
+    const std::string delim = "_")
 {
-    std::vector<std::string> headers = copy(r_headers);
-    std::vector<std::string> batches = copy(r_batches);
 
-    ASSERT_RETL(headers.size() == batches.size(),
-                "Must have a list of batch names matching the list of headers");
+    ASSERT_RETL(r_batches.isNotNull(), "must provide batch info");
+
+    std::vector<std::string> batches = copy(Rcpp::StringVector(r_batches));
+
+    std::vector<std::string> headers;
+    if (r_headers.isNotNull()) {
+        headers = copy(Rcpp::StringVector(r_headers));
+        ASSERT_RETL(
+            headers.size() == batches.size(),
+            "Must have a list of batch names matching the list of headers");
+    }
 
     std::unordered_set<std::string> _rows; // Take a unique set of
     std::vector<std::string> glob_rows;    // row names
@@ -58,31 +72,54 @@ rcpp_mmutil_merge_file_sets(const Rcpp::StringVector &r_headers,
     std::vector<std::string> row_files;
     std::vector<std::string> col_files;
 
-    for (auto s : headers) {
-        std::vector<std::string> rows_s;
-        std::string row_file_s = s + ".rows.gz";
-        std::string mtx_file_s = s + ".mtx.gz";
-        std::string col_file_s = s + ".cols.gz";
+    if (r_mtx.isNull() || r_row.isNull() || r_col.isNull()) {
+        for (auto s : headers) {
+            std::vector<std::string> rows_s;
+            std::string row_file_s = s + ".rows.gz";
+            std::string mtx_file_s = s + ".mtx.gz";
+            std::string col_file_s = s + ".cols.gz";
 
-        ASSERT_RETL(file_exists(mtx_file_s),
-                    "unable to find the mtx file: " << mtx_file_s);
+            ASSERT_RETL(file_exists(mtx_file_s),
+                        "unable to find the mtx file: " << mtx_file_s);
 
-        ASSERT_RETL(file_exists(row_file_s),
-                    "unable to find the row file: " << row_file_s);
+            ASSERT_RETL(file_exists(row_file_s),
+                        "unable to find the row file: " << row_file_s);
 
-        ASSERT_RETL(file_exists(col_file_s),
-                    "unable to find the col file: " << col_file_s);
+            ASSERT_RETL(file_exists(col_file_s),
+                        "unable to find the col file: " << col_file_s);
 
-        ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
-                    "unable to read the row file: " << row_file_s);
+            ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
+                        "unable to read the row file: " << row_file_s);
 
-        for (auto r : rows_s) {
-            _rows.insert(r);
+            for (auto r : rows_s) {
+                _rows.insert(r);
+            }
+
+            mtx_files.emplace_back(mtx_file_s);
+            row_files.emplace_back(row_file_s);
+            col_files.emplace_back(col_file_s);
         }
+    } else {
+        mtx_files = copy(Rcpp::StringVector(r_mtx));
+        row_files = copy(Rcpp::StringVector(r_row));
+        col_files = copy(Rcpp::StringVector(r_col));
 
-        mtx_files.emplace_back(mtx_file_s);
-        row_files.emplace_back(row_file_s);
-        col_files.emplace_back(col_file_s);
+        ASSERT_RETL(mtx_files.size() == row_files.size() &&
+                        mtx_files.size() == col_files.size(),
+                    "different number of mtx, row, col files");
+
+        ASSERT_RETL(
+            mtx_files.size() == batches.size(),
+            "Must have a list of batch names matching the list of mtx files");
+
+        for (auto row_file_s : row_files) {
+            std::vector<std::string> rows_s;
+            ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
+                        "unable to read the row file: " << row_file_s);
+            for (auto r : rows_s) {
+                _rows.insert(r);
+            }
+        }
     }
 
     glob_rows.reserve(_rows.size());

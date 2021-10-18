@@ -104,17 +104,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_merge_file_sets
-Rcpp::List rcpp_mmutil_merge_file_sets(const Rcpp::StringVector& r_headers, const Rcpp::StringVector& r_batches, const std::string output, const double nnz_cutoff, const std::string delim);
-RcppExport SEXP _mmutilR_rcpp_mmutil_merge_file_sets(SEXP r_headersSEXP, SEXP r_batchesSEXP, SEXP outputSEXP, SEXP nnz_cutoffSEXP, SEXP delimSEXP) {
+Rcpp::List rcpp_mmutil_merge_file_sets(Rcpp::Nullable<const Rcpp::StringVector> r_headers, Rcpp::Nullable<const Rcpp::StringVector> r_batches, Rcpp::Nullable<const Rcpp::StringVector> r_mtx, Rcpp::Nullable<const Rcpp::StringVector> r_row, Rcpp::Nullable<const Rcpp::StringVector> r_col, const std::string output, const double nnz_cutoff, const std::string delim);
+RcppExport SEXP _mmutilR_rcpp_mmutil_merge_file_sets(SEXP r_headersSEXP, SEXP r_batchesSEXP, SEXP r_mtxSEXP, SEXP r_rowSEXP, SEXP r_colSEXP, SEXP outputSEXP, SEXP nnz_cutoffSEXP, SEXP delimSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type r_headers(r_headersSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type r_batches(r_batchesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<const Rcpp::StringVector> >::type r_headers(r_headersSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<const Rcpp::StringVector> >::type r_batches(r_batchesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<const Rcpp::StringVector> >::type r_mtx(r_mtxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<const Rcpp::StringVector> >::type r_row(r_rowSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<const Rcpp::StringVector> >::type r_col(r_colSEXP);
     Rcpp::traits::input_parameter< const std::string >::type output(outputSEXP);
     Rcpp::traits::input_parameter< const double >::type nnz_cutoff(nnz_cutoffSEXP);
     Rcpp::traits::input_parameter< const std::string >::type delim(delimSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_merge_file_sets(r_headers, r_batches, output, nnz_cutoff, delim));
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_merge_file_sets(r_headers, r_batches, r_mtx, r_row, r_col, output, nnz_cutoff, delim));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -368,7 +371,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_bbknn_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn_pca, 13},
     {"_mmutilR_rcpp_mmutil_annotate_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_annotate_columns, 18},
     {"_mmutilR_rcpp_mmutil_deconvolve_svd", (DL_FUNC) &_mmutilR_rcpp_mmutil_deconvolve_svd, 10},
-    {"_mmutilR_rcpp_mmutil_merge_file_sets", (DL_FUNC) &_mmutilR_rcpp_mmutil_merge_file_sets, 5},
+    {"_mmutilR_rcpp_mmutil_merge_file_sets", (DL_FUNC) &_mmutilR_rcpp_mmutil_merge_file_sets, 8},
     {"_mmutilR_rcpp_mmutil_copy_selected_rows", (DL_FUNC) &_mmutilR_rcpp_mmutil_copy_selected_rows, 5},
     {"_mmutilR_rcpp_mmutil_copy_selected_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_copy_selected_columns, 5},
     {"_mmutilR_rcpp_mmutil_build_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_build_index, 2},

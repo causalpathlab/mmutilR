@@ -5,9 +5,12 @@
 \title{Merge multiple 10x mtx file sets into one set}
 \usage{
 rcpp_mmutil_merge_file_sets(
-  r_headers,
-  r_batches,
-  output,
+  r_headers = NULL,
+  r_batches = NULL,
+  r_mtx = NULL,
+  r_row = NULL,
+  r_col = NULL,
+  output = "output",
   nnz_cutoff = 1,
   delim = "_"
 )
@@ -16,6 +19,12 @@ rcpp_mmutil_merge_file_sets(
 \item{r_headers}{file set headers}
 
 \item{r_batches}{unique batch names for each header}
+
+\item{r_mtx}{A list of mtx files}
+
+\item{r_row}{A list of row files}
+
+\item{r_col}{A list of col files}
 
 \item{output}{output file header}
 
