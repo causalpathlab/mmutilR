@@ -345,7 +345,7 @@ rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
     // index new mtx file //
     ////////////////////////
 
-    const std::string out_idx_file = mtx_file + ".index";
+    const std::string out_idx_file = out_mtx_file + ".index";
 
     if (file_exists(out_idx_file))
         remove_file(out_idx_file);
