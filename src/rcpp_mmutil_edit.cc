@@ -350,7 +350,7 @@ rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
     if (file_exists(out_idx_file))
         remove_file(out_idx_file);
 
-    CHECK(mmutil::index::build_mmutil_index(mtx_file, out_idx_file));
+    CHECK(mmutil::index::build_mmutil_index(out_mtx_file, out_idx_file));
 
     return Rcpp::List::create(Rcpp::_["mtx"] = out_mtx_file,
                               Rcpp::_["row"] = out_row_file,
