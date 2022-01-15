@@ -17,7 +17,8 @@ rcpp_mmutil_bbknn_pca(
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
   LU_ITER = 5L,
-  row_weight_file = ""
+  row_weight_file = "",
+  NUM_THREADS = 1L
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ rcpp_mmutil_bbknn_pca(
 \item{LU_ITER}{LU iteration}
 
 \item{row_weight_file}{row-wise weight file}
+
+\item{NUM_THREADS}{number of threads for multi-core processing}
 }
 \value{
 a list of (1) factors.adjusted (2) U (3) D (4) V

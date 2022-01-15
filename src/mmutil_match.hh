@@ -11,6 +11,8 @@
 #include "tuple_util.hh"
 #include "io.hh"
 
+// [[Rcpp::plugins(openmp)]]
+
 #ifndef MMUTIL_MATCH_HH_
 #define MMUTIL_MATCH_HH_
 
@@ -89,6 +91,7 @@ int search_knn(const SrcDataT _SrcData, //
                const KNN _knn,          //
                const BILINK _bilink,    //
                const NNLIST _nnlist,    //
+               const Index NUM_THREADS, //
                index_triplet_vec &out);
 
 /**

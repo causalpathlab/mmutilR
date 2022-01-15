@@ -5,7 +5,8 @@ build_bbknn(const svd_out_t &svd,
             const std::vector<std::vector<Index>> &batch_index_set,
             const std::size_t knn,
             const std::size_t KNN_BILINK = 10,
-            const std::size_t KNN_NNLIST = 10)
+            const std::size_t KNN_NNLIST = 10,
+            const std::size_t NUM_THREADS = 1)
 {
 
     ////////////////////////////////
@@ -77,7 +78,7 @@ build_bbknn(const svd_out_t &svd,
     }
 
     {
-        progress_bar_t<Index> prog(Nsample, 1e2);
+        // progress_bar_t<Index> prog(Nsample, 1e2);
 
         for (Index bb = 0; bb < Nbatch; ++bb) {
             const Index n_tot = batch_index_set[bb].size();
@@ -88,12 +89,17 @@ build_bbknn(const svd_out_t &svd,
             Mat dat = build_spectral_data(bb);
             normalize_columns(dat);   // cosine distance
             float *mass = dat.data(); // adding data points
+
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
             for (Index i = 0; i < n_tot; ++i) {
                 alg.addPoint((void *)(mass + param_rank * i), i);
                 const Index j = bset.at(i);
                 V.col(j) = dat.col(i);
-                prog.update();
-                prog(Rcpp::Rcerr);
+                // prog.update();
+                // prog(Rcpp::Rcerr);
             }
         }
     }
@@ -107,8 +113,12 @@ build_bbknn(const svd_out_t &svd,
 
     {
         float *mass = V.data();
-        progress_bar_t<Index> prog(Nsample, 1e2);
+        // progress_bar_t<Index> prog(Nsample, 1e2);
 
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
         for (Index j = 0; j < Nsample; ++j) {
 
             for (Index bb = 0; bb < Nbatch; ++bb) {
@@ -132,8 +142,8 @@ build_bbknn(const svd_out_t &svd,
                     pq.pop();
                 }
             }
-            prog.update();
-            prog(std::cerr);
+            // prog.update();
+            // prog(std::cerr);
         }
 
         keep_reciprocal_knn(backbone);
@@ -154,8 +164,12 @@ build_bbknn(const svd_out_t &svd,
         std::vector<Scalar> weights_j(param_knn);
         std::vector<Index> neigh_j(param_knn);
 
-        progress_bar_t<Index> prog(B.outerSize(), 1e2);
+        // progress_bar_t<Index> prog(B.outerSize(), 1e2);
 
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
         for (Index j = 0; j < B.outerSize(); ++j) {
 
             Index deg_j = 0;
@@ -177,8 +191,8 @@ build_bbknn(const svd_out_t &svd,
                 knn_index.emplace_back(j, k, w);
             }
 
-            prog.update();
-            prog(std::cerr);
+            // prog.update();
+            // prog(std::cerr);
         }
     }
 

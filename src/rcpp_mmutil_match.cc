@@ -3,6 +3,8 @@
 #include "mmutil_util.hh"
 #include "mmutil_index.hh"
 
+// [[Rcpp::plugins(openmp)]]
+
 //' Match the columns of two MTX files
 //'
 //' @param src_mtx source data file
@@ -18,6 +20,7 @@
 //' @param KNN_BILINK # of bidirectional links (default: 10)
 //' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 //' @param row_weight_file row-wise weight file
+//' @param NUM_THREADS number of threads for multi-core processing
 //'
 //' @return a list of source, target, distance
 //'
@@ -48,7 +51,8 @@ rcpp_mmutil_match_files(const std::string src_mtx,
                         const std::size_t LU_ITER = 5,
                         const std::size_t KNN_BILINK = 10,
                         const std::size_t KNN_NNLIST = 10,
-                        const std::string row_weight_file = "")
+                        const std::string row_weight_file = "",
+                        const std::size_t NUM_THREADS = 1)
 {
     spectral_options_t options;
 
@@ -159,17 +163,26 @@ rcpp_mmutil_match_files(const std::string src_mtx,
                         KNN(knn),
                         BILINK(param_bilink),
                         NNLIST(param_nnlist),
+NUM_THREADS,
                         out_index));
 
-    TLOG("Done");
+    TLOG("Done kNN searches");
 
-    Rcpp::NumericVector src_index;
-    Rcpp::NumericVector tgt_index;
-    Rcpp::NumericVector dist_vec;
-    for (auto tt : out_index) {
-        src_index.push_back(std::get<0>(tt) + 1);
-        tgt_index.push_back(std::get<1>(tt) + 1);
-        dist_vec.push_back(std::get<2>(tt));
+    const std::size_t nout = out_index.size();
+
+    Rcpp::IntegerVector src_index(nout, NA_INTEGER);
+    Rcpp::IntegerVector tgt_index(nout, NA_INTEGER);
+    Rcpp::NumericVector dist_vec(nout, NA_REAL);
+
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
+    for (std::size_t i = 0; i < out_index.size(); ++i) {
+        auto &tt = out_index.at(i);
+        src_index[i] = std::get<0>(tt) + 1;
+        tgt_index[i] = std::get<1>(tt) + 1;
+        dist_vec[i] = std::get<2>(tt);
     }
 
     return Rcpp::List::create(Rcpp::_["src.index"] = src_index,

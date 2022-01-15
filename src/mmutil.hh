@@ -8,6 +8,8 @@
 #include <RcppEigen.h>
 // [[Rcpp::depends(RcppProgress)]]
 
+// [[Rcpp::plugins(openmp)]]
+
 // #include <progress.hpp>
 
 #include <iomanip>

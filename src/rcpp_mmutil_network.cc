@@ -243,6 +243,7 @@ rcpp_mmutil_network_edge_cluster(const std::string mtx_file,
 //' @param KNN_BILINK # of bidirectional links (default: 10)
 //' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 //' @param row_weight_file row-wise weight file
+//' @param NUM_THREADS number of threads for multi-core processing
 //'
 //' @return feature.incidence, sample.incidence, edges, adjacency matrix files
 //'
@@ -284,7 +285,8 @@ rcpp_mmutil_network_topic_data(
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
     const std::size_t LU_ITER = 5,
-    const std::string row_weight_file = "")
+    const std::string row_weight_file = "",
+    const std::size_t NUM_THREADS = 1)
 {
 
     mmutil::index::mm_info_reader_t info;
@@ -411,7 +413,12 @@ rcpp_mmutil_network_topic_data(
         }
     }
 
-    SpMat W = build_bbknn(svd, batch_index_set, knn, KNN_BILINK, KNN_NNLIST);
+    SpMat W = build_bbknn(svd,
+                          batch_index_set,
+                          knn,
+                          KNN_BILINK,
+                          KNN_NNLIST,
+                          NUM_THREADS);
 
     /////////////////////////////////////
     // symmetrize the adjacency matrix //

@@ -17,7 +17,8 @@ rcpp_mmutil_match_files(
   LU_ITER = 5L,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
-  row_weight_file = ""
+  row_weight_file = "",
+  NUM_THREADS = 1L
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ rcpp_mmutil_match_files(
 \item{KNN_NNLIST}{# nearest neighbor lists (default: 10)}
 
 \item{row_weight_file}{row-wise weight file}
+
+\item{NUM_THREADS}{number of threads for multi-core processing}
 }
 \value{
 a list of source, target, distance
