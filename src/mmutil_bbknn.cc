@@ -78,7 +78,7 @@ build_bbknn(const svd_out_t &svd,
     }
 
     {
-        // progress_bar_t<Index> prog(Nsample, 1e2);
+        progress_bar_t<Index> prog(Nsample, 1e2);
 
         for (Index bb = 0; bb < Nbatch; ++bb) {
             const Index n_tot = batch_index_set[bb].size();
@@ -95,11 +95,14 @@ build_bbknn(const svd_out_t &svd,
 #pragma omp for
 #endif
             for (Index i = 0; i < n_tot; ++i) {
-                alg.addPoint((void *)(mass + param_rank * i), i);
-                const Index j = bset.at(i);
-                V.col(j) = dat.col(i);
-                // prog.update();
-                // prog(Rcpp::Rcerr);
+#pragma omp critical
+                {
+                    alg.addPoint((void *)(mass + param_rank * i), i);
+                    const Index j = bset.at(i);
+                    V.col(j) = dat.col(i);
+                    prog.update();
+                    prog(Rcpp::Rcerr);
+                }
             }
         }
     }
@@ -113,37 +116,41 @@ build_bbknn(const svd_out_t &svd,
 
     {
         float *mass = V.data();
-        // progress_bar_t<Index> prog(Nsample, 1e2);
+        progress_bar_t<Index> prog(Nsample, 1e2);
+
+        for (Index j = 0; j < Nsample; ++j) {
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
 #pragma omp for
 #endif
-        for (Index j = 0; j < Nsample; ++j) {
 
             for (Index bb = 0; bb < Nbatch; ++bb) {
-                KnnAlg &alg = *knn_lookup_vec[bb].get();
-                const std::size_t nn_b = batch_index_set.at(bb).size();
-                std::size_t nquery = (std::min(param_knn, nn_b) / Nbatch);
-                if (nquery < 1)
-                    nquery = 1;
+#pragma omp critical
+                {
+                    KnnAlg &alg = *knn_lookup_vec[bb].get();
+                    const std::size_t nn_b = batch_index_set.at(bb).size();
+                    std::size_t nquery = (std::min(param_knn, nn_b) / Nbatch);
+                    if (nquery < 1)
+                        nquery = 1;
 
-                auto pq =
-                    alg.searchKnn((void *)(mass + param_rank * j), nquery);
+                    auto pq =
+                        alg.searchKnn((void *)(mass + param_rank * j), nquery);
 
-                while (!pq.empty()) {
-                    float d = 0;
-                    std::size_t k;
-                    std::tie(d, k) = pq.top();
-                    Index i = batch_index_set.at(bb).at(k);
-                    if (i != j) {
-                        backbone.emplace_back(j, i, 1.0);
+                    while (!pq.empty()) {
+                        float d = 0;
+                        std::size_t k;
+                        std::tie(d, k) = pq.top();
+                        Index i = batch_index_set.at(bb).at(k);
+                        if (i != j) {
+                            backbone.emplace_back(j, i, 1.0);
+                        }
+                        pq.pop();
                     }
-                    pq.pop();
-                }
+                } // critical
             }
-            // prog.update();
-            // prog(std::cerr);
+            prog.update();
+            prog(std::cerr);
         }
 
         keep_reciprocal_knn(backbone);
@@ -164,7 +171,7 @@ build_bbknn(const svd_out_t &svd,
         std::vector<Scalar> weights_j(param_knn);
         std::vector<Index> neigh_j(param_knn);
 
-        // progress_bar_t<Index> prog(B.outerSize(), 1e2);
+        progress_bar_t<Index> prog(B.outerSize(), 1e2);
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
@@ -172,27 +179,30 @@ build_bbknn(const svd_out_t &svd,
 #endif
         for (Index j = 0; j < B.outerSize(); ++j) {
 
-            Index deg_j = 0;
-            for (SpMat::InnerIterator it(B, j); it; ++it) {
-                Index k = it.col();
-                dist_j[deg_j] = V.col(k).cwiseProduct(V.col(j)).sum();
-                neigh_j[deg_j] = k;
-                ++deg_j;
-                if (deg_j >= param_knn)
-                    break;
-            }
+#pragma omp critical
+            {
+                Index deg_j = 0;
+                for (SpMat::InnerIterator it(B, j); it; ++it) {
+                    Index k = it.col();
+                    dist_j[deg_j] = V.col(k).cwiseProduct(V.col(j)).sum();
+                    neigh_j[deg_j] = k;
+                    ++deg_j;
+                    if (deg_j >= param_knn)
+                        break;
+                }
 
-            normalize_weights(deg_j, dist_j, weights_j);
+                normalize_weights(deg_j, dist_j, weights_j);
 
-            for (Index i = 0; i < deg_j; ++i) {
-                const Index k = neigh_j[i];
-                const Scalar w = weights_j[i];
+                for (Index i = 0; i < deg_j; ++i) {
+                    const Index k = neigh_j[i];
+                    const Scalar w = weights_j[i];
 
-                knn_index.emplace_back(j, k, w);
-            }
+                    knn_index.emplace_back(j, k, w);
+                }
 
-            // prog.update();
-            // prog(std::cerr);
+                prog.update();
+                prog(std::cerr);
+            } // critical
         }
     }
 

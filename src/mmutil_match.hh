@@ -86,12 +86,12 @@ struct TgtDataT {
    @param NNlist the size of neighbouring list
    @param OUT
  */
-int search_knn(const SrcDataT _SrcData, //
-               const TgtDataT _TgtData, //
-               const KNN _knn,          //
-               const BILINK _bilink,    //
-               const NNLIST _nnlist,    //
-               const Index NUM_THREADS, //
+int search_knn(const SrcDataT _SrcData,       //
+               const TgtDataT _TgtData,       //
+               const KNN _knn,                //
+               const BILINK _bilink,          //
+               const NNLIST _nnlist,          //
+               const std::size_t NUM_THREADS, //
                index_triplet_vec &out);
 
 /**

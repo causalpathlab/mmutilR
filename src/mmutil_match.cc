@@ -1,12 +1,12 @@
 #include "mmutil_match.hh"
 
 int
-search_knn(const SrcDataT _SrcData, //
-           const TgtDataT _TgtData, //
-           const KNN _knn,          //
-           const BILINK _bilink,    //
-           const NNLIST _nnlist,    //
-           const Index NUM_THREADS, //
+search_knn(const SrcDataT _SrcData,       //
+           const TgtDataT _TgtData,       //
+           const KNN _knn,                //
+           const BILINK _bilink,          //
+           const NNLIST _nnlist,          //
+           const std::size_t NUM_THREADS, //
            index_triplet_vec &out)
 {
     ERR_RET(_SrcData.vecdim != _TgtData.vecdim,
@@ -46,17 +46,20 @@ search_knn(const SrcDataT _SrcData, //
     {
         const float *mass = _TgtData.data;
 
-        // progress_bar_t<Index> prog(vecsize, 1e2);
+        progress_bar_t<Index> prog(vecsize, 1e2);
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
 #pragma omp for
 #endif
         for (Index i = 0; i < vecsize; ++i) {
-            alg.addPoint((void *)(mass + vecdim * i),
-                         static_cast<std::size_t>(i));
-            // prog.update();
-            // prog(Rcpp::Rcerr);
+#pragma omp critical
+            {
+                alg.addPoint((void *)(mass + vecdim * i),
+                             static_cast<std::size_t>(i));
+                prog.update();
+                prog(Rcpp::Rcerr);
+            }
         }
     }
 
@@ -69,23 +72,26 @@ search_knn(const SrcDataT _SrcData, //
         TLOG("Finding " << knn << " nearest neighbors for N = " << N);
 
         const float *mass = _SrcData.data;
-        // progress_bar_t<Index> prog(_SrcData.vecsize, 1e2);
+        progress_bar_t<Index> prog(_SrcData.vecsize, 1e2);
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
 #pragma omp for
 #endif
         for (Index i = 0; i < _SrcData.vecsize; ++i) {
-            auto pq = alg.searchKnn((void *)(mass + vecdim * i), knn);
-            float d = 0;
-            std::size_t j;
-            while (!pq.empty()) {
-                std::tie(d, j) = pq.top();
-                out.emplace_back(i, j, d);
-                pq.pop();
+#pragma omp critical
+            {
+                auto pq = alg.searchKnn((void *)(mass + vecdim * i), knn);
+                float d = 0;
+                std::size_t j;
+                while (!pq.empty()) {
+                    std::tie(d, j) = pq.top();
+                    out.emplace_back(i, j, d);
+                    pq.pop();
+                }
+                prog.update();
+                prog(Rcpp::Rcerr);
             }
-            // prog.update();
-            // prog(Rcpp::Rcerr);
         }
     }
     TLOG("Done kNN searches");
