@@ -163,7 +163,7 @@ rcpp_mmutil_match_files(const std::string src_mtx,
                         KNN(knn),
                         BILINK(param_bilink),
                         NNLIST(param_nnlist),
-NUM_THREADS,
+                        NUM_THREADS,
                         out_index));
 
     TLOG("Done kNN searches");

@@ -413,12 +413,17 @@ rcpp_mmutil_network_topic_data(
         }
     }
 
-    SpMat W = build_bbknn(svd,
-                          batch_index_set,
-                          knn,
-                          KNN_BILINK,
-                          KNN_NNLIST,
-                          NUM_THREADS);
+    std::vector<std::tuple<Index, Index, Scalar>> knn_index;
+    CHECK(build_bbknn(svd,
+                      batch_index_set,
+                      knn,
+                      knn_index,
+                      KNN_BILINK,
+                      KNN_NNLIST,
+                      NUM_THREADS));
+
+    SpMat W = build_eigen_sparse(knn_index, Nsample, Nsample);
+    TLOG("A weighted adjacency matrix W");
 
     /////////////////////////////////////
     // symmetrize the adjacency matrix //

@@ -1,9 +1,10 @@
 #include "mmutil_bbknn.hh"
 
-SpMat
+int
 build_bbknn(const svd_out_t &svd,
             const std::vector<std::vector<Index>> &batch_index_set,
             const std::size_t knn,
+            std::vector<std::tuple<Index, Index, Scalar>> &knn_index,
             const std::size_t KNN_BILINK = 10,
             const std::size_t KNN_NNLIST = 10,
             const std::size_t NUM_THREADS = 1)
@@ -161,11 +162,11 @@ build_bbknn(const svd_out_t &svd,
     ///////////////////////////////////
     // step2: calibrate edge weights //
     ///////////////////////////////////
-    std::vector<std::tuple<Index, Index, Scalar>> knn_index;
-    knn_index.clear();
 
     {
         const SpMat B = build_eigen_sparse(backbone, Nsample, Nsample);
+        knn_index.clear();
+        knn_index.reserve(B.nonZeros());
 
         std::vector<Scalar> dist_j(param_knn);
         std::vector<Scalar> weights_j(param_knn);
@@ -207,6 +208,5 @@ build_bbknn(const svd_out_t &svd,
     }
 
     TLOG("Adjusted kNN weights");
-
-    return build_eigen_sparse(knn_index, Nsample, Nsample);
+    return EXIT_SUCCESS;
 }
