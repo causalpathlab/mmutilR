@@ -9,7 +9,8 @@ rcpp_mmutil_read_columns(
   memory_location,
   r_column_index,
   verbose = FALSE,
-  NUM_THREADS = 1L
+  NUM_THREADS = 1L,
+  MIN_SIZE = 10L
 )
 }
 \arguments{

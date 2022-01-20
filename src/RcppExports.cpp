@@ -211,8 +211,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_read_columns_sparse
-Rcpp::List rcpp_mmutil_read_columns_sparse(const std::string mtx_file, const Rcpp::NumericVector& memory_location, const Rcpp::NumericVector& r_column_index, const bool verbose, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_read_columns_sparse(SEXP mtx_fileSEXP, SEXP memory_locationSEXP, SEXP r_column_indexSEXP, SEXP verboseSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::List rcpp_mmutil_read_columns_sparse(const std::string mtx_file, const Rcpp::NumericVector& memory_location, const Rcpp::NumericVector& r_column_index, const bool verbose, const std::size_t NUM_THREADS, const std::size_t MIN_SIZE);
+RcppExport SEXP _mmutilR_rcpp_mmutil_read_columns_sparse(SEXP mtx_fileSEXP, SEXP memory_locationSEXP, SEXP r_column_indexSEXP, SEXP verboseSEXP, SEXP NUM_THREADSSEXP, SEXP MIN_SIZESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -221,13 +221,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type r_column_index(r_column_indexSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_read_columns_sparse(mtx_file, memory_location, r_column_index, verbose, NUM_THREADS));
+    Rcpp::traits::input_parameter< const std::size_t >::type MIN_SIZE(MIN_SIZESEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_read_columns_sparse(mtx_file, memory_location, r_column_index, verbose, NUM_THREADS, MIN_SIZE));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_mmutil_read_columns
-Rcpp::NumericMatrix rcpp_mmutil_read_columns(const std::string mtx_file, const Rcpp::NumericVector& memory_location, const Rcpp::NumericVector& r_column_index, const bool verbose, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_read_columns(SEXP mtx_fileSEXP, SEXP memory_locationSEXP, SEXP r_column_indexSEXP, SEXP verboseSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::NumericMatrix rcpp_mmutil_read_columns(const std::string mtx_file, const Rcpp::NumericVector& memory_location, const Rcpp::NumericVector& r_column_index, const bool verbose, const std::size_t NUM_THREADS, const std::size_t MIN_SIZE);
+RcppExport SEXP _mmutilR_rcpp_mmutil_read_columns(SEXP mtx_fileSEXP, SEXP memory_locationSEXP, SEXP r_column_indexSEXP, SEXP verboseSEXP, SEXP NUM_THREADSSEXP, SEXP MIN_SIZESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -236,7 +237,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Rcpp::NumericVector& >::type r_column_index(r_column_indexSEXP);
     Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_read_columns(mtx_file, memory_location, r_column_index, verbose, NUM_THREADS));
+    Rcpp::traits::input_parameter< const std::size_t >::type MIN_SIZE(MIN_SIZESEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_read_columns(mtx_file, memory_location, r_column_index, verbose, NUM_THREADS, MIN_SIZE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -410,8 +412,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_check_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_check_index, 2},
     {"_mmutilR_rcpp_mmutil_info", (DL_FUNC) &_mmutilR_rcpp_mmutil_info, 1},
     {"_mmutilR_rcpp_mmutil_write_mtx", (DL_FUNC) &_mmutilR_rcpp_mmutil_write_mtx, 2},
-    {"_mmutilR_rcpp_mmutil_read_columns_sparse", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns_sparse, 5},
-    {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 5},
+    {"_mmutilR_rcpp_mmutil_read_columns_sparse", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns_sparse, 6},
+    {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 6},
     {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 14},
     {"_mmutilR_rcpp_mmutil_network_edge_cluster", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_edge_cluster, 12},
     {"_mmutilR_rcpp_mmutil_network_topic_data", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_topic_data, 23},

@@ -91,15 +91,14 @@ rcpp_mmutil_write_mtx(const Eigen::SparseMatrix<float, Eigen::ColMajor> &X,
 ////////////////////////////
 // Reading random columns //
 ////////////////////////////
-
+template <typename VEC1, typename VEC2>
 int _mmutil_read_columns_triplets(const std::string mtx_file,
-                                  const Rcpp::NumericVector &memory_location,
-                                  const Rcpp::NumericVector &r_column_index,
+                                  const VEC1 &memory_location,
+                                  const VEC2 &r_column_index,
                                   triplet_reader_t::TripletVec &Tvec,
                                   Index &max_row,
                                   Index &max_col,
-                                  const bool verbose,
-                                  const std::size_t NUM_THREADS);
+                                  const bool verbose);
 
 //' Read a subset of columns from the data matrix
 //' @param mtx_file data file
@@ -114,26 +113,68 @@ rcpp_mmutil_read_columns_sparse(const std::string mtx_file,
                                 const Rcpp::NumericVector &memory_location,
                                 const Rcpp::NumericVector &r_column_index,
                                 const bool verbose = false,
-                                const std::size_t NUM_THREADS = 1)
+                                const std::size_t NUM_THREADS = 1,
+                                const std::size_t MIN_SIZE = 10)
 {
-    Index max_row, max_col;
-
+    Index max_row = 0, max_col = 0;
     triplet_reader_t::TripletVec Tvec;
 
-    CHK_RETL_(_mmutil_read_columns_triplets(mtx_file,
-                                            memory_location,
-                                            r_column_index,
-                                            Tvec,
-                                            max_row,
-                                            max_col,
-                                            verbose,
-                                            NUM_THREADS),
-              "Failed to read the triplets");
+    const std::size_t N = r_column_index.size();
+    const std::size_t B =
+        N / std::max(NUM_THREADS, static_cast<std::size_t>(1));
+
+    if (NUM_THREADS < 2 || B <= MIN_SIZE) {
+        CHK_RETL_(_mmutil_read_columns_triplets(mtx_file,
+                                                memory_location,
+                                                r_column_index,
+                                                Tvec,
+                                                max_row,
+                                                max_col,
+                                                verbose),
+                  "Failed to read the triplets");
+    } else {
+
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for ordered schedule(dynamic)
+#endif
+        for (std::size_t lb = 0; lb < N; lb += B) {
+            std::size_t ub = std::min(lb + B, N);
+            Index _max_row, _max_col;
+            triplet_reader_t::TripletVec _tvec;
+            std::vector<Index> subcols;
+            subcols.reserve(ub - lb);
+            for (std::size_t b = lb; b < ub; ++b) {
+                subcols.emplace_back(r_column_index[b]);
+            }
+
+            _mmutil_read_columns_triplets(mtx_file,
+                                          memory_location,
+                                          subcols,
+                                          _tvec,
+                                          _max_row,
+                                          _max_col,
+                                          verbose);
+#pragma omp ordered
+            {
+                for (auto tt : _tvec) {
+                    Tvec.emplace_back(tt);
+                }
+                if (_max_row > max_row)
+                    max_row = _max_row;
+                max_col += _max_col;
+            } // END of ordered
+        }
+    }
 
     /////////////////////////////////////////
     // populate items in the return matrix //
     /////////////////////////////////////////
     const std::size_t nout = Tvec.size();
+
+    if (nout < 1)
+        return Rcpp::List::create();
+
     Rcpp::IntegerVector row_index(nout, NA_INTEGER);
     Rcpp::IntegerVector col_index(nout, NA_INTEGER);
     Rcpp::NumericVector val_vec(nout, NA_REAL);
@@ -186,21 +227,59 @@ rcpp_mmutil_read_columns(const std::string mtx_file,
                          const Rcpp::NumericVector &memory_location,
                          const Rcpp::NumericVector &r_column_index,
                          const bool verbose = false,
-                         const std::size_t NUM_THREADS = 1)
+                         const std::size_t NUM_THREADS = 1,
+                         const std::size_t MIN_SIZE = 10)
 {
 
-    Index max_row, max_col;
+    Index max_row = 0, max_col = 0;
     triplet_reader_t::TripletVec Tvec;
 
-    CHK_RETM_(_mmutil_read_columns_triplets(mtx_file,
-                                            memory_location,
-                                            r_column_index,
-                                            Tvec,
-                                            max_row,
-                                            max_col,
-                                            verbose,
-                                            NUM_THREADS),
-              "Failed to read the triplets");
+    const std::size_t N = r_column_index.size();
+    const std::size_t B =
+        N / std::max(NUM_THREADS, static_cast<std::size_t>(1));
+
+    if (NUM_THREADS < 2 || B <= MIN_SIZE) {
+        CHK_RETM_(_mmutil_read_columns_triplets(mtx_file,
+                                                memory_location,
+                                                r_column_index,
+                                                Tvec,
+                                                max_row,
+                                                max_col,
+                                                verbose),
+                  "Failed to read the triplets");
+    } else {
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for ordered schedule(dynamic)
+#endif
+        for (std::size_t lb = 0; lb < N; lb += B) {
+            std::size_t ub = std::min(lb + B, N);
+            Index _max_row, _max_col;
+            triplet_reader_t::TripletVec _tvec;
+            std::vector<Index> subcols;
+            subcols.reserve(ub - lb);
+            for (std::size_t b = lb; b < ub; ++b) {
+                subcols.emplace_back(r_column_index[b]);
+            }
+
+            _mmutil_read_columns_triplets(mtx_file,
+                                          memory_location,
+                                          subcols,
+                                          _tvec,
+                                          _max_row,
+                                          _max_col,
+                                          verbose);
+#pragma omp ordered
+            {
+                for (auto tt : _tvec) {
+                    Tvec.emplace_back(tt);
+                }
+                if (_max_row > max_row)
+                    max_row = _max_row;
+                max_col += _max_col;
+            } // END of ordered
+        }
+    }
 
     SpMat X(max_row, max_col);
     X.setZero();
@@ -215,16 +294,15 @@ rcpp_mmutil_read_columns(const std::string mtx_file,
 ///////////////////////////
 // actual implementation //
 ///////////////////////////
-
+template <typename VEC1, typename VEC2>
 int
 _mmutil_read_columns_triplets(const std::string mtx_file,
-                              const Rcpp::NumericVector &memory_location,
-                              const Rcpp::NumericVector &r_column_index,
+                              const VEC1 &memory_location,
+                              const VEC2 &r_column_index,
                               triplet_reader_t::TripletVec &Tvec,
                               Index &max_row,
                               Index &max_col,
-                              const bool verbose,
-                              const std::size_t NUM_THREADS)
+                              const bool verbose)
 {
 
     mm_info_reader_t info;
