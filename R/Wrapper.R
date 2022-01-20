@@ -1,10 +1,10 @@
 #' A wrapper function to read a sparse submatrix
 #'
-#' @param mtx.file
-#' @param sub.cols
-#' @param memory.idx
-#' @param memory.idx.file
-#' @param verbose
+#' @param mtx.file matrix market file
+#' @param sub.cols column index (default: all)
+#' @param memory.idx memory locations
+#' @param memory.idx.file memory location file
+#' @param verbose verbosity
 #'
 #' @return a sparse matrix
 #'
@@ -25,6 +25,8 @@ read.sparse <- function(mtx.file,
         sub.cols <- 1:.info$max.col
     }
 
+    stopifnot(length(sub.cols) == length(unique(sub.cols)))
+
     .in <-
         rcpp_mmutil_read_columns_sparse(mtx.file,
                                         memory.idx,
@@ -38,11 +40,11 @@ read.sparse <- function(mtx.file,
 
 #' A wrapper function to read a dense submatrix
 #'
-#' @param mtx.file
-#' @param sub.cols
-#' @param memory.idx
-#' @param memory.idx.file
-#' @param verbose
+#' @param mtx.file matrix market file
+#' @param sub.cols column index (default: all)
+#' @param memory.idx memory locations
+#' @param memory.idx.file memory location file
+#' @param verbose verbosity
 #'
 #' @return a dense matrix
 #'
@@ -62,6 +64,8 @@ read.dense <- function(mtx.file,
         .info <- rcpp_mmutil_info(mtx.file)
         sub.cols <- 1:.info$max.col
     }
+
+    stopifnot(length(sub.cols) == length(unique(sub.cols)))
 
     rcpp_mmutil_read_columns(mtx.file,
                              memory.idx,
