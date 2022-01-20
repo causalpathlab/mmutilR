@@ -63,6 +63,14 @@ std::string zeropad(const int t, const int tmax);
         }                                  \
     }
 
+#define ASSERT_RETSM(cond, msg) \
+    {                           \
+        if (!(cond)) {          \
+            ELOG(msg);          \
+            return SpMat();     \
+        }                       \
+    }
+
 #define ASSERT_RETL(cond, msg)           \
     {                                    \
         if (!(cond)) {                   \

@@ -315,6 +315,26 @@ rcpp_mmutil_info <- function(mtx_file) {
     .Call('_mmutilR_rcpp_mmutil_info', PACKAGE = 'mmutilR', mtx_file)
 }
 
+#' Write down sparse matrix to the disk
+#' @param X_
+#' @param output
+#'
+#' @return EXIT_SUCCESS or EXIT_FAILURE
+rcpp_mmutil_write_mtx <- function(X, mtx_file) {
+    .Call('_mmutilR_rcpp_mmutil_write_mtx', PACKAGE = 'mmutilR', X, mtx_file)
+}
+
+#' Read a subset of columns from the data matrix
+#' @param mtx_file data file
+#' @param memory_location column -> memory location
+#' @param r_column_index column indexes to retrieve (1-based)
+#'
+#' @return lists of rows, columns, values
+#'
+rcpp_mmutil_read_columns_sparse <- function(mtx_file, memory_location, r_column_index, verbose = FALSE, NUM_THREADS = 1L) {
+    .Call('_mmutilR_rcpp_mmutil_read_columns_sparse', PACKAGE = 'mmutilR', mtx_file, memory_location, r_column_index, verbose, NUM_THREADS)
+}
+
 #' Read a subset of columns from the data matrix
 #' @param mtx_file data file
 #' @param memory_location column -> memory location
@@ -340,8 +360,8 @@ rcpp_mmutil_info <- function(mtx_file) {
 #' print(head(yy))
 #' unlink(list.files(pattern = data.hdr))
 #'
-rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index, verbose = FALSE) {
-    .Call('_mmutilR_rcpp_mmutil_read_columns', PACKAGE = 'mmutilR', mtx_file, memory_location, r_column_index, verbose)
+rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index, verbose = FALSE, NUM_THREADS = 1L) {
+    .Call('_mmutilR_rcpp_mmutil_read_columns', PACKAGE = 'mmutilR', mtx_file, memory_location, r_column_index, verbose, NUM_THREADS)
 }
 
 #' Match the columns of two MTX files

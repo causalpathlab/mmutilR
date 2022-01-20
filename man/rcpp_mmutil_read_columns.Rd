@@ -8,7 +8,8 @@ rcpp_mmutil_read_columns(
   mtx_file,
   memory_location,
   r_column_index,
-  verbose = FALSE
+  verbose = FALSE,
+  NUM_THREADS = 1L
 )
 }
 \arguments{
