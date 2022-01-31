@@ -24,6 +24,7 @@
 //' @param r_indv membership for the cells (\code{r_cols})
 //' @param r_annot label annotation for the (\code{r_cols})
 //' @param r_lab_name label names (default: everything in \code{r_annot})
+//' @param r_annot_mat label annotation matrix (cell x type) (default: NULL)
 //' @param r_trt treatment assignment (default: NULL)
 //' @param r_V SVD factors (default: NULL)
 //' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
@@ -112,6 +113,7 @@ rcpp_mmutil_aggregate(
     Rcpp::Nullable<Rcpp::StringVector> r_cols = R_NilValue,
     Rcpp::Nullable<Rcpp::StringVector> r_indv = R_NilValue,
     Rcpp::Nullable<Rcpp::StringVector> r_annot = R_NilValue,
+    Rcpp::Nullable<Rcpp::NumericMatrix> r_annot_mat = R_NilValue,
     Rcpp::Nullable<Rcpp::StringVector> r_lab_name = R_NilValue,
     Rcpp::Nullable<Rcpp::StringVector> r_trt = R_NilValue,
     Rcpp::Nullable<Rcpp::NumericMatrix> r_V = R_NilValue,
@@ -152,24 +154,7 @@ rcpp_mmutil_aggregate(
         std::fill(std::begin(indv), std::end(indv), _indv);
     }
 
-    if (r_annot.isNotNull()) {
-        copy(Rcpp::StringVector(r_annot), annot);
-    } else {
-        const std::string _lab = "ct1";
-        annot.resize(cols.size());
-        std::fill(std::begin(annot), std::end(annot), _lab);
-    }
-
-    if (r_lab_name.isNotNull()) {
-        copy(Rcpp::StringVector(r_lab_name), lab_name);
-    } else {
-        make_unique(annot, lab_name);
-    }
-
-    const Index K = lab_name.size();
-
     ASSERT_RETL(cols.size() == indv.size(), "|cols| != |indv|");
-    ASSERT_RETL(cols.size() == annot.size(), "|cols| != |annot|");
 
     ////////////////////////
     // universal position //
@@ -177,27 +162,19 @@ rcpp_mmutil_aggregate(
 
     const Index Nsample = mtx_cols.size();
     auto mtx_pos = make_position_dict<std::string, Index>(mtx_cols);
-    auto lab_pos = make_position_dict<std::string, Index>(lab_name);
 
-    /////////////////////////////////////////////////
-    // latent annotation and individual membership //
-    /////////////////////////////////////////////////
-
-    Mat Z(Nsample, K);
-    Z.setZero();
+    ///////////////////////////
+    // Individual membership //
+    ///////////////////////////
 
     std::vector<std::string> indv_membership(Nsample);
     std::fill(std::begin(indv_membership), std::end(indv_membership), "?");
 
-    TLOG("Reading latent & indv annotations");
+    TLOG("Allocating cells to individuals");
 
     for (Index j = 0; j < cols.size(); ++j) {
         if (mtx_pos.count(cols[j]) > 0) {
             const Index i = mtx_pos[cols[j]];
-            if (lab_pos.count(annot[j]) > 0) {
-                const Index k = lab_pos[annot[j]];
-                Z(i, k) = 1.;
-            }
             indv_membership[i] = indv[j];
         }
     }
@@ -213,6 +190,57 @@ rcpp_mmutil_aggregate(
     const Index Nind = indv_id_name.size();
 
     TLOG("Identified " << Nind << " individuals");
+
+    ///////////////////////////
+    // cell-type annotation  //
+    ///////////////////////////
+
+    Mat Z; // latent membership matrix
+
+    if (r_annot_mat.isNotNull()) { // reading latent membership matrix
+        Z = Rcpp::as<Mat>(Rcpp::NumericMatrix(r_annot_mat));
+        if (r_lab_name.isNotNull()) {
+            copy(Rcpp::StringVector(r_lab_name), lab_name);
+            ASSERT_RETL(lab_name.size() == Z.cols(), "|annot| != |Z's cols|");
+        } else {
+            for (auto k = 0; k < Z.cols(); ++k)
+                lab_name.push_back("ct" + std::to_string(k + 1));
+        }
+
+    } else { // reading latent membership assignment vector
+
+        if (r_annot.isNotNull()) {
+            copy(Rcpp::StringVector(r_annot), annot);
+        } else {
+            const std::string _lab = "ct1"; // default: just one cell type
+            annot.resize(cols.size());      //
+            std::fill(std::begin(annot), std::end(annot), _lab);
+        }
+
+        if (r_lab_name.isNotNull()) {
+            copy(Rcpp::StringVector(r_lab_name), lab_name);
+        } else {
+            make_unique(annot, lab_name);
+        }
+
+        const Index K = lab_name.size();
+        Z.resize(Nsample, K);
+        Z.setZero();
+
+        ASSERT_RETL(cols.size() == annot.size(), "|cols| != |annot|");
+
+        auto lab_pos = make_position_dict<std::string, Index>(lab_name);
+
+        for (Index j = 0; j < cols.size(); ++j) {
+            if (mtx_pos.count(cols[j]) > 0) {
+                const Index i = mtx_pos[cols[j]];
+                if (lab_pos.count(annot[j]) > 0) {
+                    const Index k = lab_pos[annot[j]];
+                    Z(i, k) = 1.;
+                }
+            }
+        }
+    }
 
     TLOG("" << std::endl << Z.transpose() * Mat::Ones(Nsample, 1));
 
@@ -276,7 +304,7 @@ rcpp_mmutil_aggregate(
     ///////////////////////////
 
     const Index D = info.max_row;
-
+    const Index K = Z.cols();
     std::vector<std::string> out_col_names(K * Nind);
     std::fill(out_col_names.begin(), out_col_names.end(), "");
 

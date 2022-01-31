@@ -11,6 +11,7 @@ rcpp_mmutil_aggregate(
   r_cols = NULL,
   r_indv = NULL,
   r_annot = NULL,
+  r_annot_mat = NULL,
   r_lab_name = NULL,
   r_trt = NULL,
   r_V = NULL,
@@ -36,6 +37,8 @@ rcpp_mmutil_aggregate(
 \item{r_indv}{membership for the cells (\code{r_cols})}
 
 \item{r_annot}{label annotation for the (\code{r_cols})}
+
+\item{r_annot_mat}{label annotation matrix (cell x type) (default: NULL)}
 
 \item{r_lab_name}{label names (default: everything in \code{r_annot})}
 

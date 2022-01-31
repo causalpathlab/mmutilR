@@ -465,6 +465,7 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' @param r_indv membership for the cells (\code{r_cols})
 #' @param r_annot label annotation for the (\code{r_cols})
 #' @param r_lab_name label names (default: everything in \code{r_annot})
+#' @param r_annot_mat label annotation matrix (cell x type) (default: NULL)
 #' @param r_trt treatment assignment (default: NULL)
 #' @param r_V SVD factors (default: NULL)
 #' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
@@ -544,8 +545,8 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
-    .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
+rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
+    .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_annot_mat, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
 }
 
 #' Collect row-wise and column-wise statistics
