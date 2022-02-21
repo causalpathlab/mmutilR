@@ -16,7 +16,9 @@ read.sparse <- function(mtx.file,
                         NUM_THREADS = 1) {
 
     if(is.null(memory.idx)) {
-        stopifnot(file.exists(memory.idx.file))
+        if(!file.exists(memory.idx.file))
+            rcpp_mmutil_build_index(mtx.file, memory.idx.file)
+
         memory.idx <- rcpp_mmutil_read_index(memory.idx.file)
     }
 
@@ -56,7 +58,9 @@ read.dense <- function(mtx.file,
                        NUM_THREADS = 1) {
 
     if(is.null(memory.idx)) {
-        stopifnot(file.exists(memory.idx.file))
+        if(!file.exists(memory.idx.file))
+            rcpp_mmutil_build_index(mtx.file, memory.idx.file)
+
         memory.idx <- rcpp_mmutil_read_index(memory.idx.file)
     }
 
