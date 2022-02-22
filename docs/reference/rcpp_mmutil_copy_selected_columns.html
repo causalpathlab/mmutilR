@@ -76,22 +76,22 @@
 <span class="r-in"><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">src.files</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">src.files</span><span class="op">$</span><span class="va">col</span><span class="op">)</span><span class="op">$</span><span class="va">V1</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 19 sparse Matrix of class "dgTMatrix"</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>    [[ suppressing 19 column names ‘1’, ‘2’, ‘3’ ... ]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 1 4 3 1 2 3 11  8 12  8 7 2 . .  1 1 4 . .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] . 4 . . . 3  1  .  1  1 1 2 . .  1 3 2 1 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] . . . . . .  1  .  .  1 . . 1 .  . 2 2 1 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] . . . . . .  .  .  .  1 . . . .  . 1 . . .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] . 5 . . 1 2 13 10  3  6 7 5 . . 10 1 1 3 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] . 1 . . . .  .  .  1  . . . . .  1 . . 1 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 1 1 . . . . 10  .  1 12 5 1 1 1  2 1 6 2 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] . . . . . .  2  .  .  1 3 . . .  . 1 2 . .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] . . . . . .  2  1  .  . . 4 . .  8 1 5 5 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] . . . . . .  .  .  .  . . 4 . .  3 1 2 . .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 20 sparse Matrix of class "dgTMatrix"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>    [[ suppressing 20 column names ‘1’, ‘2’, ‘3’ ... ]]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,]  9 4 5 . 9 1 . 1 . 5 3 6 . 1 2 1 . . 3 .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,]  1 2 2 . 1 . . . . . . 4 1 2 2 . . . . .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,]  1 . . . . . . 1 . 1 . . . . 1 . . 1 . .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,]  . . . 1 . . . . . 1 . . . . . . . . . .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 10 . 3 1 5 . 1 2 . 2 7 5 1 6 4 1 1 . 1 .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,]  . . . . . . . . 1 . . . . 1 . 1 . . 3 .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,]  3 3 3 . 1 1 . . . 3 2 2 1 2 2 2 1 . 2 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,]  1 3 2 . . . . . . 1 1 . . . . 1 . . . 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,]  1 . 2 . . . . . . 1 . 1 . 3 . 3 . . 6 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,]  . . . . 1 . . . . 1 . . . . 1 1 . . 2 1</span>
 <span class="r-in"><span class="va">sub.cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">src.files</span><span class="op">$</span><span class="va">col</span><span class="op">)</span><span class="op">$</span><span class="va">V1</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">20</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sub.cols</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  8 18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  7 17 20</span>
 <span class="r-in"><span class="va">tgt.hdr</span> <span class="op">&lt;-</span> <span class="st">"test_sub"</span></span>
 <span class="r-in"><span class="va">tgt.files</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_copy_selected_columns</span><span class="op">(</span></span>
 <span class="r-in">                         <span class="va">src.files</span><span class="op">$</span><span class="va">mtx</span>,</span>
@@ -101,18 +101,18 @@
 <span class="r-in"><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">tgt.files</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">tgt.files</span><span class="op">$</span><span class="va">col</span><span class="op">)</span><span class="op">$</span><span class="va">V1</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 2 sparse Matrix of class "dgTMatrix"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        8 18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 11  4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,]  1  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,]  1  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,]  .  .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 13  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,]  .  .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 10  6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,]  2  2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,]  2  5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,]  .  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 3 sparse Matrix of class "dgTMatrix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       7 17 20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] .  .  .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] .  .  .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] .  .  .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] .  .  .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 1  1  .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] .  .  .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] .  1  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] .  .  2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] .  .  4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] .  .  1</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="va">src.hdr</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="va">tgt.hdr</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>

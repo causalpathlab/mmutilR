@@ -78,11 +78,71 @@ read.dense <- function(mtx.file,
                              NUM_THREADS)
 }
 
+#' Read a vector of string names
+#' @param .file
+#' @return a vector names
+read.vec <- function(.file) {
+
+    .ends.with <- function(x, pat) {
+        .len <- nchar(x)
+        .end <- base::substr(x, .len - nchar(pat) + 1, .len)
+        return(.end == pat)
+    }
+
+    if(.ends.with(.file, ".gz")) {
+        con <- gzfile(.file)
+        ret <- readLines(con)
+        close(con)
+    } else {
+        ret <- readLines(.file)
+    }
+    return(ret)
+}
+
+#' Create a list of MTX-related files
+#' @param .hdr file set header name
+#' @return a list of file names
+fileset.list <- function(.hdr){
+    .names <- c("mtx","row","col","idx")
+    .out <- paste0(.hdr, c(".mtx.gz", ".rows.gz", ".cols.gz", ".mtx.gz.index"))
+    .out <- as.list(.out)
+    names(.out) <- .names
+    .out
+}
+
+#' Write matrix market file set
+#'
+#' @param out.mtx a sparse matrix
+#' @param out.rows a vector of rows
+#' @param out.cols a vector of columns
+#' @param output output file set header
+#' 
+write.sparse <- function(out.mtx, out.rows, out.cols, output){
+    
+    out.mtx.file <- paste0(output, ".mtx.gz")
+    out.cols.file <- paste0(output, ".cols.gz")
+    out.rows.file <- paste0(output, ".rows.gz")
+
+    .write.vec <- function(.vec, .file) {
+        con <- gzfile(.file)
+        cat(.vec, file=con, sep="\n")
+        close(con)
+    }
+
+    rcpp_mmutil_write_mtx(out.mtx, out.mtx.file)
+    .write.vec(out.cols, out.cols.file)
+    .write.vec(out.rows, out.rows.file)
+
+    return(fileset.list(output))
+}
+
 #' A wrapper function that concatenates two files vertically
 #' 
 #' @param top.hdr a file header for the top files
 #' @param bottom.hdr a file header for the bottom files
 #' @param out.hdr output file header
+#'
+#' @return a list of the resulting file names
 vcat.sparse <- function(top.hdr, bottom.hdr, out.hdr){
 
     dir.create(dirname(out.hdr), recursive = TRUE, showWarnings = FALSE)
@@ -110,34 +170,11 @@ vcat.sparse <- function(top.hdr, bottom.hdr, out.hdr){
     top.mtx <- read.sparse(top.mtx.file)
     bottom.mtx <- read.sparse(bottom.mtx.file)
 
-    .ends.with <- function(x, pat) {
-        .len <- nchar(x)
-        .end <- base::substr(x, .len - nchar(pat) + 1, .len)
-        return(.end == pat)
-    }
+    top.cols <- read.vec(top.cols.file)
+    top.rows <- read.vec(top.rows.file)
 
-    .read.vec <- function(.file) {
-        if(.ends.with(.file, ".gz")) {
-            con <- gzfile(.file)
-            ret <- readLines(con)
-            close(con)
-        } else {
-            ret <- readLines(.file)
-        }
-        return(ret)
-    }
-
-    .write.vec <- function(.vec, .file) {
-        con <- gzfile(.file)
-        cat(.vec, file=con, sep="\n")
-        close(con)
-    }
-
-    top.cols <- .read.vec(top.cols.file)
-    top.rows <- .read.vec(top.rows.file)
-
-    bottom.cols <- .read.vec(bottom.cols.file)
-    bottom.rows <- .read.vec(bottom.rows.file)
+    bottom.cols <- read.vec(bottom.cols.file)
+    bottom.rows <- read.vec(bottom.rows.file)
 
     .top.idx <- which(top.cols %in% bottom.cols)
     .bottom.idx <- match(top.cols[.top.idx], bottom.cols)
@@ -150,11 +187,6 @@ vcat.sparse <- function(top.hdr, bottom.hdr, out.hdr){
 
     out.rows <- c(top.rows, bottom.rows)
     out.cols <- top.cols[.top.idx]
-
-    rcpp_mmutil_write_mtx(out.mtx, out.mtx.file)
-
-    .write.vec(out.cols, out.cols.file)
-    .write.vec(out.rows, out.rows.file)
-
-    list(mtx = out.mtx, rows = out.rows, cols = out.cols)
+    write.sparse(out.mtx, out.rows, out.cols, out.hdr)
 }
+

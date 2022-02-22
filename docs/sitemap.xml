@@ -13,6 +13,9 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/fileset.list.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
@@ -118,6 +121,9 @@
     <loc>/reference/read.sparse.html</loc>
   </url>
   <url>
+    <loc>/reference/read.vec.html</loc>
+  </url>
+  <url>
     <loc>/reference/run.annotation.html</loc>
   </url>
   <url>
@@ -128,5 +134,11 @@
   </url>
   <url>
     <loc>/reference/simulate_gamma_glm.html</loc>
+  </url>
+  <url>
+    <loc>/reference/vcat.sparse.html</loc>
+  </url>
+  <url>
+    <loc>/reference/write.sparse.html</loc>
   </url>
 </urlset>
