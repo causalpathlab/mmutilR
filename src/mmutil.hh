@@ -9,6 +9,7 @@
 // [[Rcpp::depends(RcppProgress)]]
 
 // [[Rcpp::plugins(openmp)]]
+#include <omp.h>
 
 // #include <progress.hpp>
 
