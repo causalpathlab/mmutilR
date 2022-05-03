@@ -255,7 +255,7 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
         svd = take_svd_online(mtx_file, idx_file, ww, options);
     }
 
-    std::vector<std::tuple<Index, Index, Scalar>> knn_index;
+    std::vector<std::tuple<Index, Index, Scalar, Scalar>> knn_index;
     CHECK(build_bbknn(svd,
                       batch_index_set,
                       knn,
@@ -328,6 +328,7 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
     Rcpp::IntegerVector src_index(nout, NA_INTEGER);
     Rcpp::IntegerVector tgt_index(nout, NA_INTEGER);
     Rcpp::NumericVector weight_vec(nout, NA_REAL);
+    Rcpp::NumericVector distance_vec(nout, NA_REAL);
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
@@ -338,6 +339,7 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
         src_index[i] = std::get<0>(tt) + 1;
         tgt_index[i] = std::get<1>(tt) + 1;
         weight_vec[i] = std::get<2>(tt);
+        distance_vec[i] = std::get<3>(tt);
     }
 
     return Rcpp::List::create(Rcpp::_["factors.adjusted"] = Vadj,
@@ -352,5 +354,7 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
                                                      Rcpp::_["tgt.index"] =
                                                          tgt_index,
                                                      Rcpp::_["weight"] =
-                                                         weight_vec));
+                                                         weight_vec,
+                                                     Rcpp::_["dist"] =
+                                                         distance_vec));
 }

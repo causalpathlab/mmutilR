@@ -413,7 +413,7 @@ rcpp_mmutil_network_topic_data(
         }
     }
 
-    std::vector<std::tuple<Index, Index, Scalar>> knn_index;
+    std::vector<std::tuple<Index, Index, Scalar, Scalar>> knn_index;
     CHECK(build_bbknn(svd,
                       batch_index_set,
                       knn,

@@ -4,7 +4,7 @@ int
 build_bbknn(const svd_out_t &svd,
             const std::vector<std::vector<Index>> &batch_index_set,
             const std::size_t knn,
-            std::vector<std::tuple<Index, Index, Scalar>> &knn_index,
+            std::vector<std::tuple<Index, Index, Scalar, Scalar>> &knn_index,
             const std::size_t KNN_BILINK = 10,
             const std::size_t KNN_NNLIST = 10,
             const std::size_t NUM_THREADS = 1)
@@ -185,7 +185,7 @@ build_bbknn(const svd_out_t &svd,
                 Index deg_j = 0;
                 for (SpMat::InnerIterator it(B, j); it; ++it) {
                     Index k = it.col();
-                    dist_j[deg_j] = V.col(k).cwiseProduct(V.col(j)).sum();
+                    dist_j[deg_j] = 1. - V.col(k).cwiseProduct(V.col(j)).sum();
                     neigh_j[deg_j] = k;
                     ++deg_j;
                     if (deg_j >= param_knn)
@@ -197,8 +197,9 @@ build_bbknn(const svd_out_t &svd,
                 for (Index i = 0; i < deg_j; ++i) {
                     const Index k = neigh_j[i];
                     const Scalar w = weights_j[i];
+                    const Scalar d = dist_j[i];
 
-                    knn_index.emplace_back(j, k, w);
+                    knn_index.emplace_back(j, k, w, d);
                 }
 
                 prog.update();
