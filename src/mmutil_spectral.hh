@@ -323,7 +323,8 @@ inline svd_out_t
 take_svd_online(const std::string mtx_file,
                 const std::string idx_file,
                 const Eigen::MatrixBase<Derived> &_weights,
-                const options_t &options)
+                const options_t &options,
+                const std::size_t NUM_THREADS = 1)
 {
 
     const Scalar tau = options.tau;
@@ -381,6 +382,10 @@ take_svd_online(const std::string mtx_file,
 
     Scalar err = 0;
 
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
     for (Index lb = 0; lb < N; lb += block_size) {
 
         const Index ub = std::min(N, block_size + lb);
@@ -423,7 +428,8 @@ inline svd_out_t
 take_svd_online_em(const std::string mtx_file,
                    const std::string idx_file,
                    const Eigen::MatrixBase<Derived> &_weights,
-                   const options_t &options)
+                   const options_t &options,
+                   const std::size_t NUM_THREADS = 1)
 {
     using namespace mmutil::io;
     const Scalar tau = options.tau;
@@ -571,11 +577,13 @@ take_svd_online_em(const std::string mtx_file,
 
         const Index nb = N / block_size + (N % block_size > 0 ? 1 : 0);
 
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
         for (Index lb = 0; lb < N; lb += block_size) {
             const Index ub = std::min(N, block_size + lb);
-
             Mat xx = take_batch_data(lb, ub);
-
             // discount the previous XV and VtV
             Mat vt = Vt.middleCols(lb, ub - lb);
             XV -= xx * vt.transpose();
@@ -584,13 +592,15 @@ take_svd_online_em(const std::string mtx_file,
             // update with new v
             vt = UtUinv * U.transpose() * xx;
 
-            Scalar nn = static_cast<Scalar>(xx.cols());
-            XV += xx * vt.transpose();
-            VtV += vt * vt.transpose();
+#pragma omp critical
+            {
+                XV += xx * vt.transpose();
+                VtV += vt * vt.transpose();
+            }
 
-            for (Index j = 0; j < vt.cols(); ++j)
+            for (Index j = 0; j < vt.cols(); ++j) {
                 Vt.col(j + lb) = vt.col(j);
-
+            }
             Scalar _err = (xx - U * vt).colwise().norm().sum();
 
             if (options.verbose)
@@ -634,10 +644,15 @@ template <typename Derived, typename options_t>
 inline svd_out_t
 take_svd_online_em(const std::string mtx_file,
                    const Eigen::MatrixBase<Derived> &_weights,
-                   const options_t &options)
+                   const options_t &options,
+                   const std::size_t NUM_THREADS = 1)
 {
     const std::string idx_file = mtx_file + ".index";
-    return take_svd_online_em(mtx_file, idx_file, _weights, options);
+    return take_svd_online_em(mtx_file,
+                              idx_file,
+                              _weights,
+                              options,
+                              NUM_THREADS);
 }
 
 /**
@@ -649,10 +664,11 @@ template <typename Derived, typename options_t>
 inline svd_out_t
 take_svd_online(const std::string mtx_file,
                 const Eigen::MatrixBase<Derived> &_weights,
-                const options_t &options)
+                const options_t &options,
+                const std::size_t NUM_THREADS = 1)
 {
     std::string idx_file = mtx_file + ".index";
-    return take_svd_online(mtx_file, idx_file, _weights, options);
+    return take_svd_online(mtx_file, idx_file, _weights, options, NUM_THREADS);
 }
 
 /**
@@ -668,7 +684,8 @@ take_proj_online(const std::string mtx_file,
                  const std::string idx_file,
                  const Eigen::MatrixBase<Derived> &_weights,
                  const Eigen::MatrixBase<Derived2> &_proj,
-                 const options_t &options)
+                 const options_t &options,
+                 const std::size_t NUM_THREADS = 1)
 {
 
     CHECK(mmutil::index::build_mmutil_index(mtx_file, idx_file));
@@ -702,8 +719,11 @@ take_proj_online(const std::string mtx_file,
     Mat V(N, rank);
     V.setZero();
 
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
     for (Index lb = 0; lb < N; lb += block_size) {
-
         const Index ub = std::min(N, block_size + lb);
         std::vector<Index> sub_b(ub - lb);
         std::iota(sub_b.begin(), sub_b.end(), lb);
@@ -732,13 +752,15 @@ inline Mat
 take_proj_online(const std::string mtx_file,
                  const Eigen::MatrixBase<Derived> &_weights,
                  const Eigen::MatrixBase<Derived2> &_proj,
-                 const options_t &options)
+                 const options_t &options,
+                 const std::size_t NUM_THREADS = 1)
 {
     return take_proj_online(mtx_file,
                             mtx_file + ".index",
                             _weights,
                             _proj,
-                            options);
+                            options,
+                            NUM_THREADS);
 }
 
 #endif

@@ -19,6 +19,8 @@
 //' @param EM_TOL EM convergence (default: 1e-4)
 //' @param LU_ITER LU iteration
 //' @param row_weight_file row-wise weight file
+//' @param NUM_THREADS number of threads for multi-core processing
+//' @param BLOCK_SIZE number of columns per block
 //'
 //' @return a list of (1) U (2) D (3) V
 //'
@@ -51,7 +53,9 @@ rcpp_mmutil_pca(const std::string mtx_file,
                 const std::size_t KNN_BILINK = 10,
                 const std::size_t KNN_NNLIST = 10,
                 const std::size_t LU_ITER = 5,
-                const std::string row_weight_file = "")
+                const std::string row_weight_file = "",
+                const std::size_t NUM_THREADS = 1,
+                const std::size_t BLOCK_SIZE = 10000)
 {
 
     spectral_options_t options;
@@ -67,6 +71,7 @@ rcpp_mmutil_pca(const std::string mtx_file,
     options.rank = RANK;
     options.em_iter = EM_ITER;
     options.em_tol = EM_TOL;
+    options.block_size = BLOCK_SIZE;
 
     ////////////////////////////////////////
     // Indexing all the columns if needed //
@@ -102,9 +107,9 @@ rcpp_mmutil_pca(const std::string mtx_file,
 
     svd_out_t svd;
     if (EM_ITER > 0) {
-        svd = take_svd_online_em(mtx_file, idx_file, ww, options);
+        svd = take_svd_online_em(mtx_file, idx_file, ww, options, NUM_THREADS);
     } else {
-        svd = take_svd_online(mtx_file, idx_file, ww, options);
+        svd = take_svd_online(mtx_file, idx_file, ww, options, NUM_THREADS);
     }
 
     return Rcpp::List::create(Rcpp::_["U"] = svd.U,
@@ -128,6 +133,7 @@ rcpp_mmutil_pca(const std::string mtx_file,
 //' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 //' @param row_weight_file row-wise weight file
 //' @param NUM_THREADS number of threads for multi-core processing
+//' @param BLOCK_SIZE number of columns per block
 //'
 //' @return a list of (1) factors.adjusted (2) U (3) D (4) V
 //'
@@ -167,7 +173,8 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
                       const std::size_t KNN_NNLIST = 10,
                       const std::size_t LU_ITER = 5,
                       const std::string row_weight_file = "",
-                      const std::size_t NUM_THREADS = 1)
+                      const std::size_t NUM_THREADS = 1,
+                      const std::size_t BLOCK_SIZE = 10000)
 {
 
     std::vector<std::string> batch_membership(r_batches.begin(),
@@ -242,6 +249,7 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
     options.rank = RANK;
     options.em_iter = EM_ITER;
     options.em_tol = EM_TOL;
+    options.block_size = BLOCK_SIZE;
 
     ////////////////////////////////
     // Learn latent embedding ... //
@@ -250,9 +258,9 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
     TLOG("Training SVD for spectral matching ...");
     svd_out_t svd;
     if (EM_ITER > 0) {
-        svd = take_svd_online_em(mtx_file, idx_file, ww, options);
+        svd = take_svd_online_em(mtx_file, idx_file, ww, options, NUM_THREADS);
     } else {
-        svd = take_svd_online(mtx_file, idx_file, ww, options);
+        svd = take_svd_online(mtx_file, idx_file, ww, options, NUM_THREADS);
     }
 
     std::vector<std::tuple<Index, Index, Scalar, Scalar>> knn_index;
@@ -282,6 +290,10 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
     proj = svd.U * svd.D.cwiseInverse().asDiagonal(); // feature x rank
     TLOG("Found projection: " << proj.rows() << " x " << proj.cols());
 
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
     for (Index aa = 1; aa < Nbatch; ++aa) {
         const auto &batch_a = batch_index_set.at(aa);
         const Index nn_a = batch_a.size();

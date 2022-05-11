@@ -12,6 +12,8 @@
 #' @param EM_TOL EM convergence (default: 1e-4)
 #' @param LU_ITER LU iteration
 #' @param row_weight_file row-wise weight file
+#' @param NUM_THREADS number of threads for multi-core processing
+#' @param BLOCK_SIZE number of columns per block
 #'
 #' @return a list of (1) U (2) D (3) V
 #'
@@ -32,8 +34,8 @@
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "") {
-    .Call('_mmutilR_rcpp_mmutil_pca', PACKAGE = 'mmutilR', mtx_file, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file)
+rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
+    .Call('_mmutilR_rcpp_mmutil_pca', PACKAGE = 'mmutilR', mtx_file, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
 }
 
 #' BBKNN(Batch-balancing kNN)-adjusted PCA
@@ -52,6 +54,7 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 #' @param row_weight_file row-wise weight file
 #' @param NUM_THREADS number of threads for multi-core processing
+#' @param BLOCK_SIZE number of columns per block
 #'
 #' @return a list of (1) factors.adjusted (2) U (3) D (4) V
 #'
@@ -76,8 +79,8 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_bbknn_pca', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS)
+rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
+    .Call('_mmutilR_rcpp_mmutil_bbknn_pca', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
 }
 
 #' Annotate columns by marker feature information
@@ -381,6 +384,7 @@ rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index, 
 #' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 #' @param row_weight_file row-wise weight file
 #' @param NUM_THREADS number of threads for multi-core processing
+#' @param BLOCK_SIZE number of columns per block
 #'
 #' @return a list of source, target, distance
 #'
@@ -397,8 +401,8 @@ rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index, 
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 10L, EM_TOL = 1e-4, LU_ITER = 5L, KNN_BILINK = 10L, KNN_NNLIST = 10L, row_weight_file = "", NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_match_files', PACKAGE = 'mmutilR', src_mtx, tgt_mtx, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, LU_ITER, KNN_BILINK, KNN_NNLIST, row_weight_file, NUM_THREADS)
+rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 10L, EM_TOL = 1e-4, LU_ITER = 5L, KNN_BILINK = 10L, KNN_NNLIST = 10L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
+    .Call('_mmutilR_rcpp_mmutil_match_files', PACKAGE = 'mmutilR', src_mtx, tgt_mtx, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, LU_ITER, KNN_BILINK, KNN_NNLIST, row_weight_file, NUM_THREADS, BLOCK_SIZE)
 }
 
 #' Clustering columns of the network mtx file (feature incidence matrix)

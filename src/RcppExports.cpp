@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_mmutil_pca
-Rcpp::List rcpp_mmutil_pca(const std::string mtx_file, const std::size_t RANK, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t LU_ITER, const std::string row_weight_file);
-RcppExport SEXP _mmutilR_rcpp_mmutil_pca(SEXP mtx_fileSEXP, SEXP RANKSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP LU_ITERSEXP, SEXP row_weight_fileSEXP) {
+Rcpp::List rcpp_mmutil_pca(const std::string mtx_file, const std::size_t RANK, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t LU_ITER, const std::string row_weight_file, const std::size_t NUM_THREADS, const std::size_t BLOCK_SIZE);
+RcppExport SEXP _mmutilR_rcpp_mmutil_pca(SEXP mtx_fileSEXP, SEXP RANKSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP LU_ITERSEXP, SEXP row_weight_fileSEXP, SEXP NUM_THREADSSEXP, SEXP BLOCK_SIZESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -28,13 +28,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_NNLIST(KNN_NNLISTSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type LU_ITER(LU_ITERSEXP);
     Rcpp::traits::input_parameter< const std::string >::type row_weight_file(row_weight_fileSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_pca(mtx_file, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file));
+    Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type BLOCK_SIZE(BLOCK_SIZESEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_pca(mtx_file, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_mmutil_bbknn_pca
-Rcpp::List rcpp_mmutil_bbknn_pca(const std::string mtx_file, const Rcpp::StringVector& r_batches, const std::size_t knn, const std::size_t RANK, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t LU_ITER, const std::string row_weight_file, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn_pca(SEXP mtx_fileSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RANKSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP LU_ITERSEXP, SEXP row_weight_fileSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::List rcpp_mmutil_bbknn_pca(const std::string mtx_file, const Rcpp::StringVector& r_batches, const std::size_t knn, const std::size_t RANK, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t LU_ITER, const std::string row_weight_file, const std::size_t NUM_THREADS, const std::size_t BLOCK_SIZE);
+RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn_pca(SEXP mtx_fileSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RANKSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP LU_ITERSEXP, SEXP row_weight_fileSEXP, SEXP NUM_THREADSSEXP, SEXP BLOCK_SIZESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -52,7 +54,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::size_t >::type LU_ITER(LU_ITERSEXP);
     Rcpp::traits::input_parameter< const std::string >::type row_weight_file(row_weight_fileSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn_pca(mtx_file, r_batches, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS));
+    Rcpp::traits::input_parameter< const std::size_t >::type BLOCK_SIZE(BLOCK_SIZESEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn_pca(mtx_file, r_batches, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -244,8 +247,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_match_files
-Rcpp::List rcpp_mmutil_match_files(const std::string src_mtx, const std::string tgt_mtx, const std::size_t knn, const std::size_t RANK, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t LU_ITER, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::string row_weight_file, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_match_files(SEXP src_mtxSEXP, SEXP tgt_mtxSEXP, SEXP knnSEXP, SEXP RANKSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP LU_ITERSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP row_weight_fileSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::List rcpp_mmutil_match_files(const std::string src_mtx, const std::string tgt_mtx, const std::size_t knn, const std::size_t RANK, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t LU_ITER, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::string row_weight_file, const std::size_t NUM_THREADS, const std::size_t BLOCK_SIZE);
+RcppExport SEXP _mmutilR_rcpp_mmutil_match_files(SEXP src_mtxSEXP, SEXP tgt_mtxSEXP, SEXP knnSEXP, SEXP RANKSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP LU_ITERSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP row_weight_fileSEXP, SEXP NUM_THREADSSEXP, SEXP BLOCK_SIZESEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -263,7 +266,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_NNLIST(KNN_NNLISTSEXP);
     Rcpp::traits::input_parameter< const std::string >::type row_weight_file(row_weight_fileSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_match_files(src_mtx, tgt_mtx, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, LU_ITER, KNN_BILINK, KNN_NNLIST, row_weight_file, NUM_THREADS));
+    Rcpp::traits::input_parameter< const std::size_t >::type BLOCK_SIZE(BLOCK_SIZESEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_match_files(src_mtx, tgt_mtx, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, LU_ITER, KNN_BILINK, KNN_NNLIST, row_weight_file, NUM_THREADS, BLOCK_SIZE));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -402,8 +406,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mmutilR_rcpp_mmutil_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_pca, 11},
-    {"_mmutilR_rcpp_mmutil_bbknn_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn_pca, 14},
+    {"_mmutilR_rcpp_mmutil_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_pca, 13},
+    {"_mmutilR_rcpp_mmutil_bbknn_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn_pca, 15},
     {"_mmutilR_rcpp_mmutil_annotate_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_annotate_columns, 18},
     {"_mmutilR_rcpp_mmutil_deconvolve_svd", (DL_FUNC) &_mmutilR_rcpp_mmutil_deconvolve_svd, 10},
     {"_mmutilR_rcpp_mmutil_merge_file_sets", (DL_FUNC) &_mmutilR_rcpp_mmutil_merge_file_sets, 9},
@@ -416,7 +420,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_write_mtx", (DL_FUNC) &_mmutilR_rcpp_mmutil_write_mtx, 2},
     {"_mmutilR_rcpp_mmutil_read_columns_sparse", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns_sparse, 6},
     {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 6},
-    {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 14},
+    {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 15},
     {"_mmutilR_rcpp_mmutil_network_edge_cluster", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_edge_cluster, 12},
     {"_mmutilR_rcpp_mmutil_network_topic_data", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_topic_data, 23},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 18},

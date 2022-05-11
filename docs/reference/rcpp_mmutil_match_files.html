@@ -58,7 +58,8 @@
   KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,
   KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,
   row_weight_file <span class="op">=</span> <span class="st">""</span>,
-  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>
+  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>,
+  BLOCK_SIZE <span class="op">=</span> <span class="fl">10000L</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -92,6 +93,8 @@
 <dd><p>row-wise weight file</p></dd>
 <dt>NUM_THREADS</dt>
 <dd><p>number of threads for multi-core processing</p></dd>
+<dt>BLOCK_SIZE</dt>
+<dd><p>number of columns per block</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -111,7 +114,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">.matched</span><span class="op">$</span><span class="va">dist</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7.950e-06 3.559e-04 1.011e-03 4.607e-03 2.637e-03 1.083e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6.640e-06 9.842e-05 2.285e-04 5.645e-04 5.983e-04 4.343e-03 </span>
 <span class="r-in"><span class="co">## clean up temp directory</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"sim_test"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
@@ -129,7 +132,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>

@@ -21,6 +21,7 @@
 //' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 //' @param row_weight_file row-wise weight file
 //' @param NUM_THREADS number of threads for multi-core processing
+//' @param BLOCK_SIZE number of columns per block
 //'
 //' @return a list of source, target, distance
 //'
@@ -52,7 +53,8 @@ rcpp_mmutil_match_files(const std::string src_mtx,
                         const std::size_t KNN_BILINK = 10,
                         const std::size_t KNN_NNLIST = 10,
                         const std::string row_weight_file = "",
-                        const std::size_t NUM_THREADS = 1)
+                        const std::size_t NUM_THREADS = 1,
+                        const std::size_t BLOCK_SIZE = 10000)
 {
     spectral_options_t options;
 
@@ -67,6 +69,7 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     options.rank = RANK;
     options.em_iter = EM_ITER;
     options.em_tol = EM_TOL;
+    options.block_size = BLOCK_SIZE;
 
     //////////////////////
     // check input data //
@@ -104,7 +107,7 @@ rcpp_mmutil_match_files(const std::string src_mtx,
         ww = weights;
     }
 
-    svd_out_t svd = take_svd_online_em(tgt_mtx, ww, options);
+    svd_out_t svd = take_svd_online_em(tgt_mtx, ww, options, NUM_THREADS);
 
     Mat dict = svd.U; // feature x factor
     Mat d = svd.D;    // singular values
@@ -117,7 +120,7 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     /////////////////////////////////////////////////////
 
     const Mat proj = dict * d.cwiseInverse().asDiagonal(); // feature x rank
-    Mat src = take_proj_online(src_mtx, weights, proj, options);
+    Mat src = take_proj_online(src_mtx, weights, proj, options, NUM_THREADS);
 
     TLOG("Source matrix: " << src.rows() << " x " << src.cols());
 

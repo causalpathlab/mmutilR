@@ -55,7 +55,9 @@
   KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,
   KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,
   LU_ITER <span class="op">=</span> <span class="fl">5L</span>,
-  row_weight_file <span class="op">=</span> <span class="st">""</span>
+  row_weight_file <span class="op">=</span> <span class="st">""</span>,
+  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>,
+  BLOCK_SIZE <span class="op">=</span> <span class="fl">10000L</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -79,6 +81,10 @@
 <dd><p>LU iteration</p></dd>
 <dt>row_weight_file</dt>
 <dd><p>row-wise weight file</p></dd>
+<dt>NUM_THREADS</dt>
+<dd><p>number of threads for multi-core processing</p></dd>
+<dt>BLOCK_SIZE</dt>
+<dd><p>number of columns per block</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -119,7 +125,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>
