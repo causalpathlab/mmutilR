@@ -158,9 +158,10 @@ rcpp_mmutil_deconvolve_svd <- function(mtx_file = "", row_file = "", col_file = 
 #'
 #' @param r_headers file set headers
 #' @param r_batches unique batch names for each header
-#' @param r_mtx A list of mtx files
-#' @param r_row A list of row files
-#' @param r_col A list of col files
+#' @param r_mtx_files A list of mtx files
+#' @param r_row_files A list of row files
+#' @param r_col_files A list of col files
+#' @param r_fixed_rows A list of rows/features
 #' @param output output file header
 #' @param nnz_cutoff number of non-zero cutoff for columns
 #' @param delim delimiter in the column name
@@ -189,8 +190,8 @@ rcpp_mmutil_deconvolve_svd <- function(mtx_file = "", row_file = "", col_file = 
 #' unlink(list.files(pattern = "test2"))
 #' unlink(list.files(pattern = "test3"))
 #'
-rcpp_mmutil_merge_file_sets <- function(r_headers = NULL, r_batches = NULL, r_mtx = NULL, r_row = NULL, r_col = NULL, output = "output", nnz_cutoff = 1, delim = "_") {
-    .Call('_mmutilR_rcpp_mmutil_merge_file_sets', PACKAGE = 'mmutilR', r_headers, r_batches, r_mtx, r_row, r_col, output, nnz_cutoff, delim)
+rcpp_mmutil_merge_file_sets <- function(r_headers = NULL, r_batches = NULL, r_mtx_files = NULL, r_row_files = NULL, r_col_files = NULL, r_fixed_rows = NULL, output = "output", nnz_cutoff = 1, delim = "_") {
+    .Call('_mmutilR_rcpp_mmutil_merge_file_sets', PACKAGE = 'mmutilR', r_headers, r_batches, r_mtx_files, r_row_files, r_col_files, r_fixed_rows, output, nnz_cutoff, delim)
 }
 
 #' Take a subset of rows and create a new MTX file-set

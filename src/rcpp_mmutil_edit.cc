@@ -9,9 +9,10 @@
 //'
 //' @param r_headers file set headers
 //' @param r_batches unique batch names for each header
-//' @param r_mtx A list of mtx files
-//' @param r_row A list of row files
-//' @param r_col A list of col files
+//' @param r_mtx_files A list of mtx files
+//' @param r_row_files A list of row files
+//' @param r_col_files A list of col files
+//' @param r_fixed_rows A list of rows/features
 //' @param output output file header
 //' @param nnz_cutoff number of non-zero cutoff for columns
 //' @param delim delimiter in the column name
@@ -45,9 +46,10 @@ Rcpp::List
 rcpp_mmutil_merge_file_sets(
     Rcpp::Nullable<const Rcpp::StringVector> r_headers = R_NilValue,
     Rcpp::Nullable<const Rcpp::StringVector> r_batches = R_NilValue,
-    Rcpp::Nullable<const Rcpp::StringVector> r_mtx = R_NilValue,
-    Rcpp::Nullable<const Rcpp::StringVector> r_row = R_NilValue,
-    Rcpp::Nullable<const Rcpp::StringVector> r_col = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_mtx_files = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_row_files = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_col_files = R_NilValue,
+    Rcpp::Nullable<const Rcpp::StringVector> r_fixed_rows = R_NilValue,
     const std::string output = "output",
     const double nnz_cutoff = 1,
     const std::string delim = "_")
@@ -72,7 +74,7 @@ rcpp_mmutil_merge_file_sets(
     std::vector<std::string> row_files;
     std::vector<std::string> col_files;
 
-    if (r_mtx.isNull() || r_row.isNull() || r_col.isNull()) {
+    if (r_mtx_files.isNull() && r_row_files.isNull() && r_col_files.isNull()) {
         for (auto s : headers) {
             std::vector<std::string> rows_s;
             std::string row_file_s = s + ".rows.gz";
@@ -99,10 +101,16 @@ rcpp_mmutil_merge_file_sets(
             row_files.emplace_back(row_file_s);
             col_files.emplace_back(col_file_s);
         }
+
     } else {
-        mtx_files = copy(Rcpp::StringVector(r_mtx));
-        row_files = copy(Rcpp::StringVector(r_row));
-        col_files = copy(Rcpp::StringVector(r_col));
+
+        for (auto s : headers) {
+            TLOG("Ignore headers: " << s);
+        }
+
+        mtx_files = copy(Rcpp::StringVector(r_mtx_files));
+        row_files = copy(Rcpp::StringVector(r_row_files));
+        col_files = copy(Rcpp::StringVector(r_col_files));
 
         ASSERT_RETL(mtx_files.size() == row_files.size() &&
                         mtx_files.size() == col_files.size(),
@@ -122,9 +130,21 @@ rcpp_mmutil_merge_file_sets(
         }
     }
 
-    glob_rows.reserve(_rows.size());
-    std::copy(_rows.begin(), _rows.end(), std::back_inserter(glob_rows));
-    std::sort(glob_rows.begin(), glob_rows.end());
+    if (r_fixed_rows.isNotNull()) {
+        glob_rows = copy(Rcpp::StringVector(r_fixed_rows));
+        Index n_overlap = 0;
+        for (auto r : glob_rows) {
+            if (_rows.count(r) > 0)
+                n_overlap++;
+        }
+        ASSERT_RETL(
+            n_overlap > 0,
+            "no overlap between the row files and the row names provided");
+    } else {
+        glob_rows.reserve(_rows.size());
+        std::copy(_rows.begin(), _rows.end(), std::back_inserter(glob_rows));
+        std::sort(glob_rows.begin(), glob_rows.end());
+    }
 
     CHECK(run_merge_col(glob_rows,
                         nnz_cutoff,
