@@ -147,18 +147,18 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     std::size_t param_nnlist = KNN_NNLIST;
 
     if (param_bilink >= rank) {
-        WLOG("Shrink M value: " << param_bilink << " vs. " << rank);
         param_bilink = rank - 1;
+        TLOG("Shrink M value: " << param_bilink << " < " << rank);
     }
 
     if (param_bilink < 2) {
-        WLOG("too small M value");
         param_bilink = 2;
+        TLOG("Increase small M value: " << param_bilink);
     }
 
     if (param_nnlist <= knn) {
-        WLOG("too small N value");
         param_nnlist = knn + 1;
+        WLOG("Increase small N value: " << param_nnlist);
     }
 
     CHK_RETL(search_knn<hnswlib::InnerProductSpace>(SrcDataT(src.data(),
