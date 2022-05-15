@@ -161,13 +161,17 @@ rcpp_mmutil_match_files(const std::string src_mtx,
         param_nnlist = knn + 1;
     }
 
-    CHK_RETL(search_knn(SrcDataT(src.data(), src.rows(), src.cols()),
-                        TgtDataT(tgt.data(), tgt.rows(), tgt.cols()),
-                        KNN(knn),
-                        BILINK(param_bilink),
-                        NNLIST(param_nnlist),
-                        NUM_THREADS,
-                        out_index));
+    CHK_RETL(search_knn<hnswlib::InnerProductSpace>(SrcDataT(src.data(),
+                                                             src.rows(),
+                                                             src.cols()),
+                                                    TgtDataT(tgt.data(),
+                                                             tgt.rows(),
+                                                             tgt.cols()),
+                                                    KNN(knn),
+                                                    BILINK(param_bilink),
+                                                    NNLIST(param_nnlist),
+                                                    NUM_THREADS,
+                                                    out_index));
 
     TLOG("Done kNN searches");
 

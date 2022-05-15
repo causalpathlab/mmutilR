@@ -1,103 +1,5 @@
 #include "mmutil_match.hh"
 
-int
-search_knn(const SrcDataT _SrcData,       //
-           const TgtDataT _TgtData,       //
-           const KNN _knn,                //
-           const BILINK _bilink,          //
-           const NNLIST _nnlist,          //
-           const std::size_t NUM_THREADS, //
-           index_triplet_vec &out)
-{
-    ERR_RET(_SrcData.vecdim != _TgtData.vecdim,
-            "source and target must have the same dimensionality");
-
-    const std::size_t knn = _knn.val;
-    const std::size_t vecdim = _TgtData.vecdim;
-    const std::size_t vecsize = _TgtData.vecsize;
-
-    std::size_t param_bilink = _bilink.val;
-    std::size_t param_nnlist = _nnlist.val;
-
-    if (param_bilink >= vecdim) {
-        WLOG("too big M value: " << param_bilink << " vs. " << vecdim);
-        param_bilink = vecdim - 1;
-    }
-
-    if (param_bilink < 2) {
-        WLOG("too small M value");
-        param_bilink = 2;
-    }
-
-    if (param_nnlist <= knn) {
-        WLOG("too small N value");
-        param_nnlist = knn + 1;
-    }
-
-    // Construct KnnAlg interface
-    // hnswlib::InnerProductSpace vecspace(vecdim);
-    hnswlib::L2Space vecspace(vecdim);
-
-    KnnAlg alg(&vecspace, vecsize, param_bilink, param_nnlist);
-    alg.ef_ = param_nnlist;
-
-    TLOG("Initializing kNN algorithm");
-
-    {
-        const float *mass = _TgtData.data;
-
-        progress_bar_t<Index> prog(vecsize, 1e2);
-
-#if defined(_OPENMP)
-#pragma omp parallel num_threads(NUM_THREADS)
-#pragma omp for
-#endif
-        for (Index i = 0; i < vecsize; ++i) {
-#pragma omp critical
-            {
-                alg.addPoint((void *)(mass + vecdim * i),
-                             static_cast<std::size_t>(i));
-                prog.update();
-                prog(Rcpp::Rcerr);
-            }
-        }
-    }
-
-    ////////////
-    // recall //
-    ////////////
-
-    {
-        const Index N = _SrcData.vecsize;
-        TLOG("Finding " << knn << " nearest neighbors for N = " << N);
-
-        const float *mass = _SrcData.data;
-        progress_bar_t<Index> prog(_SrcData.vecsize, 1e2);
-
-#if defined(_OPENMP)
-#pragma omp parallel num_threads(NUM_THREADS)
-#pragma omp for
-#endif
-        for (Index i = 0; i < _SrcData.vecsize; ++i) {
-#pragma omp critical
-            {
-                auto pq = alg.searchKnn((void *)(mass + vecdim * i), knn);
-                float d = 0;
-                std::size_t j;
-                while (!pq.empty()) {
-                    std::tie(d, j) = pq.top();
-                    out.emplace_back(i, j, d);
-                    pq.pop();
-                }
-                prog.update();
-                prog(Rcpp::Rcerr);
-            }
-        }
-    }
-    TLOG("Done kNN searches");
-    return EXIT_SUCCESS;
-}
-
 void
 normalize_weights(const Index deg_i,
                   std::vector<float> &dist,
@@ -149,4 +51,46 @@ normalize_weights(const Index deg_i,
     for (Index j = 0; j < deg_i; ++j) {
         weights[j] = fasterexp(-(dist[j] - dmin) * lambda);
     }
+}
+
+inline std::tuple<std::unordered_set<Index>, Index>
+find_nz_cols(const std::string mtx_file)
+{
+    col_stat_collector_t collector;
+    visit_matrix_market_file(mtx_file, collector);
+    std::unordered_set<Index> valid;
+    const IntVec &nn = collector.Col_N;
+    for (Index j = 0; j < nn.size(); ++j) {
+        if (nn(j) > 0.0)
+            valid.insert(j);
+    }
+    const Index N = collector.max_col;
+    return std::make_tuple(valid, N); // RVO
+}
+
+inline std::tuple<std::unordered_set<Index>, // valid
+                  Index,                     // #total
+                  std::vector<std::string>   // names
+                  >
+find_nz_col_names(const std::string mtx_file, const std::string col_file)
+{
+    using valid_set_t = std::unordered_set<Index>;
+    valid_set_t valid;
+    Index N;
+
+    std::tie(valid, N) = find_nz_cols(mtx_file);
+
+    std::vector<std::string> col_names;
+
+    if (file_exists(col_file)) {
+        CHECK(read_vector_file(col_file, col_names));
+        ASSERT(col_names.size() >= N,
+               "Not enough # names in `find_nz_col_names`");
+    } else {
+        for (Index j = 0; j < N; ++j) {
+            col_names.push_back(std::to_string(j + 1));
+        }
+    }
+
+    return std::make_tuple(valid, N, col_names);
 }
