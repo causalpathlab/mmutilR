@@ -88,6 +88,12 @@ rcpp_mmutil_match_files(const std::string src_mtx,
     const Index D = info.max_row;
     const Index Nsample = info.max_col;
 
+    mmutil::index::mm_info_reader_t src_info;
+    CHK_RETL(mmutil::bgzf::peek_bgzf_header(src_mtx, src_info));
+    ASSERT_RETL(src_info.max_row == D,
+                "source and target data have a different number of rows, "
+                    << src_info.max_row << " vs. " << info.max_row);
+
     ///////////////////////////////////////////////
     // step 1. learn spectral on the target data //
     ///////////////////////////////////////////////
