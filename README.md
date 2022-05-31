@@ -18,7 +18,7 @@ This `R` package contains a list of functions that can be useful in processing s
 
 or
 
-`> devtools::install_github("causalpathlab/mmutilR")`
+`> devtools::install_github("causalpathlab/mmutilR@main")`
 
 ## Available functions
 
