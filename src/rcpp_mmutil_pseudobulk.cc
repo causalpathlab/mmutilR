@@ -141,14 +141,18 @@ rcpp_mmutil_aggregate(
     std::vector<std::string> annot;
     std::vector<std::string> lab_name;
 
-    if (r_cols.isNotNull() && r_indv.isNotNull()) {
+    if (r_cols.isNotNull()) {
         copy(Rcpp::StringVector(r_cols), cols);
-        copy(Rcpp::StringVector(r_indv), indv);
     } else {
         cols.reserve(mtx_cols.size());
         std::copy(std::begin(mtx_cols),
                   std::end(mtx_cols),
                   std::back_inserter(cols));
+    }
+
+    if (r_indv.isNotNull()) {
+        copy(Rcpp::StringVector(r_indv), indv);
+    } else {
         indv.resize(mtx_cols.size());
         std::string _indv = "ind1";
         std::fill(std::begin(indv), std::end(indv), _indv);

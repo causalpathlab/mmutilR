@@ -44,47 +44,56 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">rcpp_mmutil_simulate_poisson</span><span class="op">(</span><span class="va">mu</span>, <span class="va">rho</span>, <span class="va">output</span>, r_indv <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rcpp_mmutil_simulate_poisson</span><span class="op">(</span><span class="va">mu</span>, <span class="va">rho</span>, <span class="va">output</span>, r_indv <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>output</dt>
 <dd><p>header for $output.mtx.gz,cols.gz,indv.gz</p></dd>
+
+
 <dt>r_indv</dt>
 <dd><p>N x 1 individual membership (1-based, [1 .. n])</p></dd>
+
+
 <dt>Mu</dt>
 <dd><p>depth-adjusted mean matrix (M x n), M=#features and n=#indv</p></dd>
+
+
 <dt>Rho</dt>
 <dd><p>column depth vector (N x 1), N=#cells</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a list of file names: output.mtx,rows,cols.gz</p>
+    
+
+<p>a list of file names: output.mtx,rows,cols.gz</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">rr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">data.hdr</span> <span class="op">&lt;-</span> <span class="st">"test_sim"</span></span>
-<span class="r-in"><span class="va">.files</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_simulate_poisson</span><span class="op">(</span><span class="va">mm</span>, <span class="va">rr</span>, <span class="va">data.hdr</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">.files</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 20 sparse Matrix of class "dgTMatrix"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 1 3 1 . 2 . 1 . 2 3 1 1 1 3 2  3 1 1  4 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 2 1 . . . . . . 2 . . 2 3 2 .  . . .  3 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 1 1 1 . . . . 1 . . . 1 2 . .  1 . .  2 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 1 1 . . . 1 . . 1 . . . . . .  . . .  3 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 2 . 2 2 . . . . . 1 . 2 . . .  2 . 1  1 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 4 1 1 . 1 . . 1 2 2 . 1 3 3 3 11 1 . 15 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 2 . . 1 . 1 . . 1 . . 1 1 2 .  3 . .  8 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 3 2 2 . 2 1 1 . . 1 1 1 2 1 1  4 1 1  6 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 7 3 7 1 4 1 . . 4 2 . 1 1 . 2  . 1 .  9 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 2 . 2 1 1 1 . 1 1 . . 2 . . .  2 1 1  7 1</span>
-<span class="r-in"><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">.files</span><span class="op">$</span><span class="va">indv</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"ind"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">rr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data.hdr</span> <span class="op">&lt;-</span> <span class="st">"test_sim"</span></span></span>
+<span class="r-in"><span><span class="va">.files</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_simulate_poisson</span><span class="op">(</span><span class="va">mm</span>, <span class="va">rr</span>, <span class="va">data.hdr</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">.files</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 19 sparse Matrix of class "dgTMatrix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] . 3 6 4 . 2 1 3 2 10 2 1 2 . 2 3 6 . 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 1 . 2 4 . 1 . 1 1  2 1 . 2 1 1 1 1 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] . . 2 1 . 1 1 . .  3 . . . . 1 1 1 . 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 1 . . 2 . . . 2 .  1 1 1 . . 1 1 . . 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 1 . 1 . . . . . .  . 1 . 2 . . . . . 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] . . 2 2 . 2 1 2 3  3 4 . 1 . 5 5 2 . 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] . 4 3 3 . . . 1 .  1 2 . 2 1 1 5 4 1 9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 2 3 3 4 . 1 1 2 3  1 1 . 1 3 2 2 8 . 8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] . 3 8 7 . 3 1 1 4 14 7 2 1 . . 2 4 . 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] . 5 5 6 1 2 1 3 3  3 2 1 1 . 1 5 7 1 6</span>
+<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">.files</span><span class="op">$</span><span class="va">indv</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"ind"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   col ind</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   1   1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   2   1</span>
@@ -92,8 +101,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4   4   1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5   5   1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   6   1</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="va">data.hdr</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="va">data.hdr</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -108,7 +117,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

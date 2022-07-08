@@ -44,54 +44,81 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">simulate_gamma_glm</span><span class="op">(</span>
-  nind <span class="op">=</span> <span class="fl">40</span>,
-  ngene <span class="op">=</span> <span class="fl">1000</span>,
-  ncausal <span class="op">=</span> <span class="fl">5</span>,
-  ncovar.conf <span class="op">=</span> <span class="fl">1</span>,
-  ncovar.batch <span class="op">=</span> <span class="fl">3</span>,
-  ncell.ind <span class="op">=</span> <span class="fl">10</span>,
-  pve.1 <span class="op">=</span> <span class="fl">0.3</span>,
-  pve.c <span class="op">=</span> <span class="fl">0.5</span>,
-  pve.a <span class="op">=</span> <span class="fl">0.5</span>,
-  rho.a <span class="op">=</span> <span class="fl">2</span>,
-  rho.b <span class="op">=</span> <span class="fl">2</span>,
-  rseed <span class="op">=</span> <span class="fl">13</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulate_gamma_glm</span><span class="op">(</span></span>
+<span>  nind <span class="op">=</span> <span class="fl">40</span>,</span>
+<span>  ngene <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  ncausal <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  ncovar.conf <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  ncovar.batch <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  ncell.ind <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  pve.1 <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  pve.c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  pve.a <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  rho.a <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  rho.b <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  rseed <span class="op">=</span> <span class="fl">13</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>nind</dt>
 <dd><p>number of individuals/samples</p></dd>
+
+
 <dt>ngene</dt>
 <dd><p># genes/features</p></dd>
+
+
 <dt>ncausal</dt>
 <dd><p>number of causal genes</p></dd>
+
+
 <dt>ncovar.conf</dt>
 <dd><p>number of covar shared</p></dd>
+
+
 <dt>ncovar.batch</dt>
 <dd><p>number of covar on mu, batch effect</p></dd>
+
+
 <dt>ncell.ind</dt>
 <dd><p># cells per individual</p></dd>
+
+
 <dt>pve.1</dt>
 <dd><p>variance of treatment/disease effect</p></dd>
+
+
 <dt>pve.c</dt>
 <dd><p>variance of confounding effect</p></dd>
+
+
 <dt>pve.a</dt>
 <dd><p>variance of confounders to the assignment</p></dd>
+
+
 <dt>rho.a</dt>
 <dd><p>rho ~ gamma(a, b)</p></dd>
+
+
 <dt>rho.b</dt>
 <dd><p>rho ~ gamma(a, b)</p></dd>
+
+
 <dt>rseed</dt>
 <dd><p>random seed</p>
 <p>simple concat
 random standard Normal</p></dd>
+
+
 <dt>n2</dt>
 <dd><p>sample model parameters</p></dd>
+
+
 <dt>ngenes</dt>
 <dd><p>number of genes/features</p></dd>
+
 </dl></div>
 
   </div>
@@ -106,7 +133,7 @@ random standard Normal</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
