@@ -480,7 +480,7 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' @param KNN_BILINK # of bidirectional links (default: 10)
 #' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
-#' @param IMPUTE_BY_KNN imputation by kNN alone (default: false)
+#' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 #'
 #' @return a list of inference results
 #'
@@ -513,8 +513,13 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' .ind <- read.table(dat$indv, col.names = c("col", "ind"))
 #' .annot.ind <- .ind$ind[match(annot$col, .ind$col)]
 #' ## aggregate
-#' agg <- mmutilR::rcpp_mmutil_aggregate(dat$mtx, dat$row, dat$col,
-#'         annot$col, .annot.ind, annot$argmax, c("ct1", "ct2"))
+#' agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = dat$mtx,
+#'                                       row_file = dat$row,
+#'                                       col_file = dat$col,
+#'                                       r_cols = annot$col,
+#'                                       r_indv = .annot.ind,
+#'                                       r_annot = annot$argmax,
+#'                                       r_lab_name = c("ct1", "ct2"))
 #' ## show average marker features
 #' print(round(agg$mean[1:20, ]))
 #' unlink(list.files(pattern = "sim_test"))
@@ -550,7 +555,7 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
+rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = TRUE) {
     .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_annot_mat, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
 }
 

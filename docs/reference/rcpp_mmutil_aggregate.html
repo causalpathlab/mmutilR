@@ -62,7 +62,7 @@
 <span>  KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>  IMPUTE_BY_KNN <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  IMPUTE_BY_KNN <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -137,7 +137,7 @@
 
 
 <dt>IMPUTE_BY_KNN</dt>
-<dd><p>imputation by kNN alone (default: false)</p></dd>
+<dd><p>imputation by kNN alone (default: TRUE)</p></dd>
 
 </dl></div>
     <div id="value">
@@ -177,12 +177,36 @@
 <span class="r-in"><span><span class="va">.ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">indv</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"ind"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">.annot.ind</span> <span class="op">&lt;-</span> <span class="va">.ind</span><span class="op">$</span><span class="va">ind</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">annot</span><span class="op">$</span><span class="va">col</span>, <span class="va">.ind</span><span class="op">$</span><span class="va">col</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="co">## aggregate</span></span></span>
-<span class="r-in"><span><span class="va">agg</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_aggregate</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mtx</span>, <span class="va">dat</span><span class="op">$</span><span class="va">row</span>, <span class="va">dat</span><span class="op">$</span><span class="va">col</span>,</span></span>
-<span class="r-in"><span>        <span class="va">annot</span><span class="op">$</span><span class="va">col</span>, <span class="va">.annot.ind</span>, <span class="va">annot</span><span class="op">$</span><span class="va">argmax</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ct1"</span>, <span class="st">"ct2"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in mmutilR::rcpp_mmutil_aggregate(dat$mtx, dat$row, dat$col, annot$col,     .annot.ind, annot$argmax, c("ct1", "ct2")):</span> Not compatible with requested type: [type=character; target=double].</span>
+<span class="r-in"><span><span class="va">agg</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_aggregate</span><span class="op">(</span>mtx_file <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">mtx</span>,</span></span>
+<span class="r-in"><span>                                      row_file <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">row</span>,</span></span>
+<span class="r-in"><span>                                      col_file <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">col</span>,</span></span>
+<span class="r-in"><span>                                      r_cols <span class="op">=</span> <span class="va">annot</span><span class="op">$</span><span class="va">col</span>,</span></span>
+<span class="r-in"><span>                                      r_indv <span class="op">=</span> <span class="va">.annot.ind</span>,</span></span>
+<span class="r-in"><span>                                      r_annot <span class="op">=</span> <span class="va">annot</span><span class="op">$</span><span class="va">argmax</span>,</span></span>
+<span class="r-in"><span>                                      r_lab_name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ct1"</span>, <span class="st">"ct2"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">## show average marker features</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">agg</span><span class="op">$</span><span class="va">mean</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in print(round(agg$mean[1:20, ])):</span> object 'agg' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1_ct1 1_ct2 2_ct1 2_ct2 3_ct1 3_ct2 4_ct1 4_ct2 5_ct1 5_ct2 6_ct1 6_ct2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r001     9     0     8     0     9     0     0     1     0     2     0     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r002     2     0     2     0     2     0     0     1     0     1     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r003     3     0     3     0     3     0     0     1     0     2     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r004    17     0    16     0    17     0     0     1     1     3     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r005     1     0     1     0     1     0     0     1     0     0     0     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r006    10     0     9     0     9     0     0     1     0     1     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r007     2     0     2     0     2     0     0     2     0     0     0     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r008     3     0     3     0     3     0     0     1     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r009    17     0    17     0    16     0     0     1     0     1     0     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r010     1     0     0     0     1     0     0     1     0     0     0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r011     0     0     1     0     3     0     0     4     0     5     0     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r012     0     0     2     0     0     0     0     4     0     4     0     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r013     3     0     2     0     2     0     0     4     0     4     0     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r014     0     0     0     0     1     0     0     8     0     8     0     8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r015     1     0     0     0     1     0     0     5     0     5     0     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r016     1     0     0     0     3     0     0     4     0     5     0     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r017     0     0     0     0     0     0     0     4     0     4     0     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r018     1     0     0     0     0     0     0     3     0     4     0     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r019     2     0     0     0     0     0     0     8     0     8     0     8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> r020     1     0     0     0     2     0     0     5     0     5     0     6</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"sim_test"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co">## Case-control simulation</span></span></span>
 <span class="r-in"><span><span class="va">.sim</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu"><a href="simulate_gamma_glm.html">simulate_gamma_glm</a></span><span class="op">(</span><span class="op">)</span></span></span>

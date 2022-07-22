@@ -22,7 +22,7 @@ rcpp_mmutil_aggregate(
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
   NUM_THREADS = 1L,
-  IMPUTE_BY_KNN = FALSE
+  IMPUTE_BY_KNN = TRUE
 )
 }
 \arguments{
@@ -60,7 +60,7 @@ rcpp_mmutil_aggregate(
 
 \item{NUM_THREADS}{number of threads for multi-core processing}
 
-\item{IMPUTE_BY_KNN}{imputation by kNN alone (default: false)}
+\item{IMPUTE_BY_KNN}{imputation by kNN alone (default: TRUE)}
 }
 \value{
 a list of inference results
@@ -97,8 +97,13 @@ annot <- out$annotation
 .ind <- read.table(dat$indv, col.names = c("col", "ind"))
 .annot.ind <- .ind$ind[match(annot$col, .ind$col)]
 ## aggregate
-agg <- mmutilR::rcpp_mmutil_aggregate(dat$mtx, dat$row, dat$col,
-        annot$col, .annot.ind, annot$argmax, c("ct1", "ct2"))
+agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = dat$mtx,
+                                      row_file = dat$row,
+                                      col_file = dat$col,
+                                      r_cols = annot$col,
+                                      r_indv = .annot.ind,
+                                      r_annot = annot$argmax,
+                                      r_lab_name = c("ct1", "ct2"))
 ## show average marker features
 print(round(agg$mean[1:20, ]))
 unlink(list.files(pattern = "sim_test"))

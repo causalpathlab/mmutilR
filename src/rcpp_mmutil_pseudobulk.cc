@@ -34,7 +34,7 @@
 //' @param KNN_BILINK # of bidirectional links (default: 10)
 //' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
-//' @param IMPUTE_BY_KNN imputation by kNN alone (default: false)
+//' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 //'
 //' @return a list of inference results
 //'
@@ -67,8 +67,13 @@
 //' .ind <- read.table(dat$indv, col.names = c("col", "ind"))
 //' .annot.ind <- .ind$ind[match(annot$col, .ind$col)]
 //' ## aggregate
-//' agg <- mmutilR::rcpp_mmutil_aggregate(dat$mtx, dat$row, dat$col,
-//'         annot$col, .annot.ind, annot$argmax, c("ct1", "ct2"))
+//' agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = dat$mtx,
+//'                                       row_file = dat$row,
+//'                                       col_file = dat$col,
+//'                                       r_cols = annot$col,
+//'                                       r_indv = .annot.ind,
+//'                                       r_annot = annot$argmax,
+//'                                       r_lab_name = c("ct1", "ct2"))
 //' ## show average marker features
 //' print(round(agg$mean[1:20, ]))
 //' unlink(list.files(pattern = "sim_test"))
@@ -124,7 +129,7 @@ rcpp_mmutil_aggregate(
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
     const std::size_t NUM_THREADS = 1,
-    const bool IMPUTE_BY_KNN = false)
+    const bool IMPUTE_BY_KNN = true)
 {
 
     CHK_RETL(mmutil::bgzf::convert_bgzip(mtx_file));
