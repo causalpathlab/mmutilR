@@ -105,6 +105,7 @@ matched_data_t::build_dictionary(const Rcpp::NumericMatrix r_V,
 
     Vt = Rcpp::as<Mat>(r_V);
     Vt.transposeInPlace();
+    normalize_columns(Vt);
 
     ASSERT_RET(Vt.rows() > 0 && Vt.cols() > 0, "Empty Vt");
     ASSERT_RET(Vt.cols() == Nsample, "#rows(V) != Nsample");
@@ -112,17 +113,17 @@ matched_data_t::build_dictionary(const Rcpp::NumericMatrix r_V,
     const std::size_t rank = Vt.rows();
 
     if (param_bilink >= rank) {
-        WLOG("Shrink M value: " << param_bilink << " vs. " << rank);
+        // WLOG("Shrink M value: " << param_bilink << " vs. " << rank);
         param_bilink = rank - 1;
     }
 
     if (param_bilink < 2) {
-        WLOG("too small M value");
+        // WLOG("too small M value");
         param_bilink = 2;
     }
 
     if (param_nnlist <= knn) {
-        WLOG("too small N value");
+        // WLOG("too small N value");
         param_nnlist = knn + 1;
     }
 
