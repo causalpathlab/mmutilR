@@ -461,6 +461,74 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
     .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, knn, output, CUTOFF, WEIGHTED, MAXW, col_file, row_file, r_batches, r_U, r_D, r_V, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS)
 }
 
+#' Create pseudo-bulk data for pairwise comparisons
+#'
+#' @param mtx_file data file
+#' @param row_file row file
+#' @param col_file column file
+#' @param r_indv membership for the cells (\code{r_cols})
+#' @param r_V SVD factors
+#' @param r_cols cell (col) names (if we want to take a subset)
+#' @param r_annot label annotation for the (\code{r_cols})
+#' @param r_lab_name label names (default: everything in \code{r_annot})
+#' @param r_annot_mat label annotation matrix (cell x type) (default: NULL)
+#' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
+#' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
+#' @param eps small number (default: 1e-8)
+#' @param knn k-NN matching
+#' @param KNN_BILINK # of bidirectional links (default: 10)
+#' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+#' @param NUM_THREADS number of threads for multi-core processing
+#'
+#' @return a list of inference results
+#'
+#' @examples
+#' options(stringsAsFactors = FALSE)
+#' unlink(list.files(pattern = "sim_test"))
+#' .sim <- mmutilR::simulate_gamma_glm()
+#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+#'                                              .sim$rho,
+#'                                              "sim_test")
+#'
+#' .annot <- read.table(.dat$indv,
+#'                      col.names = c("col", "ind"))
+#' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
+#' .annot$ct <- "ct1"
+#'
+#' ## simple PCA
+#' .pca <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 10)
+#'
+#' .agg <- mmutilR::rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
+#'                                                 row_file = .dat$row,
+#'                                                 col_file = .dat$col,
+#'                                                 r_indv = .annot$ind,
+#'                                                 r_V = .pca$V,
+#'                                                 r_annot = .annot$ct,
+#'                                                 r_lab_name = "ct1",
+#'                                                 knn = 10)
+#'
+#' .names <- lapply(colnames(.agg$delta), strsplit, split="[_]")
+#' .names <- lapply(.names, function(x) unlist(x))
+#' .pairs <- data.frame(do.call(rbind, .names), stringsAsFactors=FALSE)
+#' colnames(.pairs) <- c("src","tgt","ct")
+#'
+#' w.src <- .sim$W[as.integer(.pairs$src)]
+#' w.tgt <- .sim$W[as.integer(.pairs$tgt)]
+#' w.delta <- w.src - w.tgt
+#'
+#' .agg$delta[.agg$delta < 0] <- NA
+#'
+#' par(mfrow=c(2,length(.sim$causal)))
+#' for(k in .sim$causal){
+#'     boxplot(.agg$delta[k, w.delta<0], .agg$delta[k, w.delta == 0],
+NULL
+
+#'
+#'
+rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
+    .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
+}
+
 #' Create pseudo-bulk data by aggregating columns
 #'
 #' @param mtx_file data file

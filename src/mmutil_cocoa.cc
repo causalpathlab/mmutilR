@@ -100,9 +100,6 @@ int
 matched_data_t::build_dictionary(const Rcpp::NumericMatrix r_V,
                                  const std::size_t NUM_THREADS)
 {
-    ASSERT_RET(num_treatment() > 1,
-               "Must have at least two or more treatment conditions");
-
     Vt = Rcpp::as<Mat>(r_V);
     Vt.transposeInPlace();
     normalize_columns(Vt);

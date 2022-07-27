@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">mmutilR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.4</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rcpp_mmutil_compute_scores</span><span class="op">(</span><span class="va">mtx_file</span>, row_file <span class="op">=</span> <span class="cn">NULL</span>, col_file <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">rcpp_mmutil_compute_scores</span><span class="op">(</span><span class="va">mtx_file</span>, row_file <span class="op">=</span> <span class="cn">NULL</span>, col_file <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -70,22 +70,22 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">rr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span> <span class="co"># ten cells</span></span></span>
-<span class="r-in"><span><span class="va">mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu"><a href="rcpp_mmutil_simulate_poisson.html">rcpp_mmutil_simulate_poisson</a></span><span class="op">(</span><span class="va">mm</span>, <span class="va">rr</span>, <span class="st">"sim_test"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">scr</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_compute_scores</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.0 0.4 1.2 0.1 0.6 0.3 0.6</span>
-<span class="r-in"><span><span class="va">scr</span><span class="op">$</span><span class="va">col</span><span class="op">$</span><span class="va">mean</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.0 0.4 1.2 0.1 0.6 0.3 0.6</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.2857143 1.2857143 0.2857143 1.5714286 0.5714286 1.4285714 0.5714286</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.1428571 0.1428571 0.1428571</span>
-<span class="r-in"><span><span class="va">scr</span><span class="op">$</span><span class="va">row</span><span class="op">$</span><span class="va">mean</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.2857143 1.2857143 0.2857143 1.5714285 0.5714286 1.4285715 0.5714286</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.1428572 0.1428571 0.1428571</span>
-<span class="r-in"><span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">rr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span> <span class="co"># ten cells</span></span>
+<span class="r-in"><span class="va">mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu"><a href="rcpp_mmutil_simulate_poisson.html">rcpp_mmutil_simulate_poisson</a></span><span class="op">(</span><span class="va">mm</span>, <span class="va">rr</span>, <span class="st">"sim_test"</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">scr</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_compute_scores</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span>
+<span class="r-in"><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.4 0.4 2.5 0.7 0.4 0.1 0.6 0.1 0.1</span>
+<span class="r-in"><span class="va">scr</span><span class="op">$</span><span class="va">col</span><span class="op">$</span><span class="va">mean</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.4 0.4 2.5 0.7 0.4 0.1 0.6 0.1 0.1</span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.5555556 0.1111111 0.5555556 0.4444444 0.6666667 1.8888889 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.2222222 0.3333333 0.2222222</span>
+<span class="r-in"><span class="va">scr</span><span class="op">$</span><span class="va">row</span><span class="op">$</span><span class="va">mean</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.5555556 0.1111111 0.5555556 0.4444444 0.6666667 1.8888888 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.2222222 0.3333333 0.2222222</span>
+<span class="r-in"></span>
 </code></pre></div>
     </div>
   </div>
@@ -100,7 +100,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
