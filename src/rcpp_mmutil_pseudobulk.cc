@@ -75,13 +75,19 @@
 //'
 //' par(mfrow=c(2,length(.sim$causal)))
 //' for(k in .sim$causal){
-//'     boxplot(.agg$delta[k, w.delta<0], .agg$delta[k, w.delta == 0],
-//.agg$delta[k, w.delta>0]) ' } ' non.causal <- setdiff(1:nrow(.sim$obs.mu),
-//.sim$causal) ' for(k in sample(non.causal,length(.sim$causal))){ '
-// boxplot(.agg$delta[k, w.delta<0], .agg$delta[k, w.delta == 0], .agg$delta[k,
-// w.delta>0]) ' } ' ## clean up temp directory ' unlink(list.files(pattern =
-//"sim_test"))
-//'
+//'     boxplot(.agg$delta[k, w.delta<0],
+//'             .agg$delta[k, w.delta == 0],
+//'             .agg$delta[k, w.delta>0])
+//' }
+//' non.causal <- setdiff(1:nrow(.sim$obs.mu),
+//'               .sim$causal)
+//' for(k in sample(non.causal,length(.sim$causal))){
+//'     boxplot(.agg$delta[k, w.delta<0],
+//'             .agg$delta[k, w.delta == 0],
+//'             .agg$delta[k, w.delta>0])
+//' }
+//' ## clean up temp directory
+//' unlink(list.files(pattern = "sim_test"))
 //'
 // [[Rcpp::export]]
 Rcpp::List

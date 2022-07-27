@@ -520,10 +520,19 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #'
 #' par(mfrow=c(2,length(.sim$causal)))
 #' for(k in .sim$causal){
-#'     boxplot(.agg$delta[k, w.delta<0], .agg$delta[k, w.delta == 0],
-NULL
-
-#'
+#'     boxplot(.agg$delta[k, w.delta<0],
+#'             .agg$delta[k, w.delta == 0],
+#'             .agg$delta[k, w.delta>0])
+#' }
+#' non.causal <- setdiff(1:nrow(.sim$obs.mu),
+#'               .sim$causal)
+#' for(k in sample(non.causal,length(.sim$causal))){
+#'     boxplot(.agg$delta[k, w.delta<0],
+#'             .agg$delta[k, w.delta == 0],
+#'             .agg$delta[k, w.delta>0])
+#' }
+#' ## clean up temp directory
+#' unlink(list.files(pattern = "sim_test"))
 #'
 rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
     .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
