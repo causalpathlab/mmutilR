@@ -341,6 +341,8 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
     Rcpp::IntegerVector tgt_index(nout, NA_INTEGER);
     Rcpp::NumericVector weight_vec(nout, NA_REAL);
     Rcpp::NumericVector distance_vec(nout, NA_REAL);
+    Rcpp::StringVector src_batch(nout, "");
+    Rcpp::StringVector tgt_batch(nout, "");
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
@@ -352,6 +354,8 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
         tgt_index[i] = std::get<1>(tt) + 1;
         weight_vec[i] = std::get<2>(tt);
         distance_vec[i] = std::get<3>(tt);
+        src_batch[i] = batch_id_name.at(batch.at(std::get<0>(tt)));
+        tgt_batch[i] = batch_id_name.at(batch.at(std::get<1>(tt)));
     }
 
     return Rcpp::List::create(Rcpp::_["factors.adjusted"] = Vadj,
@@ -368,5 +372,9 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
                                                      Rcpp::_["weight"] =
                                                          weight_vec,
                                                      Rcpp::_["dist"] =
-                                                         distance_vec));
+                                                         distance_vec,
+                                                     Rcpp::_["src.batch"] =
+                                                         src_batch,
+                                                     Rcpp::_["tgt.batch"] =
+                                                         tgt_batch));
 }
