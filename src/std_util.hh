@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <functional>
 #include <unordered_map>
+#include <utility>
 #include <set>
 #include <tuple>
 #include <string>
@@ -17,6 +18,20 @@
 char *str2char(const std::string &s);
 
 std::vector<std::string> split(const std::string &s, char delim);
+
+////////////////////////////////////////////////////////////////
+
+template <typename K1, typename K2>
+struct key2_hash {
+    std::size_t operator()(const std::tuple<K1, K2> &k) const
+    {
+        return std::get<0>(k) ^ std::get<1>(k);
+    }
+};
+
+template <typename K1, typename K2, typename V>
+using tuple2_map_t =
+    std::unordered_map<const std::tuple<K1, K2>, V, key2_hash<K1, K2>>;
 
 ////////////////////////////////////////////////////////////////
 
@@ -95,7 +110,7 @@ make_index_vec_vec(const std::vector<IDX> &_id)
 
     const IDX nn = *std::max_element(_id.begin(), _id.end()) + 1;
 
-    vec_ivec ret(nn, std::vector<IDX>{});
+    vec_ivec ret(nn, std::vector<IDX> {});
 
     for (IDX i = 0; i < _id.size(); ++i) {
         const IDX k = _id.at(i);

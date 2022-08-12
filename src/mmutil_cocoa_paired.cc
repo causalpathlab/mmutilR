@@ -4,7 +4,7 @@ Mat
 paired_data_t::read_block(const Index i)
 {
     ASSERT(i >= 0 && i < Nindv, "invalid i index: " << i);
-    return _read_block(indv_index_set[i]);
+    return _read_block(indv_index_set.at(i));
 }
 
 const paired_data_t::idx_vec_t &
@@ -89,6 +89,76 @@ paired_data_t::read_matched_block(const Index i, const Index j)
     }
 
     return y0;
+}
+
+std::vector<std::tuple<Index, Index>>
+paired_data_t::match_individuals(const Rcpp::NumericMatrix r_V)
+{
+
+    Vt = Rcpp::as<Mat>(r_V);
+
+    ASSERT(Nindv > 1, "only a single (or zero) individual");
+
+    //////////////////////
+    // 1. aggregate r_V //
+    //////////////////////
+
+    Mat M(Nsample, Nindv);
+    M.setZero();
+
+    for (Index ii = 0; ii < Nindv; ++ii) {
+        for (auto jj : cell_indexes(ii)) {
+            M(jj, ii) = 1;
+        }
+    }
+
+    Mat V = Vt.transpose() * M;
+    normalize_columns(V);
+    const std::size_t rank = V.rows();
+
+    TLOG("Aggregate V matrix");
+
+    vs_type VS(rank);
+
+    if (param_bilink >= rank) {
+        param_bilink = rank - 1;
+    }
+
+    if (param_bilink < 2) {
+        param_bilink = 2;
+    }
+
+    if (param_nnlist <= knn_indv) {
+        param_nnlist = knn_indv + 1;
+    }
+
+    const std::size_t nquery =
+        std::min(knn_indv + 1, static_cast<std::size_t>(Nindv));
+
+    KnnAlg alg(&VS, Nindv, param_bilink, param_nnlist);
+    float *mass = V.data();
+    for (Index ii = 0; ii < Nindv; ++ii) {
+        alg.addPoint((void *)(mass + rank * ii), ii);
+    }
+
+    std::vector<std::tuple<Index, Index>> indv_pairs;
+
+    for (Index ii = 0; ii < Nindv; ++ii) {
+        auto pq = alg.searchKnn((void *)(mass + rank * ii), nquery);
+
+        while (!pq.empty()) {
+            float d = 0;                // distance
+            std::size_t jj;             // local index
+            std::tie(d, jj) = pq.top(); //
+            if (ii != jj) {
+                indv_pairs.emplace_back(std::make_tuple(ii, jj));
+                TLOG("matching " << ii << " against " << jj);
+            }
+            pq.pop();
+        }
+    }
+
+    return indv_pairs;
 }
 
 Index

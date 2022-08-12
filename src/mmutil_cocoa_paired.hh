@@ -29,6 +29,7 @@ struct paired_data_t {
                   const str_vec_t &_mtx_cols,
                   const str_vec_t &_cols,
                   const KNN _knn,
+                  const KNN _knn_indv,
                   const BILINK _bilink,
                   const NNLIST _nnlist)
         : mtx_file(_mtx_file)
@@ -37,6 +38,7 @@ struct paired_data_t {
         , cols(_cols)
         , Nsample(mtx_cols.size())
         , knn(_knn.val)
+        , knn_indv(_knn_indv.val)
         , param_bilink(_bilink.val)
         , param_nnlist(_nnlist.val)
     {
@@ -52,6 +54,9 @@ struct paired_data_t {
     Mat read_matched_block(const Index i, const Index j);
 
     void set_individual_info(const str_vec_t &indv);
+
+    std::vector<std::tuple<Index, Index>>
+    match_individuals(const Rcpp::NumericMatrix r_V);
 
     int build_dictionary(const Rcpp::NumericMatrix r_V,
                          const std::size_t NUM_THREADS);
@@ -79,6 +84,7 @@ private:
     std::vector<std::shared_ptr<KnnAlg>> knn_lookup_indv;
 
     const std::size_t knn;
+    const std::size_t knn_indv;
     std::size_t param_bilink;
     std::size_t param_nnlist;
 };

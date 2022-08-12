@@ -44,31 +44,31 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">rcpp_mmutil_network_topic_data</span><span class="op">(</span>
-  <span class="va">mtx_file</span>,
-  <span class="va">knn</span>,
-  <span class="va">output</span>,
-  CUTOFF <span class="op">=</span> <span class="fl">0.01</span>,
-  WEIGHTED <span class="op">=</span> <span class="cn">FALSE</span>,
-  MAXW <span class="op">=</span> <span class="fl">1</span>,
-  col_file <span class="op">=</span> <span class="st">""</span>,
-  row_file <span class="op">=</span> <span class="st">""</span>,
-  r_batches <span class="op">=</span> <span class="cn">NULL</span>,
-  r_U <span class="op">=</span> <span class="cn">NULL</span>,
-  r_D <span class="op">=</span> <span class="cn">NULL</span>,
-  r_V <span class="op">=</span> <span class="cn">NULL</span>,
-  RANK <span class="op">=</span> <span class="fl">0L</span>,
-  TAKE_LN <span class="op">=</span> <span class="cn">TRUE</span>,
-  TAU <span class="op">=</span> <span class="fl">1</span>,
-  COL_NORM <span class="op">=</span> <span class="fl">10000</span>,
-  EM_ITER <span class="op">=</span> <span class="fl">0L</span>,
-  EM_TOL <span class="op">=</span> <span class="fl">1e-04</span>,
-  KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,
-  KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,
-  LU_ITER <span class="op">=</span> <span class="fl">5L</span>,
-  row_weight_file <span class="op">=</span> <span class="st">""</span>,
-  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rcpp_mmutil_network_topic_data</span><span class="op">(</span></span>
+<span>  <span class="va">mtx_file</span>,</span>
+<span>  <span class="va">knn</span>,</span>
+<span>  <span class="va">output</span>,</span>
+<span>  CUTOFF <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  WEIGHTED <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  MAXW <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  col_file <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  row_file <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  r_batches <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  r_U <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  r_D <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  r_V <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  RANK <span class="op">=</span> <span class="fl">0L</span>,</span>
+<span>  TAKE_LN <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  TAU <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  COL_NORM <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  EM_ITER <span class="op">=</span> <span class="fl">0L</span>,</span>
+<span>  EM_TOL <span class="op">=</span> <span class="fl">1e-04</span>,</span>
+<span>  KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,</span>
+<span>  KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,</span>
+<span>  LU_ITER <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  row_weight_file <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -166,19 +166,19 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">## Generate some data</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">.sim</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu"><a href="simulate_gamma_glm.html">simulate_gamma_glm</a></span><span class="op">(</span>nind <span class="op">=</span> <span class="fl">3</span>, ncell.ind <span class="op">=</span> <span class="fl">10</span>, ngene <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">.dat</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu"><a href="rcpp_mmutil_simulate_poisson.html">rcpp_mmutil_simulate_poisson</a></span><span class="op">(</span><span class="va">.sim</span><span class="op">$</span><span class="va">obs.mu</span>,</span>
-<span class="r-in">                                              <span class="va">.sim</span><span class="op">$</span><span class="va">rho</span>,</span>
-<span class="r-in">                                              <span class="st">"sim_test"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">.data</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_network_topic_data</span><span class="op">(</span><span class="va">.dat</span><span class="op">$</span><span class="va">mtx</span>,</span>
-<span class="r-in">                  knn <span class="op">=</span> <span class="fl">3</span>, output <span class="op">=</span> <span class="st">"net_data"</span>,</span>
-<span class="r-in">                  RANK <span class="op">=</span> <span class="fl">3</span>, TAKE_LN <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">## clean up temp directory</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"sim_test"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"net_data"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Generate some data</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">.sim</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu"><a href="simulate_gamma_glm.html">simulate_gamma_glm</a></span><span class="op">(</span>nind <span class="op">=</span> <span class="fl">3</span>, ncell.ind <span class="op">=</span> <span class="fl">10</span>, ngene <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">.dat</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu"><a href="rcpp_mmutil_simulate_poisson.html">rcpp_mmutil_simulate_poisson</a></span><span class="op">(</span><span class="va">.sim</span><span class="op">$</span><span class="va">obs.mu</span>,</span></span>
+<span class="r-in"><span>                                              <span class="va">.sim</span><span class="op">$</span><span class="va">rho</span>,</span></span>
+<span class="r-in"><span>                                              <span class="st">"sim_test"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">.data</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_network_topic_data</span><span class="op">(</span><span class="va">.dat</span><span class="op">$</span><span class="va">mtx</span>,</span></span>
+<span class="r-in"><span>                  knn <span class="op">=</span> <span class="fl">3</span>, output <span class="op">=</span> <span class="st">"net_data"</span>,</span></span>
+<span class="r-in"><span>                  RANK <span class="op">=</span> <span class="fl">3</span>, TAKE_LN <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## clean up temp directory</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"sim_test"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"net_data"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -193,7 +193,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

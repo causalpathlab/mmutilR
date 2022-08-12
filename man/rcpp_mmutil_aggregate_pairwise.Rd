@@ -17,7 +17,8 @@ rcpp_mmutil_aggregate_pairwise(
   a0 = 1,
   b0 = 1,
   eps = 1e-08,
-  knn = 10L,
+  knn_cell = 10L,
+  knn_indv = 1L,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
   NUM_THREADS = 1L
@@ -48,7 +49,9 @@ rcpp_mmutil_aggregate_pairwise(
 
 \item{eps}{small number (default: 1e-8)}
 
-\item{knn}{k-NN matching}
+\item{knn_cell}{k-NN matching between cells}
+
+\item{knn_indv}{k-NN matching between individuals}
 
 \item{KNN_BILINK}{# of bidirectional links (default: 10)}
 
@@ -85,7 +88,8 @@ unlink(list.files(pattern = "sim_test"))
                                                 r_V = .pca$V,
                                                 r_annot = .annot$ct,
                                                 r_lab_name = "ct1",
-                                                knn = 10)
+                                                knn_cell = 30,
+                                                knn_indv = 2)
 
 .names <- lapply(colnames(.agg$delta), strsplit, split="[_]")
 .names <- lapply(.names, function(x) unlist(x))

@@ -17,6 +17,10 @@
 #include <iostream>
 #include <numeric>
 #include <vector>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <unordered_map>
 
 #include "eigen_util.hh"
 #include "std_util.hh"

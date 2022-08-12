@@ -475,7 +475,8 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
 #' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
 #' @param eps small number (default: 1e-8)
-#' @param knn k-NN matching
+#' @param knn_cell k-NN matching between cells
+#' @param knn_indv k-NN matching between individuals
 #' @param KNN_BILINK # of bidirectional links (default: 10)
 #' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
@@ -505,7 +506,8 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #'                                                 r_V = .pca$V,
 #'                                                 r_annot = .annot$ct,
 #'                                                 r_lab_name = "ct1",
-#'                                                 knn = 10)
+#'                                                 knn_cell = 30,
+#'                                                 knn_indv = 2)
 #'
 #' .names <- lapply(colnames(.agg$delta), strsplit, split="[_]")
 #' .names <- lapply(.names, function(x) unlist(x))
@@ -534,8 +536,8 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
+rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn_cell = 10L, knn_indv = 1L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
+    .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
 }
 
 #' Create pseudo-bulk data by aggregating columns

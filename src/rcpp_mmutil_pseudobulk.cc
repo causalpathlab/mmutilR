@@ -30,7 +30,8 @@
 //' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
 //' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
 //' @param eps small number (default: 1e-8)
-//' @param knn k-NN matching
+//' @param knn_cell k-NN matching between cells
+//' @param knn_indv k-NN matching between individuals
 //' @param KNN_BILINK # of bidirectional links (default: 10)
 //' @param KNN_NNLIST # nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
@@ -60,7 +61,8 @@
 //'                                                 r_V = .pca$V,
 //'                                                 r_annot = .annot$ct,
 //'                                                 r_lab_name = "ct1",
-//'                                                 knn = 10)
+//'                                                 knn_cell = 30,
+//'                                                 knn_indv = 2)
 //'
 //' .names <- lapply(colnames(.agg$delta), strsplit, split="[_]")
 //' .names <- lapply(.names, function(x) unlist(x))
@@ -104,7 +106,8 @@ rcpp_mmutil_aggregate_pairwise(
     const double a0 = 1.0,
     const double b0 = 1.0,
     const double eps = 1e-8,
-    const std::size_t knn = 10,
+    const std::size_t knn_cell = 10,
+    const std::size_t knn_indv = 1,
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
     const std::size_t NUM_THREADS = 1)
@@ -224,7 +227,8 @@ rcpp_mmutil_aggregate_pairwise(
                         mtx_idx_tab,
                         mtx_cols,
                         cols,
-                        KNN(knn),
+                        KNN(knn_cell),
+                        KNN(knn_indv),
                         BILINK(KNN_BILINK),
                         NNLIST(KNN_NNLIST));
 
@@ -244,60 +248,74 @@ rcpp_mmutil_aggregate_pairwise(
 
     const Index D = info.max_row;
     const Index K = Z.cols();
-    std::vector<std::string> out_col_names(K * Nind * Nind);
-    std::fill(out_col_names.begin(), out_col_names.end(), "");
 
-    Mat delta(D, K * Nind * Nind);
-    Mat delta_sd(D, K * Nind * Nind);
-    Mat ln_delta(D, K * Nind * Nind);
-    Mat ln_delta_sd(D, K * Nind * Nind);
+    auto indv_pairs = pdata.match_individuals(Rcpp::NumericMatrix(r_V));
+    const Index Npairs = indv_pairs.size();
+
+    std::vector<std::string> out_col_names(K * Npairs, "");
+
+    TLOG("Total " << out_col_names.size() << " pairs");
+
+    Mat delta(D, K * Npairs);
+    Mat delta_sd(D, K * Npairs);
+    Mat ln_delta(D, K * Npairs);
+    Mat ln_delta_sd(D, K * Npairs);
     delta.setZero();
     delta_sd.setZero();
     ln_delta.setZero();
     ln_delta_sd.setZero();
 
-    Index nind_proc = 0;
+    Index npair_proc = 0;
+    TLOG("Processed: " << npair_proc);
 
+    tuple2_map_t<Index, Index, Index> pair_index;
+
+    for (auto pp : indv_pairs) {
+        pair_index[pp] = npair_proc++;
+    }
+
+    npair_proc = 0;
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
 #pragma omp for
 #endif
-    for (Index ii = 0; ii < Nind; ++ii) {
+    for (auto pp : indv_pairs) {
+        Index ii = std::get<0>(pp), jj = std::get<1>(pp);
         const std::string indv_name_ii = pdata.indv_name(ii);
+        const std::string indv_name_jj = pdata.indv_name(jj);
+        TLOG("compare " << indv_name_ii << " vs. " << indv_name_jj);
+
         Mat yy = pdata.read_block(ii);
         Mat zz = row_sub(Z, pdata.cell_indexes(ii));
 
         TLOG("Estimating [ind=" << ii << ", #cells=" << yy.cols() << "]");
 
-        for (Index jj = 0; jj < Nind; ++jj) {
-            auto storage_index = [&K, &Nind, &ii, &jj](const Index k) {
-                return K * (Nind * ii + jj) + k;
-            };
-            const std::string indv_name_jj = pdata.indv_name(jj);
+        auto storage_index = [&](const Index k) {
+            return K * pair_index[pp] + k;
+        };
 
-            Mat y0 = pdata.read_matched_block(ii, jj);
-            poisson_t pois(yy, zz, y0, zz, a0, b0);
-            pois.optimize();
-            pois.residual_optimize();
+        Mat y0 = pdata.read_matched_block(ii, jj);
+        poisson_t pois(yy, zz, y0, zz, a0, b0);
+        pois.optimize();
+        pois.residual_optimize();
 
-            const Mat mu_i = pois.residual_mu_DK();
-            const Mat mu_sd_i = pois.residual_mu_sd_DK();
+        const Mat mu_i = pois.residual_mu_DK();
+        const Mat mu_sd_i = pois.residual_mu_sd_DK();
+        const Mat ln_mu_i = pois.ln_residual_mu_DK();
+        const Mat ln_mu_sd_i = pois.ln_residual_mu_sd_DK();
 
-            const Mat ln_mu_i = pois.ln_residual_mu_DK();
-            const Mat ln_mu_sd_i = pois.ln_residual_mu_sd_DK();
+        for (Index k = 0; k < K; ++k) {
+            const Index s = storage_index(k);
+            delta.col(s) = mu_i.col(k);
+            delta_sd.col(s) = mu_sd_i.col(k);
+            ln_delta.col(s) = ln_mu_i.col(k);
+            ln_delta_sd.col(s) = ln_mu_sd_i.col(k);
 
-            for (Index k = 0; k < K; ++k) {
-                const Index s = storage_index(k);
-                delta.col(s) = mu_i.col(k);
-                delta_sd.col(s) = mu_sd_i.col(k);
-                ln_delta.col(s) = ln_mu_i.col(k);
-                ln_delta_sd.col(s) = ln_mu_sd_i.col(k);
-
-                out_col_names[s] =
-                    indv_name_ii + "_" + indv_name_jj + "_" + lab_name.at(k);
-            }
+            out_col_names[s] =
+                indv_name_ii + "_" + indv_name_jj + "_" + lab_name.at(k);
         }
-        TLOG("Processed: " << (++nind_proc) << std::endl);
+
+        TLOG("Processed: " << (++npair_proc) << " / " << Npairs << std::endl);
     }
 
     TLOG("Writing down the estimated effects");
