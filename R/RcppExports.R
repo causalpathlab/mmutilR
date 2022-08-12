@@ -506,8 +506,8 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #'                                                 r_V = .pca$V,
 #'                                                 r_annot = .annot$ct,
 #'                                                 r_lab_name = "ct1",
-#'                                                 knn_cell = 30,
-#'                                                 knn_indv = 2)
+#'                                                 knn_cell = 50,
+#'                                                 knn_indv = 3)
 #'
 #' .names <- lapply(colnames(.agg$delta), strsplit, split="[_]")
 #' .names <- lapply(.names, function(x) unlist(x))
