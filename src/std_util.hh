@@ -21,20 +21,6 @@ std::vector<std::string> split(const std::string &s, char delim);
 
 ////////////////////////////////////////////////////////////////
 
-template <typename K1, typename K2>
-struct key2_hash {
-    std::size_t operator()(const std::tuple<K1, K2> &k) const
-    {
-        return std::get<0>(k) ^ std::get<1>(k);
-    }
-};
-
-template <typename K1, typename K2, typename V>
-using tuple2_map_t =
-    std::unordered_map<const std::tuple<K1, K2>, V, key2_hash<K1, K2>>;
-
-////////////////////////////////////////////////////////////////
-
 template <typename Vec>
 auto
 std_argsort(const Vec &data)

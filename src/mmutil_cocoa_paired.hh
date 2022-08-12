@@ -55,8 +55,7 @@ struct paired_data_t {
 
     void set_individual_info(const str_vec_t &indv);
 
-    std::vector<std::tuple<Index, Index>>
-    match_individuals(const Rcpp::NumericMatrix r_V);
+    std::vector<std::tuple<Index, Index>> match_individuals();
 
     int build_dictionary(const Rcpp::NumericMatrix r_V,
                          const std::size_t NUM_THREADS);
@@ -75,10 +74,10 @@ struct paired_data_t {
 private:
     Index D;
     Index Nindv;
-    str_vec_t indv_id_name; // individual names
-    idx_vec_t indv_map;     // map: col -> indv index
-    std::vector<idx_vec_t> indv_index_set;
-    Mat Vt; // rank x column matching data
+    str_vec_t indv_id_name;                // individual names
+    idx_vec_t indv_map;                    // map: col -> indv index
+    std::vector<idx_vec_t> indv_index_set; // map: indv -> cols
+    Mat Vt;                                // rank x column matching data
 
     std::vector<std::shared_ptr<vs_type>> vs_vec_indv;
     std::vector<std::shared_ptr<KnnAlg>> knn_lookup_indv;

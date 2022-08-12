@@ -43,6 +43,7 @@ paired_data_t::read_matched_block(const Index i, const Index j)
 
     const std::size_t n_j = cells_j.size();
     const std::size_t nquery = std::min(knn, n_j);
+    TLOG("#query per cell: " << nquery);
 
     float *mass = Vt.data();
 
@@ -50,6 +51,7 @@ paired_data_t::read_matched_block(const Index i, const Index j)
     y0.setZero();
 
     const std::size_t rank = Vt.rows();
+    // TLOG("Using " << rank << " x " << Vt.cols() << " data");
 
     for (Index ith = 0; ith < n_i; ++ith) {
         const Index _cell_i = cells_i.at(ith); //
@@ -92,10 +94,8 @@ paired_data_t::read_matched_block(const Index i, const Index j)
 }
 
 std::vector<std::tuple<Index, Index>>
-paired_data_t::match_individuals(const Rcpp::NumericMatrix r_V)
+paired_data_t::match_individuals()
 {
-
-    Vt = Rcpp::as<Mat>(r_V);
 
     ASSERT(Nindv > 1, "only a single (or zero) individual");
 
@@ -112,11 +112,11 @@ paired_data_t::match_individuals(const Rcpp::NumericMatrix r_V)
         }
     }
 
-    Mat V = Vt.transpose() * M;
-    normalize_columns(V);
-    const std::size_t rank = V.rows();
+    Mat Vind = Vt.transpose() * M;
+    normalize_columns(Vind);
+    const std::size_t rank = Vind.rows();
 
-    TLOG("Aggregate V matrix");
+    TLOG("Aggregate Vind matrix");
 
     vs_type VS(rank);
 
@@ -136,7 +136,7 @@ paired_data_t::match_individuals(const Rcpp::NumericMatrix r_V)
         std::min(knn_indv + 1, static_cast<std::size_t>(Nindv));
 
     KnnAlg alg(&VS, Nindv, param_bilink, param_nnlist);
-    float *mass = V.data();
+    float *mass = Vind.data();
     for (Index ii = 0; ii < Nindv; ++ii) {
         alg.addPoint((void *)(mass + rank * ii), ii);
     }
