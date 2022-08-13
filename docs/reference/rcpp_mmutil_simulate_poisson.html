@@ -80,18 +80,18 @@
 <span class="r-in"><span><span class="va">.files</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_simulate_poisson</span><span class="op">(</span><span class="va">mm</span>, <span class="va">rr</span>, <span class="va">data.hdr</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">.files</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 20 sparse Matrix of class "dgTMatrix"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 3 4 6 1 4 2 1  4  8 1 1 2 5 . . 1 4 12 . 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] . 3 . . 4 . .  .  4 1 . . 4 . 1 2 1  1 1 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] . . . 1 1 . 1  1  1 . . . . . . 1 .  . . .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] . . 4 . 3 . 1  .  3 . . 1 1 . . . .  1 . .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] . . . . 1 . .  1  2 . . . 1 . . 1 .  1 . .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 1 1 2 . 5 . 3  3  4 1 2 . 7 4 4 1 5 16 2 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 3 . 5 . 5 . 1  3  3 . 1 1 3 1 1 . 3  6 1 .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 1 2 4 1 4 2 4  1  3 . 3 1 1 7 . 2 2  9 . .</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 3 . 4 3 8 . 1 10 12 . 7 2 3 . . . 2 10 . 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 1 3 6 . 4 1 .  2  7 . 3 . 1 4 . . 7  9 . 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 x 19 sparse Matrix of class "dgTMatrix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 6 . 4 1 2 3 2 . 1 . 2 . . .  1 . 1 . 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] . 2 1 . 3 1 . . 4 . 1 . 3 1  5 . . 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 1 . 1 . . . . . . . . . . .  1 . . 2 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] . . 1 . . . 2 1 . . 1 . . .  1 . . . .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] . . . 4 . . 2 . 2 . 1 . 1 .  2 . . 1 .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] . . . 2 1 . . 1 6 1 5 . 5 5 12 3 1 5 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] . 3 1 4 4 . 3 . 8 . 2 . 1 2  7 4 . 2 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 1 . . . 2 1 1 . 5 . 5 1 1 1  9 1 . . 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 1 . . 2 . 2 4 . 3 . 4 . 3 4  5 1 1 3 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 2 . . 1 2 . . . 2 1 3 . . 3  7 . . 7 2</span>
 <span class="r-in"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">.files</span><span class="op">$</span><span class="va">indv</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"ind"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   col ind</span>

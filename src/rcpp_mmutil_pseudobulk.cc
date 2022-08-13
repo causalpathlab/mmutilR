@@ -112,6 +112,9 @@ rcpp_mmutil_aggregate_pairwise(
     const std::size_t KNN_NNLIST = 10,
     const std::size_t NUM_THREADS = 1)
 {
+
+    Eigen::initParallel();
+
     CHK_RETL(mmutil::bgzf::convert_bgzip(mtx_file));
 
     std::vector<std::string> mtx_cols;
@@ -275,50 +278,44 @@ rcpp_mmutil_aggregate_pairwise(
 #pragma omp for
 #endif
     for (Index pi = 0; pi < indv_pairs.size(); ++pi) {
-#pragma omp critical
-        {
-            auto pp = indv_pairs.at(pi);
-            Index ii = std::get<0>(pp), jj = std::get<1>(pp);
-            const std::string indv_name_ii = pdata.indv_name(ii);
-            const std::string indv_name_jj = pdata.indv_name(jj);
-            TLOG("compare " << indv_name_ii << " vs. " << indv_name_jj);
+        auto pp = indv_pairs.at(pi);
+        Index ii = std::get<0>(pp), jj = std::get<1>(pp);
+        const std::string indv_name_ii = pdata.indv_name(ii);
+        const std::string indv_name_jj = pdata.indv_name(jj);
+        TLOG("compare " << indv_name_ii << " vs. " << indv_name_jj);
 
-            Mat yy = pdata.read_block(ii);
-            Mat zz = row_sub(Z, pdata.cell_indexes(ii));
+        Mat yy = pdata.read_block(ii);
+        Mat zz = row_sub(Z, pdata.cell_indexes(ii));
+        zz.transposeInPlace(); // Z: K x N
 
-            TLOG("Estimating [ind=" << ii << ", #cells=" << yy.cols() << "]");
+        // auto storage_index = [&K, &pi](const Index k) { return K * pi + k; };
+        Mat y0 = pdata.read_matched_block(ii, jj);
 
-            auto storage_index = [&K, &pi](const Index k) {
-                return K * pi + k;
-            };
+        TLOG("Estimating [" << ii << ", #cells=" << yy.cols() << "] vs. "
+                            << "Estimating [" << jj << ", #cells=" << y0.cols()
+                            << "]");
 
-            Mat y0 = pdata.read_matched_block(ii, jj);
+        poisson_t pois(yy, zz, y0, zz, a0, b0);
+        pois.optimize();
+        pois.residual_optimize();
+        const Mat mu_ij = pois.residual_mu_DK();
+        const Mat mu_sd_ij = pois.residual_mu_sd_DK();
+        const Mat ln_mu_ij = pois.ln_residual_mu_DK();
+        const Mat ln_mu_sd_ij = pois.ln_residual_mu_sd_DK();
 
-            poisson_t pois(yy, zz, y0, zz, a0, b0);
-            pois.optimize();
-            pois.residual_optimize();
+        for (Index k = 0; k < K; ++k) {
+            const Index s = K * pi + k;
+            delta.col(s) = mu_ij.col(k);
+            delta_sd.col(s) = mu_sd_ij.col(k);
+            ln_delta.col(s) = ln_mu_ij.col(k);
+            ln_delta_sd.col(s) = ln_mu_sd_ij.col(k);
 
-            const Mat mu_ij = pois.residual_mu_DK();
-            const Mat mu_sd_ij = pois.residual_mu_sd_DK();
-            const Mat ln_mu_ij = pois.ln_residual_mu_DK();
-            const Mat ln_mu_sd_ij = pois.ln_residual_mu_sd_DK();
-
-            for (Index k = 0; k < K; ++k) {
-                const Index s = storage_index(k);
-                ASSERT(s >= 0 && s < Npairs * K, "Invalid s?" << s);
-                delta.col(s) = mu_ij.col(k);
-                delta_sd.col(s) = mu_sd_ij.col(k);
-                ln_delta.col(s) = ln_mu_ij.col(k);
-                ln_delta_sd.col(s) = ln_mu_sd_ij.col(k);
-
-                const std::string pair_name =
-                    indv_name_ii + "_" + indv_name_jj + "_" + lab_name.at(k);
-                out_col_names[s] = pair_name;
-            }
-
-            TLOG("Processed: " << (++npair_proc) << " / " << Npairs
-                               << std::endl);
+            const std::string pair_name =
+                indv_name_ii + "_" + indv_name_jj + "_" + lab_name.at(k);
+            out_col_names[s] = pair_name;
         }
+
+        TLOG("Processed: " << (++npair_proc) << " / " << Npairs << std::endl);
     }
 
     TLOG("Writing down the estimated effects");
@@ -457,7 +454,7 @@ rcpp_mmutil_aggregate(
     const std::size_t NUM_THREADS = 1,
     const bool IMPUTE_BY_KNN = true)
 {
-
+    Eigen::initParallel();
     CHK_RETL(mmutil::bgzf::convert_bgzip(mtx_file));
 
     std::vector<std::string> mtx_cols;
@@ -703,104 +700,97 @@ rcpp_mmutil_aggregate(
 #pragma omp for
 #endif
     for (Index ii = 0; ii < Nind; ++ii) {
-#pragma omp critical
-        {
-            auto storage_index = [&K, &ii](const Index k) {
-                return K * ii + k;
-            };
-            const std::string indv_name = indv_id_name.at(ii);
+        auto storage_index = [&K, &ii](const Index k) { return K * ii + k; };
+        const std::string indv_name = indv_id_name.at(ii);
 
-            // Y: features x columns
-            const std::vector<Index> &cols_i = indv_index_set.at(ii);
-            Mat yy =
-                read_eigen_sparse_subset_col(mtx_file, mtx_idx_tab, cols_i);
-            Mat zz = row_sub(Z, cols_i); //
-            zz.transposeInPlace();       // Z: K x N
+        // Y: features x columns
+        const std::vector<Index> &cols_i = indv_index_set.at(ii);
+        Mat yy = read_eigen_sparse_subset_col(mtx_file, mtx_idx_tab, cols_i);
+        Mat zz = row_sub(Z, cols_i); //
+        zz.transposeInPlace();       // Z: K x N
 
-            TLOG("Estimating [ind=" << ii << ", #cells=" << cols_i.size()
-                                    << "]");
+        TLOG("Estimating [ind=" << ii << ", #cells=" << cols_i.size() << "]");
 
-            ///////////////////////////////////////////////////
-            // control cells from different treatment groups //
-            ///////////////////////////////////////////////////
+        ///////////////////////////////////////////////////
+        // control cells from different treatment groups //
+        ///////////////////////////////////////////////////
 
-            if (do_cocoa) {
-                Mat y0 = matched_data.read_cf_block(cols_i, IMPUTE_BY_KNN);
-                poisson_t pois(yy, zz, y0, zz, a0, b0);
-                pois.optimize();
+        if (do_cocoa) {
+            Mat y0 = matched_data.read_cf_block(cols_i, IMPUTE_BY_KNN);
+            poisson_t pois(yy, zz, y0, zz, a0, b0);
+            pois.optimize();
 
-                const Mat cf_mu_i = pois.mu_DK();
-                const Mat cf_mu_sd_i = pois.mu_sd_DK();
-                const Mat cf_ln_mu_i = pois.ln_mu_DK();
-                const Mat cf_ln_mu_sd_i = pois.ln_mu_sd_DK();
+            const Mat cf_mu_i = pois.mu_DK();
+            const Mat cf_mu_sd_i = pois.mu_sd_DK();
+            const Mat cf_ln_mu_i = pois.ln_mu_DK();
+            const Mat cf_ln_mu_sd_i = pois.ln_mu_sd_DK();
 
-                for (Index k = 0; k < K; ++k) {
-                    const Index s = storage_index(k);
-                    cf_mu.col(s) = cf_mu_i.col(k);
-                    cf_mu_sd.col(s) = cf_mu_sd_i.col(k);
-                    cf_ln_mu.col(s) = cf_ln_mu_i.col(k);
-                    cf_ln_mu_sd.col(s) = cf_ln_mu_sd_i.col(k);
-                }
-
-                pois.residual_optimize();
-
-                const Mat resid_mu_i = pois.residual_mu_DK();
-                const Mat resid_mu_sd_i = pois.residual_mu_sd_DK();
-
-                const Mat resid_ln_mu_i = pois.ln_residual_mu_DK();
-                const Mat resid_ln_mu_sd_i = pois.ln_residual_mu_sd_DK();
-
-                for (Index k = 0; k < K; ++k) {
-                    const Index s = storage_index(k);
-                    resid_mu.col(s) = resid_mu_i.col(k);
-                    resid_mu_sd.col(s) = resid_mu_sd_i.col(k);
-                    resid_ln_mu.col(s) = resid_ln_mu_i.col(k);
-                    resid_ln_mu_sd.col(s) = resid_ln_mu_sd_i.col(k);
-                }
+            for (Index k = 0; k < K; ++k) {
+                const Index s = storage_index(k);
+                cf_mu.col(s) = cf_mu_i.col(k);
+                cf_mu_sd.col(s) = cf_mu_sd_i.col(k);
+                cf_ln_mu.col(s) = cf_ln_mu_i.col(k);
+                cf_ln_mu_sd.col(s) = cf_ln_mu_sd_i.col(k);
             }
 
-            /////////////////////////
-            // vanilla aggregation //
-            /////////////////////////
+            pois.residual_optimize();
 
-            {
-                poisson_t pois(yy, zz, a0, b0);
-                pois.optimize();
-                Mat _mu = pois.mu_DK();
-                Mat _mu_sd = pois.mu_sd_DK();
-                Mat _ln_mu = pois.ln_mu_DK();
-                Mat _ln_mu_sd = pois.ln_mu_sd_DK();
-                Mat _rho = pois.rho_N();
+            const Mat resid_mu_i = pois.residual_mu_DK();
+            const Mat resid_mu_sd_i = pois.residual_mu_sd_DK();
 
-                Mat _sum = yy * zz.transpose();            // D x K
-                Vec _denom = zz * Mat::Ones(zz.cols(), 1); // K x 1
+            const Mat resid_ln_mu_i = pois.ln_residual_mu_DK();
+            const Mat resid_ln_mu_sd_i = pois.ln_residual_mu_sd_DK();
 
-                for (Index k = 0; k < K; ++k) {
-
-                    const Index s = storage_index(k);
-                    const std::string sname = indv_name + "_" + lab_name.at(k);
-                    out_col_names[s] = sname;
-
-                    const Scalar _denom_k = _denom(k);
-
-                    if (_denom_k > eps) {
-                        obs_sum.col(s) = _sum.col(k);
-                        obs_mean.col(s) = _sum.col(k) / _denom_k;
-                        obs_mu.col(s) = _mu.col(k);
-                        obs_mu_sd.col(s) = _mu_sd.col(k);
-                        obs_ln_mu.col(s) = _ln_mu.col(k);
-                        obs_ln_mu_sd.col(s) = _ln_mu_sd.col(k);
-                    }
-                }
-
-                for (Index j = 0; j < cols_i.size(); ++j) {
-                    const Index jj = cols_i[j];
-                    obs_rho(jj) = _rho(j, 0);
-                }
+            for (Index k = 0; k < K; ++k) {
+                const Index s = storage_index(k);
+                resid_mu.col(s) = resid_mu_i.col(k);
+                resid_mu_sd.col(s) = resid_mu_sd_i.col(k);
+                resid_ln_mu.col(s) = resid_ln_mu_i.col(k);
+                resid_ln_mu_sd.col(s) = resid_ln_mu_sd_i.col(k);
             }
-
-            TLOG("Processed: " << (++nind_proc) << std::endl);
         }
+
+        /////////////////////////
+        // vanilla aggregation //
+        /////////////////////////
+
+        {
+            poisson_t pois(yy, zz, a0, b0);
+            pois.optimize();
+            Mat _mu = pois.mu_DK();
+            Mat _mu_sd = pois.mu_sd_DK();
+            Mat _ln_mu = pois.ln_mu_DK();
+            Mat _ln_mu_sd = pois.ln_mu_sd_DK();
+            Mat _rho = pois.rho_N();
+
+            Mat _sum = yy * zz.transpose();            // D x K
+            Vec _denom = zz * Mat::Ones(zz.cols(), 1); // K x 1
+
+            for (Index k = 0; k < K; ++k) {
+
+                const Index s = storage_index(k);
+                const std::string sname = indv_name + "_" + lab_name.at(k);
+                out_col_names[s] = sname;
+
+                const Scalar _denom_k = _denom(k);
+
+                if (_denom_k > eps) {
+                    obs_sum.col(s) = _sum.col(k);
+                    obs_mean.col(s) = _sum.col(k) / _denom_k;
+                    obs_mu.col(s) = _mu.col(k);
+                    obs_mu_sd.col(s) = _mu_sd.col(k);
+                    obs_ln_mu.col(s) = _ln_mu.col(k);
+                    obs_ln_mu_sd.col(s) = _ln_mu_sd.col(k);
+                }
+            }
+
+            for (Index j = 0; j < cols_i.size(); ++j) {
+                const Index jj = cols_i[j];
+                obs_rho(jj) = _rho(j, 0);
+            }
+        }
+
+        TLOG("Processed: " << (++nind_proc) << std::endl);
     }
 
     TLOG("Writing down the estimated effects");
