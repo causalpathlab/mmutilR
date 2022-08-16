@@ -112,7 +112,9 @@ paired_data_t::match_individuals()
         }
     }
 
-    Mat Vind = Vt.transpose() * M;
+    ASSERT(Vt.cols() == Nsample, "#rows(V) != Nsample");
+
+    Mat Vind = Vt * M;
     normalize_columns(Vind);
     const std::size_t rank = Vind.rows();
 
@@ -172,7 +174,8 @@ paired_data_t::match_individuals()
             const Scalar d = dist[k];
 
             indv_pairs.emplace_back(std::make_tuple(ii, jj, w, d));
-            TLOG("matching " << ii << " against " << jj);
+            TLOG("matching " << ii << " against " << jj << ", dist = " << d
+                             << ", weight = " << w);
         }
     }
 
