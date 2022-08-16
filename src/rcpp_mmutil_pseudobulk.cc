@@ -319,6 +319,39 @@ rcpp_mmutil_aggregate_pairwise(
     }
 
     TLOG("Writing down the estimated effects");
+
+    /////////////////////////////////
+    // output individual-level KNN //
+    /////////////////////////////////
+
+    const std::size_t Nout = indv_pairs.size();
+
+    Rcpp::IntegerVector obs_index(Nout, NA_INTEGER);
+    Rcpp::IntegerVector matched_index(Nout, NA_INTEGER);
+    Rcpp::NumericVector weight_vec(Nout, NA_REAL);
+    Rcpp::NumericVector distance_vec(Nout, NA_REAL);
+    Rcpp::StringVector obs_name(Nout, "");
+    Rcpp::StringVector matched_name(Nout, "");
+
+    for (std::size_t pi = 0; pi < Nout; ++pi) {
+        auto pp = indv_pairs.at(pi);
+        const Index ii = std::get<0>(pp), jj = std::get<1>(pp);
+        const Scalar w = std::get<2>(pp), d = std::get<3>(pp);
+        const std::string indv_name_ii = pdata.indv_name(ii);
+        const std::string indv_name_jj = pdata.indv_name(jj);
+
+        obs_index[pi] = ii + 1;
+        matched_index[pi] = jj + 1;
+        obs_name[pi] = indv_name_ii;
+        matched_name[pi] = indv_name_jj;
+        weight_vec[pi] = w;
+        distance_vec[pi] = d;
+    }
+
+    /////////////////////
+    // output matrices //
+    /////////////////////
+
     std::vector<std::string> out_row_names;
     CHK_RETL(read_vector_file(row_file, out_row_names));
 
@@ -332,10 +365,19 @@ rcpp_mmutil_aggregate_pairwise(
         return x;
     };
 
+    Rcpp::List _knn =
+        Rcpp::List::create(Rcpp::_["obs.index"] = obs_index,
+                           Rcpp::_["matched.index"] = matched_index,
+                           Rcpp::_["weight"] = weight_vec,
+                           Rcpp::_["dist"] = distance_vec,
+                           Rcpp::_["obs.name"] = obs_name,
+                           Rcpp::_["matched.name"] = matched_name);
+
     return Rcpp::List::create(Rcpp::_["delta"] = named_mat(delta),
                               Rcpp::_["delta.sd"] = named_mat(delta_sd),
                               Rcpp::_["ln.delta"] = named_mat(ln_delta),
-                              Rcpp::_["ln.delta.sd"] = named_mat(ln_delta_sd));
+                              Rcpp::_["ln.delta.sd"] = named_mat(ln_delta_sd),
+                              Rcpp::_["knn"] = _knn);
 }
 
 //' Create pseudo-bulk data by aggregating columns
@@ -794,6 +836,11 @@ rcpp_mmutil_aggregate(
     }
 
     TLOG("Writing down the estimated effects");
+
+    /////////////////////
+    // output matrices //
+    /////////////////////
+
     std::vector<std::string> out_row_names;
     CHK_RETL(read_vector_file(row_file, out_row_names));
 

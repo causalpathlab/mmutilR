@@ -55,7 +55,7 @@ struct paired_data_t {
 
     void set_individual_info(const str_vec_t &indv);
 
-    std::vector<std::tuple<Index, Index>> match_individuals();
+    std::vector<std::tuple<Index, Index, Scalar, Scalar>> match_individuals();
 
     int build_dictionary(const Rcpp::NumericMatrix r_V,
                          const std::size_t NUM_THREADS);

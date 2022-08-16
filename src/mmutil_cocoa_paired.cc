@@ -93,7 +93,7 @@ paired_data_t::read_matched_block(const Index i, const Index j)
     return y0;
 }
 
-std::vector<std::tuple<Index, Index>>
+std::vector<std::tuple<Index, Index, Scalar, Scalar>>
 paired_data_t::match_individuals()
 {
 
@@ -116,7 +116,7 @@ paired_data_t::match_individuals()
     normalize_columns(Vind);
     const std::size_t rank = Vind.rows();
 
-    TLOG("Aggregate Vind matrix");
+    TLOG("Aggregate Vind matrix: " << Vind.rows() << " x " << Vind.cols());
 
     vs_type VS(rank);
 
@@ -141,20 +141,38 @@ paired_data_t::match_individuals()
         alg.addPoint((void *)(mass + rank * ii), ii);
     }
 
-    std::vector<std::tuple<Index, Index>> indv_pairs;
+    std::vector<std::tuple<Index, Index, Scalar, Scalar>> indv_pairs;
+
+    std::vector<Scalar> dist(nquery);
+    std::vector<Scalar> weights(nquery);
+    std::vector<Index> neigh(nquery);
 
     for (Index ii = 0; ii < Nindv; ++ii) {
         auto pq = alg.searchKnn((void *)(mass + rank * ii), nquery);
+
+        Index deg = 0;
 
         while (!pq.empty()) {
             float d = 0;                // distance
             std::size_t jj;             // local index
             std::tie(d, jj) = pq.top(); //
             if (ii != jj) {
-                indv_pairs.emplace_back(std::make_tuple(ii, jj));
-                TLOG("matching " << ii << " against " << jj);
+                dist[deg] = d;
+                neigh[deg] = jj;
+                deg++;
             }
             pq.pop();
+        }
+
+        normalize_weights(deg, dist, weights);
+
+        for (Index k = 0; k < deg; ++k) {
+            const Index jj = neigh[k];
+            const Scalar w = weights[k];
+            const Scalar d = dist[k];
+
+            indv_pairs.emplace_back(std::make_tuple(ii, jj, w, d));
+            TLOG("matching " << ii << " against " << jj);
         }
     }
 
