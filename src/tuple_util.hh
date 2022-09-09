@@ -42,7 +42,7 @@ template <std::size_t N, typename Func>
 auto
 create_tuple(Func func)
 {
-    return create_tuple_impl(func, std::make_index_sequence<N>{});
+    return create_tuple_impl(func, std::make_index_sequence<N> {});
 }
 
 ////////////////////////////////////////////////////////////////

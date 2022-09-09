@@ -1,4 +1,4 @@
-#' Simulate single-cell MTX data
+#' Simulate single-cell MTX data for DEG analysis
 #'
 #' @param file.header file set header
 #' @param nind # individuals
@@ -16,8 +16,8 @@
 #' @param exposure.type "binary" or "continuous"
 #'
 #' @return
-#' 
-simulate.data <- function(file.header, ...) {
+#'
+simulate.deg.data <- function(file.header, ...) {
     .sim <- simulate_gamma_glm(...)
     .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
                                          .sim$rho,
@@ -25,6 +25,167 @@ simulate.data <- function(file.header, ...) {
 
     list(indv = .sim, data = .dat)
 }
+
+
+#' X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
+#'      U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
+#'
+#' Another rare possibility (we don't consider here):
+#'
+#' X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
+#'
+#' @param X genotype matrix (individual x SNPs)
+#' @param h2 heritability (% variance of Y explained by genetic X)
+#' @param pve.u1.by.x (% variance of U1 explained by X)
+#' @param pve.y.by.u1 (% variance of Y explained by U1)
+#' @param pve.y.by.u0 (% variance of Y explained by U0)
+#' @param n.causal.snps #(X directly affecting on Y)
+#' @param n.causal.genes #(Y regulated by X)
+#' @param n.u1 #(U1 variables)
+#' @param n.u0 #(U0 variables)
+#' @param n.genes total number of genes (Y variables)
+#' @param rho.a rho ~ gamma(a, b)
+#' @param rho.b rho ~ gamma(a, b)
+#' @param ncell.ind number of cells per individual
+#' 
+simulate.eqtl.data <- function(file.header,
+                               rho.a = 2,
+                               rho.b = 2,
+                               ncell.ind = 10,
+                               ind.prob = NULL,
+                               ...){
+
+    .sim <- simulate_eqtl(...)
+    n.ind <- nrow(.sim$x)
+
+    if(is.null(.prob)){
+        .prob <- rep(1/n.ind, n.ind)
+    } else {
+        .prob <- ind.prob
+    }
+
+    stopifnot(length(.prob) == n.ind)
+
+    .ind <- sample(n.ind,
+                   n.ind * ncell.ind,
+                   replace=TRUE,
+                   prob=.prob)
+
+    ######################
+    ## Sequencing depth ##
+    ######################
+
+    .rr <- rgamma(ncell.ind * n.ind, shape=rho.a, scale=1/rho.b)
+    .mu <- exp(.sim$y.obs)
+
+    .dat <- rcpp_mmutil_simulate_poisson(.mu, .rr, file.header, .ind)
+
+    list(indv = .sim, data = .dat)
+}
+
+
+#' Simulate individual-level eQTL data
+#'
+#' Possible confounding effect model:
+#'
+#' X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
+#'      U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
+#'
+#' Another rare possibility (we don't consider here):
+#'
+#' X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
+#'
+#' @param X genotype matrix (individual x SNPs)
+#' @param h2 heritability (% variance of Y explained by genetic X)
+#' @param pve.u1.by.x (% variance of U1 explained by X)
+#' @param pve.y.by.u1 (% variance of Y explained by U1)
+#' @param pve.y.by.u0 (% variance of Y explained by U0)
+#' @param n.causal.snps #(X directly affecting on Y)
+#' @param n.causal.genes #(Y regulated by X)
+#' @param n.u1 #(U1 variables)
+#' @param n.u0 #(U0 variables)
+#' @param n.genes total number of genes (Y variables)
+#'
+#' @return simulation results
+#'
+simulate_eqtl <- function(X, h2,
+                          pve.u1.by.x = .4,
+                          pve.y.by.u1 = .2,
+                          pve.y.by.u0 = .3,
+                          n.causal.snps = 1,
+                          n.causal.genes = 5,
+                          n.u1 = 3,
+                          n.u0 = 3,
+                          n.genes = 50){
+
+    if(!is.matrix(X)) { X <- as.matrix(X) }
+
+    .scale <- function(.mat) {
+        apply(.mat, 2, scale)
+    }
+
+    .rnorm <- function(d1, d2) {
+        matrix(rnorm(d1*d2), d1, d2)
+    }
+
+    n.causal.snps <- min(n.causal.snps, floor(ncol(X)/2))
+    causal.snps <- sample(ncol(X), n.causal.snps)
+    non.causal.snps <- sample(setdiff(1:ncol(X), causal.snps), n.causal.snps)
+    causal.genes <- sample(n.genes, min(n.genes, n.causal.genes))
+
+    n.ind <- nrow(X)
+
+    ######################
+    ## check parameters ##
+    ######################
+
+    stopifnot(pve.u1.by.x > 0 & pve.u1.by.x < 1)
+    pve.y.tot <- h2 + pve.y.by.u1 + pve.y.by.u0
+    stopifnot(pve.y.tot > 0 & pve.y.tot < 1)
+
+    ##################
+    ## X -> U1 -> Y ##
+    ##################
+    xx.conf <- X[, non.causal.snps, drop=FALSE]
+    xx.conf[is.na(xx.conf)] <- 0
+
+    u1.by.x <- xx.conf %*% .rnorm(ncol(xx.conf), n.u1)
+    u1 <- (.scale(u1.by.x) * sqrt(pve.u1.by.x) +
+           .scale(.rnorm(n.ind, n.u1)) * sqrt(1-pve.u1.by.x))
+
+    y.by.u1 <- u1 %*% .rnorm(n.u1, n.genes)
+
+    #############
+    ## U0 -> Y ##
+    #############
+    u0 <- .rnorm(n.ind, n.u0)
+    y.by.u0 <- u0 %*% .rnorm(n.u0, n.genes)
+
+    ############
+    ## X -> Y ##
+    ############
+    xx.causal <- X[, causal.snps, drop=FALSE]
+    xx.causal[is.na(xx.causal)] <- 0
+
+    y.by.x <- .rnorm(n.ind, n.genes)
+    xy <- .rnorm(n.causal.snps, n.causal.genes)
+    y.by.x[, causal.genes] <- xx.causal %*% xy
+
+    y.err <- .rnorm(n.ind, n.genes)
+
+    y.obs <- (.scale(y.by.x) * sqrt(h2) +
+              .scale(y.by.u1) * sqrt(pve.y.by.u1) +
+              .scale(y.by.u0) * sqrt(pve.y.by.u0) +
+              .scale(y.err) * sqrt(1 - pve.y.tot))
+
+    list(y = y.obs, x = X, y.true = y.by.x,
+         causal.snps = causal.snps,
+         causal.genes = causal.genes,
+         u1 = u1, u0 = u0)
+}
+
+
+
 
 #' Simulate individual-level effects by GLM
 #'
