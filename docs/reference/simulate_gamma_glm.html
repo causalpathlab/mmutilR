@@ -56,14 +56,15 @@
 <span>  pve.a <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  rho.a <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  rho.b <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  rseed <span class="op">=</span> <span class="fl">13</span></span>
+<span>  rseed <span class="op">=</span> <span class="fl">13</span>,</span>
+<span>  exposure.type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"binary"</span>, <span class="st">"continuous"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>nind</dt>
-<dd><p>number of individuals/samples</p></dd>
+<dd><p># individuals</p></dd>
 
 
 <dt>ngene</dt>
@@ -71,15 +72,15 @@
 
 
 <dt>ncausal</dt>
-<dd><p>number of causal genes</p></dd>
+<dd><p># causal genes</p></dd>
 
 
 <dt>ncovar.conf</dt>
-<dd><p>number of covar shared</p></dd>
+<dd><p># confounding covariates</p></dd>
 
 
 <dt>ncovar.batch</dt>
-<dd><p>number of covar on mu, batch effect</p></dd>
+<dd><p># confounding batch variables</p></dd>
 
 
 <dt>ncell.ind</dt>
@@ -107,17 +108,11 @@
 
 
 <dt>rseed</dt>
-<dd><p>random seed</p>
-<p>simple concat
-random standard Normal</p></dd>
+<dd><p>random seed</p></dd>
 
 
-<dt>n2</dt>
-<dd><p>sample model parameters</p></dd>
-
-
-<dt>ngenes</dt>
-<dd><p>number of genes/features</p></dd>
+<dt>exposure.type</dt>
+<dd><p>"binary" or "continuous"</p></dd>
 
 </dl></div>
 
@@ -133,7 +128,7 @@ random standard Normal</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

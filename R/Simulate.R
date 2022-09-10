@@ -15,7 +15,17 @@
 #' @param rseed random seed
 #' @param exposure.type "binary" or "continuous"
 #'
-#' @return
+#' @return simulation results
+#'
+#' @details
+#'
+#' The simulation result list will have two lists:
+#'
+#' 1. `data`: (a) a matrix market data file `data$mtx`, (b) a file with row names `data$row`, (c) a file with column names `data$col`, (d) an indexing file for the columns `data$idx`, (e) a mapping file between column and individual names "indv"
+#'
+#' 2. `indv`: (a) `obs.mu` observed (noisy) gene x individual matrix, (b) `clean.mu` clean gene x individual matrix, (c) `X` confounder x individual matrix (d) `W` individual-level treatment assignment (e) `rho` sequencing depth (f) `causal` causal genes
+#'
+#' @export
 #'
 simulate.deg.data <- function(file.header, ...) {
     .sim <- simulate_gamma_glm(...)
@@ -27,6 +37,10 @@ simulate.deg.data <- function(file.header, ...) {
 }
 
 
+#' Simulate individual-level eQTL data
+#'
+#' Possible confounding effect model:
+#'
 #' X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
 #'      U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
 #'
@@ -47,7 +61,19 @@ simulate.deg.data <- function(file.header, ...) {
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
 #' @param ncell.ind number of cells per individual
-#' 
+#'
+#' @return simulation results
+#'
+#' @details
+#'
+#' The simulation result list will have two lists:
+#'
+#' 1. `data`: (a) a matrix market data file `data$mtx`, (b) a file with row names `data$row`, (c) a file with column names `data$col`, (d) an indexing file for the columns `data$idx`, (e) a mapping file between column and individual names "indv"
+#'
+#' 2. `indv`: (a) `obs.mu` observed (noisy) gene x individual matrix, (b) `clean.mu` clean gene x individual matrix, (c) `X` confounder x individual matrix (d) `W` individual-level treatment assignment (e) `rho` sequencing depth (f) `causal` causal genes
+#'
+#' @export
+#'
 simulate.eqtl.data <- function(file.header,
                                rho.a = 2,
                                rho.b = 2,
@@ -82,7 +108,6 @@ simulate.eqtl.data <- function(file.header,
 
     list(indv = .sim, data = .dat)
 }
-
 
 #' Simulate individual-level eQTL data
 #'
@@ -184,9 +209,6 @@ simulate_eqtl <- function(X, h2,
          u1 = u1, u0 = u0)
 }
 
-
-
-
 #' Simulate individual-level effects by GLM
 #'
 #' @param nind # individuals
@@ -233,7 +255,6 @@ simulate_gamma_glm <- function(nind = 40,
     .rnorm <- function(n1, n2) {
         matrix(rnorm(n1 * n2), nrow = n1, ncol = n2)
     }
-
 
     ## random from collection
     ##  n1

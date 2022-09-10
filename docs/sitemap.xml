@@ -13,10 +13,19 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/check.cocoa.input.html</loc>
+  </url>
+  <url>
     <loc>/reference/fileset.list.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/make.cocoa.html</loc>
+  </url>
+  <url>
+    <loc>/reference/make.pine.html</loc>
   </url>
   <url>
     <loc>/reference/rcpp_annotate_columns.html</loc>
@@ -133,7 +142,16 @@
     <loc>/reference/select.rows.html</loc>
   </url>
   <url>
+    <loc>/reference/simulate.deg.data.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate.eqtl.data.html</loc>
+  </url>
+  <url>
     <loc>/reference/simulate.gamma.glm.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate_eqtl.html</loc>
   </url>
   <url>
     <loc>/reference/simulate_gamma_glm.html</loc>
