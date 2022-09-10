@@ -21,17 +21,17 @@ simulate_gamma_glm(
 )
 }
 \arguments{
-\item{nind}{# individuals}
+\item{nind}{num of individuals}
 
-\item{ngene}{# genes/features}
+\item{ngene}{num of genes/features}
 
-\item{ncausal}{# causal genes}
+\item{ncausal}{num of causal genes}
 
-\item{ncovar.conf}{# confounding covariates}
+\item{ncovar.conf}{num of confounding covariates}
 
-\item{ncovar.batch}{# confounding batch variables}
+\item{ncovar.batch}{num of confounding batch variables}
 
-\item{ncell.ind}{# cells per individual}
+\item{ncell.ind}{num of cells per individual}
 
 \item{pve.1}{variance of treatment/disease effect}
 

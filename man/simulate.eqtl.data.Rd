@@ -22,13 +22,13 @@
 
 \item{X}{genotype matrix (individual x SNPs)}
 
-\item{h2}{heritability (% variance of Y explained by genetic X)}
+\item{h2}{heritability (proportion of variance of Y explained by genetic X)}
 
-\item{pve.u1.by.x}{(% variance of U1 explained by X)}
+\item{pve.u1.by.x}{(proportion of variance of U1 explained by X)}
 
-\item{pve.y.by.u1}{(% variance of Y explained by U1)}
+\item{pve.y.by.u1}{(proportion of variance of Y explained by U1)}
 
-\item{pve.y.by.u0}{(% variance of Y explained by U0)}
+\item{pve.y.by.u0}{(proportion of variance of Y explained by U0)}
 
 \item{n.causal.snps}{#(X directly affecting on Y)}
 

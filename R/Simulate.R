@@ -1,12 +1,12 @@
 #' Simulate single-cell MTX data for DEG analysis
 #'
 #' @param file.header file set header
-#' @param nind # individuals
-#' @param ngene # genes/features
-#' @param ncausal # causal genes
-#' @param ncovar.conf # confounding covariates
-#' @param ncovar.batch # confounding batch variables
-#' @param ncell.ind # cells per individual
+#' @param nind num of individuals
+#' @param ngene num of genes/features
+#' @param ncausal num of causal genes
+#' @param ncovar.conf num of confounding covariates
+#' @param ncovar.batch num of confounding batch variables
+#' @param ncell.ind num of cells per individual
 #' @param pve.1 variance of treatment/disease effect
 #' @param pve.c variance of confounding effect
 #' @param pve.a variance of confounders to the assignment
@@ -49,10 +49,10 @@ simulate.deg.data <- function(file.header, ...) {
 #' X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
 #'
 #' @param X genotype matrix (individual x SNPs)
-#' @param h2 heritability (% variance of Y explained by genetic X)
-#' @param pve.u1.by.x (% variance of U1 explained by X)
-#' @param pve.y.by.u1 (% variance of Y explained by U1)
-#' @param pve.y.by.u0 (% variance of Y explained by U0)
+#' @param h2 heritability (proportion of variance of Y explained by genetic X)
+#' @param pve.u1.by.x (proportion of variance of U1 explained by X)
+#' @param pve.y.by.u1 (proportion of variance of Y explained by U1)
+#' @param pve.y.by.u0 (proportion of variance of Y explained by U0)
 #' @param n.causal.snps #(X directly affecting on Y)
 #' @param n.causal.genes #(Y regulated by X)
 #' @param n.u1 #(U1 variables)
@@ -121,10 +121,10 @@ simulate.eqtl.data <- function(file.header,
 #' X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
 #'
 #' @param X genotype matrix (individual x SNPs)
-#' @param h2 heritability (% variance of Y explained by genetic X)
-#' @param pve.u1.by.x (% variance of U1 explained by X)
-#' @param pve.y.by.u1 (% variance of Y explained by U1)
-#' @param pve.y.by.u0 (% variance of Y explained by U0)
+#' @param h2 heritability (proportion of variance of Y explained by genetic X)
+#' @param pve.u1.by.x (proportion of variance of U1 explained by X)
+#' @param pve.y.by.u1 (proportion of variance of Y explained by U1)
+#' @param pve.y.by.u0 (proportion of variance of Y explained by U0)
 #' @param n.causal.snps #(X directly affecting on Y)
 #' @param n.causal.genes #(Y regulated by X)
 #' @param n.u1 #(U1 variables)
@@ -211,12 +211,12 @@ simulate_eqtl <- function(X, h2,
 
 #' Simulate individual-level effects by GLM
 #'
-#' @param nind # individuals
-#' @param ngene # genes/features
-#' @param ncausal # causal genes
-#' @param ncovar.conf # confounding covariates
-#' @param ncovar.batch # confounding batch variables
-#' @param ncell.ind # cells per individual
+#' @param nind num of individuals
+#' @param ngene num of genes/features
+#' @param ncausal num of causal genes
+#' @param ncovar.conf num of confounding covariates
+#' @param ncovar.batch num of confounding batch variables
+#' @param ncell.ind num of cells per individual
 #' @param pve.1 variance of treatment/disease effect
 #' @param pve.c variance of confounding effect
 #' @param pve.a variance of confounders to the assignment
