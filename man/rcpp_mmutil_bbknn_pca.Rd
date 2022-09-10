@@ -41,9 +41,9 @@ rcpp_mmutil_bbknn_pca(
 
 \item{EM_TOL}{EM convergence (default: 1e-4)}
 
-\item{KNN_BILINK}{# of bidirectional links (default: 10)}
+\item{KNN_BILINK}{num. of bidirectional links (default: 10)}
 
-\item{KNN_NNLIST}{# nearest neighbor lists (default: 10)}
+\item{KNN_NNLIST}{num. of nearest neighbor lists (default: 10)}
 
 \item{LU_ITER}{LU iteration}
 

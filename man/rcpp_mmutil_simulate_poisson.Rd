@@ -9,11 +9,11 @@ rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv = NULL)
 \arguments{
 \item{output}{header for ${output}.{mtx.gz,cols.gz,indv.gz}}
 
-\item{r_indv}{N x 1 individual membership (1-based, [1 .. n])}
+\item{r_indv}{N x 1 individual membership (1-based, \link{1 .. n})}
 
-\item{Mu}{depth-adjusted mean matrix (M x n), M=#features and n=#indv}
+\item{Mu}{depth-adjusted mean matrix (M x n), M= num. of features and n= num. of indv}
 
-\item{Rho}{column depth vector (N x 1), N=#cells}
+\item{Rho}{column depth vector (N x 1), N= num. of cells}
 }
 \value{
 a list of file names: {output}.{mtx,rows,cols}.gz

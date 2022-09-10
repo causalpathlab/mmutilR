@@ -77,8 +77,6 @@
 #'
 #' unlink(list.files(pattern = "temp"))
 #'
-#' @export
-#'
 make.pine <- function(mtx.data,
                       celltype,
                       cell2indv,
@@ -181,7 +179,7 @@ make.pine <- function(mtx.data,
 #' nind <- length(sim.data$indv$W)
 #' indv2exp <- data.frame(indv=1:nind, exp = sim.data$indv$W)
 #'
-#' .cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp)
+#' .cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp, knn = 50)
 #'
 #' ncausal <- length(sim.data$indv$causal)
 #' ngene <- nrow(.cocoa$resid.mu)
@@ -202,7 +200,6 @@ make.pine <- function(mtx.data,
 #'
 #' unlink(list.files(pattern = "temp"))
 #'
-#' @export
 #'
 make.cocoa <- function(mtx.data,
                        celltype,

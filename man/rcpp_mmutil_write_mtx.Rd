@@ -7,7 +7,9 @@
 rcpp_mmutil_write_mtx(X, mtx_file)
 }
 \arguments{
-\item{output}{}
+\item{X}{sparse matrix}
+
+\item{mtx_file}{file name}
 }
 \value{
 EXIT_SUCCESS or EXIT_FAILURE

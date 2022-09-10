@@ -32,8 +32,8 @@
 //' @param eps small number (default: 1e-8)
 //' @param knn_cell k-NN matching between cells
 //' @param knn_indv k-NN matching between individuals
-//' @param KNN_BILINK # of bidirectional links (default: 10)
-//' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+//' @param KNN_BILINK num. of bidirectional links (default: 10)
+//' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
 //'
 //' @return a list of inference results
@@ -396,8 +396,8 @@ rcpp_mmutil_aggregate_pairwise(
 //' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
 //' @param eps small number (default: 1e-8)
 //' @param knn k-NN matching
-//' @param KNN_BILINK # of bidirectional links (default: 10)
-//' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+//' @param KNN_BILINK num. of bidirectional links (default: 10)
+//' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
 //' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 //'

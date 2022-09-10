@@ -118,15 +118,22 @@
     <div id="details">
     <h2>Details</h2>
     <p>X -&gt; U1 -&gt; Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
-     U0 -&gt; Y : okay to adjust to boost the power (demographic variables, environments)</p>
+U0 -&gt; Y : okay to adjust to boost the power (demographic variables, environments)</p>
 <p>Another rare possibility (we don't consider here):</p>
 <p>X -&gt; Y -&gt; Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)</p>
-
-
 <p>The simulation result list will have two lists:</p>
-<p>1. `data`: (a) a matrix market data file `data$mtx`, (b) a file with row names `data$row`, (c) a file with column names `data$col`, (d) an indexing file for the columns `data$idx`, (e) a mapping file between column and individual names "indv"</p>
-<p>2. `indv`: (a) `obs.mu` observed (noisy) gene x individual matrix, (b) `clean.mu` clean gene x individual matrix, (c) `X` confounder x individual matrix (d) `W` individual-level treatment assignment (e) `rho` sequencing depth (f) `causal` causal genes</p>
-    </div>
+<p><code>data</code>:</p><ul><li><p><code>data$mtx</code>: a matrix market data file</p></li>
+<li><p><code>data$row</code>: a file with row names</p></li>
+<li><p><code>data$col</code>: a file with column names</p></li>
+<li><p><code>data$idx</code>: an indexing file for the columns</p></li>
+<li><p><code>data$indv</code>: a mapping file between column and individual names</p></li>
+</ul><p><code>indv</code>:</p><ul><li><p><code>indv$obs.mu</code>: observed (noisy) gene x individual matrix</p></li>
+<li><p><code>indv$clean.mu</code>: clean gene x individual matrix</p></li>
+<li><p><code>indv$X</code>: confounder x individual matrix</p></li>
+<li><p><code>indv$W</code>: individual-level treatment assignment,</p></li>
+<li><p><code>indv$rho</code>: sequencing depth</p></li>
+<li><p><code>indv$causal</code>: causal genes</p></li>
+</ul></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

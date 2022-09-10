@@ -31,7 +31,7 @@ make.cocoa(
 
 \item{indv2exp}{individual treatment/exposure assignments (indiv x 2), indv -> exposure}
 
-\item{knn}{number of neighbours `k` in kNN for matching}
+\item{knn}{number of neighbours \code{k} in kNN for matching}
 
 \item{celltype.mat}{celltype/cluster assignment matrix (cells x cell types)}
 
@@ -86,7 +86,7 @@ cell2indv <- read.table(sim.data$data$indv,
 nind <- length(sim.data$indv$W)
 indv2exp <- data.frame(indv=1:nind, exp = sim.data$indv$W)
 
-.cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp)
+.cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp, knn = 50)
 
 ncausal <- length(sim.data$indv$causal)
 ngene <- nrow(.cocoa$resid.mu)
@@ -106,5 +106,6 @@ for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
 }
 
 unlink(list.files(pattern = "temp"))
+
 
 }

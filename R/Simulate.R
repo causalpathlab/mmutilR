@@ -21,11 +21,22 @@
 #'
 #' The simulation result list will have two lists:
 #'
-#' 1. `data`: (a) a matrix market data file `data$mtx`, (b) a file with row names `data$row`, (c) a file with column names `data$col`, (d) an indexing file for the columns `data$idx`, (e) a mapping file between column and individual names "indv"
+#' `data`:
+#' 
+#'     * a matrix market data file `data$mtx`
+#'     * a file with row names `data$row`
+#'     * a file with column names `data$col`
+#'     * an indexing file for the columns `data$idx`
+#'     * a mapping file between column and individual names "indv"
 #'
-#' 2. `indv`: (a) `obs.mu` observed (noisy) gene x individual matrix, (b) `clean.mu` clean gene x individual matrix, (c) `X` confounder x individual matrix (d) `W` individual-level treatment assignment (e) `rho` sequencing depth (f) `causal` causal genes
-#'
-#' @export
+#' `indv`:
+#' 
+#'     * `obs.mu` observed (noisy) gene x individual matrix
+#'     * `clean.mu` clean gene x individual matrix
+#'     * `X` confounder x individual matrix
+#'     * `W` individual-level treatment assignment
+#'     * `rho` sequencing depth
+#'     * `causal` causal genes
 #'
 simulate.deg.data <- function(file.header, ...) {
     .sim <- simulate_gamma_glm(...)
@@ -68,11 +79,21 @@ simulate.deg.data <- function(file.header, ...) {
 #'
 #' The simulation result list will have two lists:
 #'
-#' 1. `data`: (a) a matrix market data file `data$mtx`, (b) a file with row names `data$row`, (c) a file with column names `data$col`, (d) an indexing file for the columns `data$idx`, (e) a mapping file between column and individual names "indv"
+#' `data`:
 #'
-#' 2. `indv`: (a) `obs.mu` observed (noisy) gene x individual matrix, (b) `clean.mu` clean gene x individual matrix, (c) `X` confounder x individual matrix (d) `W` individual-level treatment assignment (e) `rho` sequencing depth (f) `causal` causal genes
+#' * `data$mtx`: a matrix market data file
+#' * `data$row`: a file with row names
+#' * `data$col`: a file with column names
+#' * `data$idx`: an indexing file for the columns
+#' * `data$indv`: a mapping file between column and individual names
 #'
-#' @export
+#' `indv`:
+#' * `indv$obs.mu`: observed (noisy) gene x individual matrix
+#' * `indv$clean.mu`: clean gene x individual matrix
+#' * `indv$X`: confounder x individual matrix
+#' * `indv$W`: individual-level treatment assignment,
+#' * `indv$rho`: sequencing depth
+#' * `indv$causal`: causal genes
 #'
 simulate.eqtl.data <- function(file.header,
                                rho.a = 2,
@@ -111,15 +132,6 @@ simulate.eqtl.data <- function(file.header,
 
 #' Simulate individual-level eQTL data
 #'
-#' Possible confounding effect model:
-#'
-#' X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
-#'      U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
-#'
-#' Another rare possibility (we don't consider here):
-#'
-#' X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
-#'
 #' @param X genotype matrix (individual x SNPs)
 #' @param h2 heritability (proportion of variance of Y explained by genetic X)
 #' @param pve.u1.by.x (proportion of variance of U1 explained by X)
@@ -132,6 +144,18 @@ simulate.eqtl.data <- function(file.header,
 #' @param n.genes total number of genes (Y variables)
 #'
 #' @return simulation results
+#'
+#' @details
+#'
+#' Possible confounding effect model:
+#'
+#' * X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
+#' 
+#' * U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
+#'
+#' Another rare possibility (we don't consider here):
+#'
+#' * X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
 #'
 simulate_eqtl <- function(X, h2,
                           pve.u1.by.x = .4,

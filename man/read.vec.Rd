@@ -6,8 +6,11 @@
 \usage{
 read.vec(.file)
 }
+\arguments{
+\item{.file}{file name}
+}
 \value{
-a vector names
+a vector of strings
 }
 \description{
 Read a vector of string names

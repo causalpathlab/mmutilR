@@ -54,9 +54,9 @@ rcpp_mmutil_aggregate(
 
 \item{knn}{k-NN matching}
 
-\item{KNN_BILINK}{# of bidirectional links (default: 10)}
+\item{KNN_BILINK}{num. of bidirectional links (default: 10)}
 
-\item{KNN_NNLIST}{# nearest neighbor lists (default: 10)}
+\item{KNN_NNLIST}{num. of nearest neighbor lists (default: 10)}
 
 \item{NUM_THREADS}{number of threads for multi-core processing}
 

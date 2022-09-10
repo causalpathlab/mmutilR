@@ -43,9 +43,9 @@ rcpp_mmutil_match_files(
 
 \item{LU_ITER}{LU iteration (default: 5)}
 
-\item{KNN_BILINK}{# of bidirectional links (default: 10)}
+\item{KNN_BILINK}{num. of bidirectional links (default: 10)}
 
-\item{KNN_NNLIST}{# nearest neighbor lists (default: 10)}
+\item{KNN_NNLIST}{num. of nearest neighbor lists (default: 10)}
 
 \item{row_weight_file}{row-wise weight file}
 

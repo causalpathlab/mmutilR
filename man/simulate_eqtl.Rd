@@ -42,13 +42,17 @@ simulate_eqtl(
 simulation results
 }
 \description{
-Possible confounding effect model:
+Simulate individual-level eQTL data
 }
 \details{
-X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
-     U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
+Possible confounding effect model:
+\itemize{
+\item X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
+\item U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
+}
 
 Another rare possibility (we don't consider here):
-
-X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
+\itemize{
+\item X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
+}
 }

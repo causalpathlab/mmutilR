@@ -48,17 +48,30 @@ Possible confounding effect model:
 }
 \details{
 X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
-     U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
+U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
 
 Another rare possibility (we don't consider here):
 
 X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
 
-
-
 The simulation result list will have two lists:
 
-1. `data`: (a) a matrix market data file `data$mtx`, (b) a file with row names `data$row`, (c) a file with column names `data$col`, (d) an indexing file for the columns `data$idx`, (e) a mapping file between column and individual names "indv"
+\code{data}:
+\itemize{
+\item \code{data$mtx}: a matrix market data file
+\item \code{data$row}: a file with row names
+\item \code{data$col}: a file with column names
+\item \code{data$idx}: an indexing file for the columns
+\item \code{data$indv}: a mapping file between column and individual names
+}
 
-2. `indv`: (a) `obs.mu` observed (noisy) gene x individual matrix, (b) `clean.mu` clean gene x individual matrix, (c) `X` confounder x individual matrix (d) `W` individual-level treatment assignment (e) `rho` sequencing depth (f) `causal` causal genes
+\code{indv}:
+\itemize{
+\item \code{indv$obs.mu}: observed (noisy) gene x individual matrix
+\item \code{indv$clean.mu}: clean gene x individual matrix
+\item \code{indv$X}: confounder x individual matrix
+\item \code{indv$W}: individual-level treatment assignment,
+\item \code{indv$rho}: sequencing depth
+\item \code{indv$causal}: causal genes
+}
 }

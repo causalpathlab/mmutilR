@@ -50,8 +50,8 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #' @param EM_ITER EM iteration for factorization (default: 10)
 #' @param EM_TOL EM convergence (default: 1e-4)
 #' @param LU_ITER LU iteration
-#' @param KNN_BILINK # of bidirectional links (default: 10)
-#' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+#' @param KNN_BILINK num. of bidirectional links (default: 10)
+#' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param row_weight_file row-wise weight file
 #' @param NUM_THREADS number of threads for multi-core processing
 #' @param BLOCK_SIZE number of columns per block
@@ -320,8 +320,8 @@ rcpp_mmutil_info <- function(mtx_file) {
 }
 
 #' Write down sparse matrix to the disk
-#' @param X_
-#' @param output
+#' @param X sparse matrix
+#' @param mtx_file file name
 #'
 #' @return EXIT_SUCCESS or EXIT_FAILURE
 rcpp_mmutil_write_mtx <- function(X, mtx_file) {
@@ -380,8 +380,8 @@ rcpp_mmutil_read_columns <- function(mtx_file, memory_location, r_column_index, 
 #' @param EM_ITER EM iteration for factorization (default: 10)
 #' @param EM_TOL EM convergence (default: 1e-4)
 #' @param LU_ITER LU iteration (default: 5)
-#' @param KNN_BILINK # of bidirectional links (default: 10)
-#' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+#' @param KNN_BILINK num. of bidirectional links (default: 10)
+#' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param row_weight_file row-wise weight file
 #' @param NUM_THREADS number of threads for multi-core processing
 #' @param BLOCK_SIZE number of columns per block
@@ -436,8 +436,8 @@ rcpp_mmutil_network_edge_cluster <- function(mtx_file, row_file, col_file, outpu
 #' @param EM_ITER EM iteration for factorization (default: 10)
 #' @param EM_TOL EM convergence (default: 1e-4)
 #' @param LU_ITER LU iteration
-#' @param KNN_BILINK # of bidirectional links (default: 10)
-#' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+#' @param KNN_BILINK num. of bidirectional links (default: 10)
+#' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param row_weight_file row-wise weight file
 #' @param NUM_THREADS number of threads for multi-core processing
 #'
@@ -477,8 +477,8 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' @param eps small number (default: 1e-8)
 #' @param knn_cell k-NN matching between cells
 #' @param knn_indv k-NN matching between individuals
-#' @param KNN_BILINK # of bidirectional links (default: 10)
-#' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+#' @param KNN_BILINK num. of bidirectional links (default: 10)
+#' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
 #'
 #' @return a list of inference results
@@ -556,8 +556,8 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
 #' @param eps small number (default: 1e-8)
 #' @param knn k-NN matching
-#' @param KNN_BILINK # of bidirectional links (default: 10)
-#' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+#' @param KNN_BILINK num. of bidirectional links (default: 10)
+#' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
 #' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 #'
@@ -663,8 +663,8 @@ rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NUL
 
 #' Simulation Poisson data
 #'
-#' @param Mu depth-adjusted mean matrix (M x n), M=#features and n=#indv
-#' @param Rho column depth vector (N x 1), N=#cells
+#' @param Mu depth-adjusted mean matrix (M x n), M= num. of features and n= num. of indv
+#' @param Rho column depth vector (N x 1), N= num. of cells
 #' @param output header for ${output}.{mtx.gz,cols.gz,indv.gz}
 #' @param r_indv N x 1 individual membership (1-based, [1 .. n])
 #'

@@ -4,8 +4,8 @@
 
 //' Simulation Poisson data
 //'
-//' @param Mu depth-adjusted mean matrix (M x n), M=#features and n=#indv
-//' @param Rho column depth vector (N x 1), N=#cells
+//' @param Mu depth-adjusted mean matrix (M x n), M= num. of features and n= num. of indv
+//' @param Rho column depth vector (N x 1), N= num. of cells
 //' @param output header for ${output}.{mtx.gz,cols.gz,indv.gz}
 //' @param r_indv N x 1 individual membership (1-based, [1 .. n])
 //'

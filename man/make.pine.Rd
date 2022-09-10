@@ -50,7 +50,7 @@ make.pine(
 
 \item{eps}{small number (default: 1e-8)}
 
-\item{knn}{number of neighbours `k` in kNN for matching}
+\item{knn}{number of neighbours \code{k} in kNN for matching}
 
 \item{a0}{hyperparameter for gamma(a0, b0) (default: 1)}
 

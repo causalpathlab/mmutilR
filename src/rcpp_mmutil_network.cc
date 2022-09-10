@@ -240,8 +240,8 @@ rcpp_mmutil_network_edge_cluster(const std::string mtx_file,
 //' @param EM_ITER EM iteration for factorization (default: 10)
 //' @param EM_TOL EM convergence (default: 1e-4)
 //' @param LU_ITER LU iteration
-//' @param KNN_BILINK # of bidirectional links (default: 10)
-//' @param KNN_NNLIST # nearest neighbor lists (default: 10)
+//' @param KNN_BILINK num. of bidirectional links (default: 10)
+//' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param row_weight_file row-wise weight file
 //' @param NUM_THREADS number of threads for multi-core processing
 //'

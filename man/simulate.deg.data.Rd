@@ -44,7 +44,18 @@ Simulate single-cell MTX data for DEG analysis
 \details{
 The simulation result list will have two lists:
 
-1. `data`: (a) a matrix market data file `data$mtx`, (b) a file with row names `data$row`, (c) a file with column names `data$col`, (d) an indexing file for the columns `data$idx`, (e) a mapping file between column and individual names "indv"
+\code{data}:\preformatted{* a matrix market data file `data$mtx`
+* a file with row names `data$row`
+* a file with column names `data$col`
+* an indexing file for the columns `data$idx`
+* a mapping file between column and individual names "indv"
+}
 
-2. `indv`: (a) `obs.mu` observed (noisy) gene x individual matrix, (b) `clean.mu` clean gene x individual matrix, (c) `X` confounder x individual matrix (d) `W` individual-level treatment assignment (e) `rho` sequencing depth (f) `causal` causal genes
+\code{indv}:\preformatted{* `obs.mu` observed (noisy) gene x individual matrix
+* `clean.mu` clean gene x individual matrix
+* `X` confounder x individual matrix
+* `W` individual-level treatment assignment
+* `rho` sequencing depth
+* `causal` causal genes
+}
 }

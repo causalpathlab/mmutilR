@@ -79,8 +79,8 @@ read.dense <- function(mtx.file,
 }
 
 #' Read a vector of string names
-#' @param .file
-#' @return a vector names
+#' @param .file file name
+#' @return a vector of strings
 read.vec <- function(.file) {
 
     .ends.with <- function(x, pat) {

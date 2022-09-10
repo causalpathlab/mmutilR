@@ -46,8 +46,8 @@ rcpp_mmutil_info(const std::string mtx_file)
 ///////////////////////////////
 
 //' Write down sparse matrix to the disk
-//' @param X_
-//' @param output
+//' @param X sparse matrix
+//' @param mtx_file file name
 //'
 //' @return EXIT_SUCCESS or EXIT_FAILURE
 // [[Rcpp::export]]

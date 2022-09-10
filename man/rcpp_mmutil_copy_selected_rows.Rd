@@ -28,7 +28,7 @@ a list of file names: {output}.{mtx,rows,cols}.gz
 }
 \description{
 For the new mtx file, empty columns with only zero
-  elements will be removed.
+elements will be removed.
 }
 \examples{
 

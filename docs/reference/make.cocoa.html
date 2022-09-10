@@ -86,7 +86,7 @@ differential expression analysis</p>
 
 
 <dt>knn</dt>
-<dd><p>number of neighbours `k` in kNN for matching</p></dd>
+<dd><p>number of neighbours <code>k</code> in kNN for matching</p></dd>
 
 
 <dt>celltype.mat</dt>
@@ -165,7 +165,7 @@ differential expression analysis</p>
 <span class="r-in"><span><span class="va">nind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sim.data</span><span class="op">$</span><span class="va">indv</span><span class="op">$</span><span class="va">W</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">indv2exp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>indv<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="va">nind</span>, exp <span class="op">=</span> <span class="va">sim.data</span><span class="op">$</span><span class="va">indv</span><span class="op">$</span><span class="va">W</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">.cocoa</span> <span class="op">&lt;-</span> <span class="fu">make.cocoa</span><span class="op">(</span><span class="va">mtx.data</span>, <span class="st">"bulk"</span>, <span class="va">cell2indv</span>, <span class="va">indv2exp</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">.cocoa</span> <span class="op">&lt;-</span> <span class="fu">make.cocoa</span><span class="op">(</span><span class="va">mtx.data</span>, <span class="st">"bulk"</span>, <span class="va">cell2indv</span>, <span class="va">indv2exp</span>, knn <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running PCA...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Estimating sufficient statistics by matching...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished CoCoA statistics preparation</span>
@@ -189,6 +189,7 @@ differential expression analysis</p>
 <span class="r-plt img"><img src="make.cocoa-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"temp"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
