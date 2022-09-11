@@ -145,7 +145,13 @@
     <loc>/reference/simulate.deg.data.html</loc>
   </url>
   <url>
+    <loc>/reference/simulate.deg.html</loc>
+  </url>
+  <url>
     <loc>/reference/simulate.eqtl.data.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate.eqtl.html</loc>
   </url>
   <url>
     <loc>/reference/simulate.gamma.glm.html</loc>

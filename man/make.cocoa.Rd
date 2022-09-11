@@ -64,7 +64,7 @@ differential expression analysis
 }
 \examples{
 
-sim.data <- simulate.deg.data("temp",
+sim.data <- simulate.deg("temp",
                               nind = 20,
                               ngene = 100,
                               ncausal = 3,

@@ -38,7 +38,7 @@
 #'     * `rho` sequencing depth
 #'     * `causal` causal genes
 #'
-simulate.deg.data <- function(file.header, ...) {
+simulate.deg <- function(file.header, ...) {
     .sim <- simulate_gamma_glm(...)
     .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
                                          .sim$rho,
@@ -95,7 +95,7 @@ simulate.deg.data <- function(file.header, ...) {
 #' * `indv$rho`: sequencing depth
 #' * `indv$causal`: causal genes
 #'
-simulate.eqtl.data <- function(file.header,
+simulate.eqtl <- function(file.header,
                                rho.a = 2,
                                rho.b = 2,
                                ncell.ind = 10,
@@ -105,7 +105,7 @@ simulate.eqtl.data <- function(file.header,
     .sim <- simulate_eqtl(...)
     n.ind <- nrow(.sim$x)
 
-    if(is.null(.prob)){
+    if(is.null(ind.prob)){
         .prob <- rep(1/n.ind, n.ind)
     } else {
         .prob <- ind.prob

@@ -22,7 +22,7 @@
 #'
 #' @examples
 #'
-#' sim.data <- simulate.deg.data("temp",
+#' sim.data <- simulate.deg("temp",
 #'                               nind = 20,
 #'                               ngene = 100,
 #'                               ncausal = 3,
@@ -157,7 +157,7 @@ make.pine <- function(mtx.data,
 #'
 #' @examples
 #'
-#' sim.data <- simulate.deg.data("temp",
+#' sim.data <- simulate.deg("temp",
 #'                               nind = 20,
 #'                               ngene = 100,
 #'                               ncausal = 3,

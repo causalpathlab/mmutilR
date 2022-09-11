@@ -1,7 +1,7 @@
 Package: mmutilR
 Type: Package
 Title: Utility functions for Matrix Market-formatted data
-Version: 1.0.4
+Version: 1.0.5
 Date: 2022-07-27
 Authors@R: c(person("Yongjin", "Park", role = c("aut", "cre"), email = "ypp@stat.ubc.ca"))
 Maintainer: Yongjin Park <ypp@stat.ubc.ca>
