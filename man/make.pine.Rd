@@ -65,7 +65,7 @@ by Pairwise INdividual Effect matching
 }
 \examples{
 
-sim.data <- simulate.deg("temp",
+sim.data <- make.sc.deg("temp",
                               nind = 20,
                               ngene = 100,
                               ncausal = 3,

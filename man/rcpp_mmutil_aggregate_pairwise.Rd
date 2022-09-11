@@ -68,8 +68,8 @@ Create pseudo-bulk data for pairwise comparisons
 \examples{
 options(stringsAsFactors = FALSE)
 unlink(list.files(pattern = "sim_test"))
-.sim <- mmutilR::simulate_gamma_glm()
-.dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+.sim <- simulate_indv_glm()
+.dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
                                              .sim$rho,
                                              "sim_test")
 
@@ -79,9 +79,9 @@ unlink(list.files(pattern = "sim_test"))
 .annot$ct <- "ct1"
 
 ## simple PCA
-.pca <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 10)
+.pca <- rcpp_mmutil_pca(.dat$mtx, 10)
 
-.agg <- mmutilR::rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
+.agg <- rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
                                                 row_file = .dat$row,
                                                 col_file = .dat$col,
                                                 r_indv = .annot$ind,

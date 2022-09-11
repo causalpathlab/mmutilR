@@ -64,18 +64,18 @@ differential expression analysis
 }
 \examples{
 
-sim.data <- simulate.deg("temp",
-                              nind = 20,
-                              ngene = 100,
-                              ncausal = 3,
-                              ncovar.conf = 3,
-                              ncovar.batch = 0,
-                              ncell.ind = 10,
-                              pve.1 = .3,
-                              pve.c = .5,
-                              pve.a = .5,
-                              rseed = 13,
-                              exposure.type = "binary")
+sim.data <- make.sc.deg("temp",
+                        nind = 20,
+                        ngene = 100,
+                        ncausal = 3,
+                        ncovar.conf = 3,
+                        ncovar.batch = 0,
+                          ncell.ind = 10,
+                          pve.1 = .3,
+                          pve.c = .5,
+                          pve.a = .5,
+                          rseed = 13,
+                          exposure.type = "binary")
 
 mtx.data <- sim.data$data
 

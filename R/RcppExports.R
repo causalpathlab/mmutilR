@@ -486,8 +486,8 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' @examples
 #' options(stringsAsFactors = FALSE)
 #' unlink(list.files(pattern = "sim_test"))
-#' .sim <- mmutilR::simulate_gamma_glm()
-#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+#' .sim <- simulate_indv_glm()
+#' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
 #'                                              .sim$rho,
 #'                                              "sim_test")
 #'
@@ -497,9 +497,9 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' .annot$ct <- "ct1"
 #'
 #' ## simple PCA
-#' .pca <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 10)
+#' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
 #'
-#' .agg <- mmutilR::rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
+#' .agg <- rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
 #'                                                 row_file = .dat$row,
 #'                                                 col_file = .dat$col,
 #'                                                 r_indv = .annot$ind,
@@ -573,7 +573,7 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' mm.2 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 #' mm.2[11:20, ] <- rgamma(5, 1, .1)
 #' mm <- cbind(mm.1, mm.2)
-#' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
+#' dat <- rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
 #' rows <- read.table(dat$row)$V1
 #' cols <- read.table(dat$col)$V1
 #' ## marker feature
@@ -584,7 +584,7 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #'   )
 #' )
 #' ## annotation on the MTX file
-#' out <- mmutilR::rcpp_mmutil_annotate_columns(
+#' out <- rcpp_mmutil_annotate_columns(
 #'        row_file = dat$row, col_file = dat$col,
 #'        mtx_file = dat$mtx, pos_labels = markers)
 #' annot <- out$annotation
@@ -592,7 +592,7 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' .ind <- read.table(dat$indv, col.names = c("col", "ind"))
 #' .annot.ind <- .ind$ind[match(annot$col, .ind$col)]
 #' ## aggregate
-#' agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = dat$mtx,
+#' agg <- rcpp_mmutil_aggregate(mtx_file = dat$mtx,
 #'                                       row_file = dat$row,
 #'                                       col_file = dat$col,
 #'                                       r_cols = annot$col,
@@ -603,8 +603,8 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' print(round(agg$mean[1:20, ]))
 #' unlink(list.files(pattern = "sim_test"))
 #' ## Case-control simulation
-#' .sim <- mmutilR::simulate_gamma_glm()
-#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+#' .sim <- simulate_indv_glm()
+#' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
 #'                                              .sim$rho,
 #'                                              "sim_test")
 #' ## find column-wise annotation
@@ -613,8 +613,8 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
 #' .annot$ct <- "ct1"
 #' ## simple PCA
-#' .pca <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 10)
-#' .agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = .dat$mtx,
+#' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
+#' .agg <- rcpp_mmutil_aggregate(mtx_file = .dat$mtx,
 #'                                        row_file = .dat$row,
 #'                                        col_file = .dat$col,
 #'                                        r_cols = .annot$col,
@@ -683,106 +683,5 @@ rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NUL
 #'
 rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL) {
     .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output, r_indv)
-}
-
-#' Compute RNA velocity comparing the spliced and unspliced
-#' at the pseudo-bulk level (individual and cell type)
-#'
-#' @param spliced_mtx_file spliced data file
-#' @param unspliced_mtx_file unspliced data file
-#' @param spliced_col_file column file for the spliced mtx
-#' @param unspliced_col_file column file for the unspliced
-#' @param row_file row file (shared)
-#' @param col_file column file (shared)
-#' @param r_cols cell (col) names
-#' @param r_indv membership for the cells (\code{r_cols})
-#' @param r_annot label annotation for the (\code{r_cols})
-#' @param r_lab_name label names (default: everything in \code{r_annot})
-#' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
-#' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
-#' @param MAX_ITER maximum iteration for the delta estimation
-#' @param TOL tolerance level for convergence test
-#' @param NUM_THREADS number of threads (useful for many individuals)
-#'
-#' @return a list of inference results
-#'
-#' @examples
-#'
-#' options(stringsAsFactors = FALSE)
-#' set.seed(1)
-#' nn <- 3000
-#' rr <- rgamma(nn, 6.25, 6.25) # 1000 cells
-#' uu <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-#' dd <- matrix(rgamma(100 * 3, 1, 1/10), 100, 3)
-#' ss <- uu / (dd + 1e-2)
-#' ind <- sample(3, nn, replace=TRUE)
-#'
-#' spliced <- mmutilR::rcpp_mmutil_simulate_poisson(ss, rr,
-#'                                                  "sim_test_raw_spliced",
-#'                                                  r_indv = ind)
-#'
-#' unspliced <- mmutilR::rcpp_mmutil_simulate_poisson(uu, rr,
-#'                                                    "sim_test_raw_unspliced",
-#'                                                    r_indv = ind)
-#'
-#' .col <- sort(intersect(read.table(spliced$col)$V1,
-#'                        read.table(unspliced$col)$V1))
-#'
-#' spliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
-#'                         spliced$mtx,
-#'                         spliced$row,
-#'                         spliced$col,
-#'                         .col,
-#'                         "sim_test_spliced")
-#'
-#' unspliced <- mmutilR::rcpp_mmutil_copy_selected_columns(
-#'                         unspliced$mtx,
-#'                         unspliced$row,
-#'                         unspliced$col,
-#'                         .col,
-#'                         "sim_test_unspliced")
-#'
-#' .out <- mmutilR::rcpp_mmutil_aggregate_velocity(
-#'                      spliced$mtx,
-#'                      unspliced$mtx,
-#'                      spliced$row,
-#'                      spliced$col,
-#'                      r_col = .col,
-#'                      r_indv = ind[.col],
-#'                      a0 = 1, b0 = 1)
-#'
-#' .agg.u <- mmutilR::rcpp_mmutil_aggregate(
-#'                        unspliced$mtx,
-#'                        unspliced$row,
-#'                        unspliced$col,
-#'                        r_col = .col,
-#'                        r_indv = ind[.col],
-#'                        a0 = 1, b0 = 1)
-#'
-#' .agg.s <- mmutilR::rcpp_mmutil_aggregate(
-#'                        spliced$mtx,
-#'                        spliced$row,
-#'                        spliced$col,
-#'                        r_col = .col,
-#'                        r_indv = ind[.col],
-#'                        a0 = 1, b0 = 1)
-#'
-#' par(mfrow=c(1, ncol(.out$delta)))
-#' for(k in 1:ncol(.out$delta)){
-#'     plot(.agg.u$mu[,k]/.agg.s$mu[,k],
-#'          .out$delta[,k],
-#'          log = "xy",
-#'          pch = 1,
-#'          ylab = "predicted",
-#'          xlab = "true")
-#'     abline(a=0, b=1, col=3)
-#' }
-#'
-#'
-#' ## clean up temp directory
-#' unlink(list.files(pattern = "sim_test"))
-#'
-rcpp_mmutil_aggregate_velocity <- function(spliced_mtx_file, unspliced_mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, MAX_ITER = 100L, TOL = 1e-4, NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_aggregate_velocity', PACKAGE = 'mmutilR', spliced_mtx_file, unspliced_mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_lab_name, a0, b0, MAX_ITER, TOL, NUM_THREADS)
 }
 

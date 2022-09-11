@@ -28,6 +28,12 @@
     <loc>/reference/make.pine.html</loc>
   </url>
   <url>
+    <loc>/reference/make.sc.deg.html</loc>
+  </url>
+  <url>
+    <loc>/reference/make.sc.eqtl.html</loc>
+  </url>
+  <url>
     <loc>/reference/rcpp_annotate_columns.html</loc>
   </url>
   <url>
@@ -161,6 +167,12 @@
   </url>
   <url>
     <loc>/reference/simulate_gamma_glm.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate_indv_eqtl.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulate_indv_glm.html</loc>
   </url>
   <url>
     <loc>/reference/vcat.sparse.html</loc>

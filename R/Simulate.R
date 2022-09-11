@@ -22,24 +22,51 @@
 #' The simulation result list will have two lists:
 #'
 #' `data`:
-#' 
-#'     * a matrix market data file `data$mtx`
-#'     * a file with row names `data$row`
-#'     * a file with column names `data$col`
-#'     * an indexing file for the columns `data$idx`
-#'     * a mapping file between column and individual names "indv"
+#'
+#' * a matrix market data file `data$mtx`
+#' * a file with row names `data$row`
+#' * a file with column names `data$col`
+#' * an indexing file for the columns `data$idx`
+#' * a mapping file between column and individual names "indv"
 #'
 #' `indv`:
-#' 
-#'     * `obs.mu` observed (noisy) gene x individual matrix
-#'     * `clean.mu` clean gene x individual matrix
-#'     * `X` confounder x individual matrix
-#'     * `W` individual-level treatment assignment
-#'     * `rho` sequencing depth
-#'     * `causal` causal genes
 #'
-simulate.deg <- function(file.header, ...) {
-    .sim <- simulate_gamma_glm(...)
+#' * `obs.mu` observed (noisy) gene x individual matrix
+#' * `clean.mu` clean gene x individual matrix
+#' * `X` confounder x individual matrix
+#' * `W` individual-level treatment assignment
+#' * `rho` sequencing depth
+#' * `causal` causal genes
+#'
+make.sc.deg <- function(file.header, 
+                        nind = 40,
+                        ngene = 1000,
+                        ncausal = 5,
+                        ncovar.conf = 1,
+                        ncovar.batch = 3,
+                        ncell.ind = 10,
+                        pve.1 = 0.3,
+                        pve.c = 0.5,
+                        pve.a = 0.5,
+                        rho.a = 2,
+                        rho.b = 2,
+                        rseed = 13,
+                        exposure.type = c("binary","continuous")){
+
+    .sim <- simulate_indv_glm(nind,
+                              ngene,
+                              ncausal,
+                              ncovar.conf,
+                              ncovar.batch,
+                              ncell.ind,
+                              pve.1,
+                              pve.c,
+                              pve.a,
+                              rho.a,
+                              rho.b,
+                              rseed,
+                              exposure.type)
+
     .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
                                          .sim$rho,
                                          file.header)
@@ -95,14 +122,28 @@ simulate.deg <- function(file.header, ...) {
 #' * `indv$rho`: sequencing depth
 #' * `indv$causal`: causal genes
 #'
-simulate.eqtl <- function(file.header,
-                               rho.a = 2,
-                               rho.b = 2,
-                               ncell.ind = 10,
-                               ind.prob = NULL,
-                               ...){
+make.sc.eqtl <- function(file.header,
+                         X, h2,
+                         pve.u1.by.x = .4,
+                         pve.y.by.u1 = .2,
+                         pve.y.by.u0 = .3,
+                         n.causal.snps = 1,
+                         n.causal.genes = 5,
+                         n.u1 = 3,
+                         n.u0 = 3,
+                         n.genes = 50,
+                         rho.a = 2,
+                         rho.b = 2,
+                         ncell.ind = 10,
+                         ind.prob = NULL){
 
-    .sim <- simulate_eqtl(...)
+    .sim <- simulate_indv_eqtl(X = X, h2 = h2,
+                               pve.u1.by.x = pve.u1.by.x,
+                               pve.y.by.u1 = pve.y.by.u1,
+                               pve.y.by.u0 = pve.y.by.u0,
+                               n.causal.snps = n.causal.snps,
+                               n.causal.genes = n.causal.genes)
+
     n.ind <- nrow(.sim$x)
 
     if(is.null(ind.prob)){
@@ -123,7 +164,7 @@ simulate.eqtl <- function(file.header,
     ######################
 
     .rr <- rgamma(ncell.ind * n.ind, shape=rho.a, scale=1/rho.b)
-    .mu <- exp(.sim$y.obs)
+    .mu <- exp(.sim$y)
 
     .dat <- rcpp_mmutil_simulate_poisson(.mu, .rr, file.header, .ind)
 
@@ -150,22 +191,22 @@ simulate.eqtl <- function(file.header,
 #' Possible confounding effect model:
 #'
 #' * X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
-#' 
+#'
 #' * U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
 #'
 #' Another rare possibility (we don't consider here):
 #'
 #' * X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
 #'
-simulate_eqtl <- function(X, h2,
-                          pve.u1.by.x = .4,
-                          pve.y.by.u1 = .2,
-                          pve.y.by.u0 = .3,
-                          n.causal.snps = 1,
-                          n.causal.genes = 5,
-                          n.u1 = 3,
-                          n.u0 = 3,
-                          n.genes = 50){
+simulate_indv_eqtl <- function(X, h2,
+                               pve.u1.by.x = .4,
+                               pve.y.by.u1 = .2,
+                               pve.y.by.u0 = .3,
+                               n.causal.snps = 1,
+                               n.causal.genes = 5,
+                               n.u1 = 3,
+                               n.u0 = 3,
+                               n.genes = 50){
 
     if(!is.matrix(X)) { X <- as.matrix(X) }
 
@@ -249,19 +290,19 @@ simulate_eqtl <- function(X, h2,
 #' @param rseed random seed
 #' @param exposure.type "binary" or "continuous"
 #'
-simulate_gamma_glm <- function(nind = 40,
-                               ngene = 1000,
-                               ncausal = 5,
-                               ncovar.conf = 1,
-                               ncovar.batch = 3,
-                               ncell.ind = 10,
-                               pve.1 = 0.3,
-                               pve.c = 0.5,
-                               pve.a = 0.5,
-                               rho.a = 2,
-                               rho.b = 2,
-                               rseed = 13,
-                               exposure.type = c("binary","continuous")){
+simulate_indv_glm <- function(nind = 40,
+                              ngene = 1000,
+                              ncausal = 5,
+                              ncovar.conf = 1,
+                              ncovar.batch = 3,
+                              ncell.ind = 10,
+                              pve.1 = 0.3,
+                              pve.c = 0.5,
+                              pve.a = 0.5,
+                              rho.a = 2,
+                              rho.b = 2,
+                              rseed = 13,
+                              exposure.type = c("binary","continuous")){
 
     exposure.type <- match.arg(exposure.type)
 

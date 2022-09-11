@@ -143,18 +143,18 @@ differential expression analysis</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">sim.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate.deg.html">simulate.deg</a></span><span class="op">(</span><span class="st">"temp"</span>,</span></span>
-<span class="r-in"><span>                              nind <span class="op">=</span> <span class="fl">20</span>,</span></span>
-<span class="r-in"><span>                              ngene <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>                              ncausal <span class="op">=</span> <span class="fl">3</span>,</span></span>
-<span class="r-in"><span>                              ncovar.conf <span class="op">=</span> <span class="fl">3</span>,</span></span>
-<span class="r-in"><span>                              ncovar.batch <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>                              ncell.ind <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>                              pve.1 <span class="op">=</span> <span class="fl">.3</span>,</span></span>
-<span class="r-in"><span>                              pve.c <span class="op">=</span> <span class="fl">.5</span>,</span></span>
-<span class="r-in"><span>                              pve.a <span class="op">=</span> <span class="fl">.5</span>,</span></span>
-<span class="r-in"><span>                              rseed <span class="op">=</span> <span class="fl">13</span>,</span></span>
-<span class="r-in"><span>                              exposure.type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sim.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="make.sc.deg.html">make.sc.deg</a></span><span class="op">(</span><span class="st">"temp"</span>,</span></span>
+<span class="r-in"><span>                        nind <span class="op">=</span> <span class="fl">20</span>,</span></span>
+<span class="r-in"><span>                        ngene <span class="op">=</span> <span class="fl">100</span>,</span></span>
+<span class="r-in"><span>                        ncausal <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>                        ncovar.conf <span class="op">=</span> <span class="fl">3</span>,</span></span>
+<span class="r-in"><span>                        ncovar.batch <span class="op">=</span> <span class="fl">0</span>,</span></span>
+<span class="r-in"><span>                          ncell.ind <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>                          pve.1 <span class="op">=</span> <span class="fl">.3</span>,</span></span>
+<span class="r-in"><span>                          pve.c <span class="op">=</span> <span class="fl">.5</span>,</span></span>
+<span class="r-in"><span>                          pve.a <span class="op">=</span> <span class="fl">.5</span>,</span></span>
+<span class="r-in"><span>                          rseed <span class="op">=</span> <span class="fl">13</span>,</span></span>
+<span class="r-in"><span>                          exposure.type <span class="op">=</span> <span class="st">"binary"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">mtx.data</span> <span class="op">&lt;-</span> <span class="va">sim.data</span><span class="op">$</span><span class="va">data</span></span></span>
 <span class="r-in"><span></span></span>

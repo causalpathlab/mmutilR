@@ -408,29 +408,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_mmutil_aggregate_velocity
-Rcpp::List rcpp_mmutil_aggregate_velocity(const std::string spliced_mtx_file, const std::string unspliced_mtx_file, const std::string row_file, const std::string col_file, Rcpp::Nullable<Rcpp::StringVector> r_cols, Rcpp::Nullable<Rcpp::StringVector> r_indv, Rcpp::Nullable<Rcpp::StringVector> r_annot, Rcpp::Nullable<Rcpp::StringVector> r_lab_name, const float a0, const float b0, const std::size_t MAX_ITER, const float TOL, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_aggregate_velocity(SEXP spliced_mtx_fileSEXP, SEXP unspliced_mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP r_colsSEXP, SEXP r_indvSEXP, SEXP r_annotSEXP, SEXP r_lab_nameSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP MAX_ITERSEXP, SEXP TOLSEXP, SEXP NUM_THREADSSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string >::type spliced_mtx_file(spliced_mtx_fileSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type unspliced_mtx_file(unspliced_mtx_fileSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type row_file(row_fileSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type col_file(col_fileSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_cols(r_colsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_indv(r_indvSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_annot(r_annotSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_lab_name(r_lab_nameSEXP);
-    Rcpp::traits::input_parameter< const float >::type a0(a0SEXP);
-    Rcpp::traits::input_parameter< const float >::type b0(b0SEXP);
-    Rcpp::traits::input_parameter< const std::size_t >::type MAX_ITER(MAX_ITERSEXP);
-    Rcpp::traits::input_parameter< const float >::type TOL(TOLSEXP);
-    Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_aggregate_velocity(spliced_mtx_file, unspliced_mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_lab_name, a0, b0, MAX_ITER, TOL, NUM_THREADS));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_pca, 13},
@@ -454,7 +431,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 18},
     {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 3},
     {"_mmutilR_rcpp_mmutil_simulate_poisson", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson, 4},
-    {"_mmutilR_rcpp_mmutil_aggregate_velocity", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate_velocity, 13},
     {NULL, NULL, 0}
 };
 

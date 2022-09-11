@@ -41,8 +41,8 @@
 //' @examples
 //' options(stringsAsFactors = FALSE)
 //' unlink(list.files(pattern = "sim_test"))
-//' .sim <- mmutilR::simulate_gamma_glm()
-//' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+//' .sim <- simulate_indv_glm()
+//' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
 //'                                              .sim$rho,
 //'                                              "sim_test")
 //'
@@ -52,9 +52,9 @@
 //' .annot$ct <- "ct1"
 //'
 //' ## simple PCA
-//' .pca <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 10)
+//' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
 //'
-//' .agg <- mmutilR::rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
+//' .agg <- rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
 //'                                                 row_file = .dat$row,
 //'                                                 col_file = .dat$col,
 //'                                                 r_indv = .annot$ind,
@@ -413,7 +413,7 @@ rcpp_mmutil_aggregate_pairwise(
 //' mm.2 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
 //' mm.2[11:20, ] <- rgamma(5, 1, .1)
 //' mm <- cbind(mm.1, mm.2)
-//' dat <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
+//' dat <- rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
 //' rows <- read.table(dat$row)$V1
 //' cols <- read.table(dat$col)$V1
 //' ## marker feature
@@ -424,7 +424,7 @@ rcpp_mmutil_aggregate_pairwise(
 //'   )
 //' )
 //' ## annotation on the MTX file
-//' out <- mmutilR::rcpp_mmutil_annotate_columns(
+//' out <- rcpp_mmutil_annotate_columns(
 //'        row_file = dat$row, col_file = dat$col,
 //'        mtx_file = dat$mtx, pos_labels = markers)
 //' annot <- out$annotation
@@ -432,7 +432,7 @@ rcpp_mmutil_aggregate_pairwise(
 //' .ind <- read.table(dat$indv, col.names = c("col", "ind"))
 //' .annot.ind <- .ind$ind[match(annot$col, .ind$col)]
 //' ## aggregate
-//' agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = dat$mtx,
+//' agg <- rcpp_mmutil_aggregate(mtx_file = dat$mtx,
 //'                                       row_file = dat$row,
 //'                                       col_file = dat$col,
 //'                                       r_cols = annot$col,
@@ -443,8 +443,8 @@ rcpp_mmutil_aggregate_pairwise(
 //' print(round(agg$mean[1:20, ]))
 //' unlink(list.files(pattern = "sim_test"))
 //' ## Case-control simulation
-//' .sim <- mmutilR::simulate_gamma_glm()
-//' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
+//' .sim <- simulate_indv_glm()
+//' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
 //'                                              .sim$rho,
 //'                                              "sim_test")
 //' ## find column-wise annotation
@@ -453,8 +453,8 @@ rcpp_mmutil_aggregate_pairwise(
 //' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
 //' .annot$ct <- "ct1"
 //' ## simple PCA
-//' .pca <- mmutilR::rcpp_mmutil_pca(.dat$mtx, 10)
-//' .agg <- mmutilR::rcpp_mmutil_aggregate(mtx_file = .dat$mtx,
+//' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
+//' .agg <- rcpp_mmutil_aggregate(mtx_file = .dat$mtx,
 //'                                        row_file = .dat$row,
 //'                                        col_file = .dat$col,
 //'                                        r_cols = .annot$col,
