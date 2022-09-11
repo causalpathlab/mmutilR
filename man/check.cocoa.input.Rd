@@ -4,7 +4,13 @@
 \alias{check.cocoa.input}
 \title{Check CoCoA input}
 \usage{
-check.cocoa.input(mtx.data, celltype, cell2indv, indv2exp, celltype.mat = NULL)
+check.cocoa.input(
+  mtx.data,
+  celltype,
+  cell2indv,
+  indv2exp = NULL,
+  celltype.mat = NULL
+)
 }
 \arguments{
 \item{mtx.data}{fileset.header ($mtx, $row, $col, $idx)}

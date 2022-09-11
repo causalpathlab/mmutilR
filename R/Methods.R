@@ -155,8 +155,14 @@ make.pine <- function(mtx.data,
 #'
 #' @return a list of sufficient statistics matrices
 #'
-#' @examples
+#' @details
 #'
+#' If treatment/exposure variables are assigned, it will calculate
+#' counterfactual individual effects (`resid.mu`).  Otherwise, it will
+#' only compute average effect estimations (`mu`).
+#'
+#' @examples
+#' 
 #' sim.data <- make.sc.deg("temp",
 #'                         nind = 20,
 #'                         ngene = 100,
@@ -169,42 +175,55 @@ make.pine <- function(mtx.data,
 #'                           pve.a = .5,
 #'                           rseed = 13,
 #'                           exposure.type = "binary")
-#'
+#' 
 #' mtx.data <- sim.data$data
-#'
+#' 
 #' cell2indv <- read.table(sim.data$data$indv,
 #'                         header=FALSE,
 #'                         col.names=c("cell","indv"))
-#'
+#' 
 #' nind <- length(sim.data$indv$W)
 #' indv2exp <- data.frame(indv=1:nind, exp = sim.data$indv$W)
-#'
+#' 
 #' .cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp, knn = 50)
-#'
+#' .stat <- make.cocoa(mtx.data, "bulk", cell2indv)
+#' 
 #' ncausal <- length(sim.data$indv$causal)
 #' ngene <- nrow(.cocoa$resid.mu)
-#'
+#' 
 #' par(mfrow=c(2, ncausal))
 #' W <- sim.data$indv$W
 #' for(k in sim.data$indv$causal){
 #'     y0 <- .cocoa$resid.mu[k, W == 0]
 #'     y1 <- .cocoa$resid.mu[k, W == 1]
-#'     boxplot(y0, y1)
+#'     boxplot(y0, y1, main=k)
+#' }
+#' 
+#' W <- sim.data$indv$W
+#' for(k in sim.data$indv$causal){
+#'     y0 <- .stat$mu[k, W == 0]
+#'     y1 <- .stat$mu[k, W == 1]
+#'     boxplot(y0, y1, main=k)
 #' }
 #'
+#' par(mfrow=c(2, ncausal))
 #' for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
 #'     y0 <- .cocoa$resid.mu[k, W == 0]
 #'     y1 <- .cocoa$resid.mu[k, W == 1]
-#'     boxplot(y0, y1)
+#'     boxplot(y0, y1, main=k)
 #' }
-#'
+#' for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
+#'     y0 <- .stat$mu[k, W == 0]
+#'     y1 <- .stat$mu[k, W == 1]
+#'     boxplot(y0, y1, main=k)
+#' }
+#' 
 #' unlink(list.files(pattern = "temp"))
-#'
 #'
 make.cocoa <- function(mtx.data,
                        celltype,
                        cell2indv,
-                       indv2exp,
+                       indv2exp = NULL,
                        knn = 10,
                        celltype.mat = NULL,
                        .rank = 10,
@@ -225,34 +244,51 @@ make.cocoa <- function(mtx.data,
     celltype.lab <- .input$celltype.lab
     treatments <- .input$treatments
 
-    message("Running PCA...")
+    if(!is.null(treatments)) {
 
-    .pca <- rcpp_mmutil_pca(mtx_file = mtx.data$mtx,
-                            RANK=.rank,
-                            TAKE_LN = .take.ln,
-                            TAU = .pca.reg,
-                            COL_NORM = .col.norm,
-                            EM_ITER = .em.iter,
-                            EM_TOL = .em.tol)
+        message("Running PCA...")
 
-    message("Estimating sufficient statistics by matching...")
+        .pca <- rcpp_mmutil_pca(mtx_file = mtx.data$mtx,
+                                RANK=.rank,
+                                TAKE_LN = .take.ln,
+                                TAU = .pca.reg,
+                                COL_NORM = .col.norm,
+                                EM_ITER = .em.iter,
+                                EM_TOL = .em.tol)
 
-    .stat <- rcpp_mmutil_aggregate(mtx_file = mtx.data$mtx,
-                                   row_file = mtx.data$row,
-                                   col_file = mtx.data$col,
-                                   r_cols = cells,
-                                   r_indv = individuals,
-                                   r_annot = celltype.vec,
-                                   r_annot_mat = celltype.mat,
-                                   r_lab_name = celltype.lab,
-                                   r_trt = treatments,
-                                   r_V = .pca$V,
-                                   knn = knn,
-                                   IMPUTE_BY_KNN = TRUE,
-                                   NUM_THREADS = num.threads,
-                                   ...)
+        message("Estimating sufficient statistics by matching...")
 
-    .stat$indv2exp <- indv2exp
+        .stat <- rcpp_mmutil_aggregate(mtx_file = mtx.data$mtx,
+                                       row_file = mtx.data$row,
+                                       col_file = mtx.data$col,
+                                       r_cols = cells,
+                                       r_indv = individuals,
+                                       r_annot = celltype.vec,
+                                       r_annot_mat = celltype.mat,
+                                       r_lab_name = celltype.lab,
+                                       r_trt = treatments,
+                                       r_V = .pca$V,
+                                       knn = knn,
+                                       IMPUTE_BY_KNN = TRUE,
+                                       NUM_THREADS = num.threads,
+                                       ...)
+
+        .stat$indv2exp <- indv2exp
+
+    } else {
+        
+        .stat <- rcpp_mmutil_aggregate(mtx_file = mtx.data$mtx,
+                                       row_file = mtx.data$row,
+                                       col_file = mtx.data$col,
+                                       r_cols = cells,
+                                       r_indv = individuals,
+                                       r_annot = celltype.vec,
+                                       r_annot_mat = celltype.mat,
+                                       r_lab_name = celltype.lab,
+                                       NUM_THREADS = num.threads,
+                                       ...)
+
+    }
 
     message("Finished CoCoA statistics preparation")
     return(.stat)
@@ -269,7 +305,7 @@ make.cocoa <- function(mtx.data,
 check.cocoa.input <- function(mtx.data,
                               celltype,
                               cell2indv,
-                              indv2exp,
+                              indv2exp = NULL,
                               celltype.mat = NULL) {
 
     #####################################
@@ -282,10 +318,13 @@ check.cocoa.input <- function(mtx.data,
     individuals <- as.character(cell2indv[.order, 2])
     individuals[is.na(individuals)] <- "NA"
 
-    .order <- match(individuals, indv2exp[,1])
-    treatments <- as.character(indv2exp[.order, 2])
-    treatments[is.na(treatments)] <- "NA"
-
+    if(is.null(indv2exp)){
+        treatments <- NULL
+    } else {
+        .order <- match(individuals, indv2exp[,1])
+        treatments <- as.character(indv2exp[.order, 2])
+        treatments[is.na(treatments)] <- "NA"
+    }
     #############################
     ## match cell -> cell type ##
     #############################

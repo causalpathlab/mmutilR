@@ -9,7 +9,7 @@ make.cocoa(
   mtx.data,
   celltype,
   cell2indv,
-  indv2exp,
+  indv2exp = NULL,
   knn = 10,
   celltype.mat = NULL,
   .rank = 10,
@@ -62,6 +62,11 @@ a list of sufficient statistics matrices
 Counterfactual confounder adjustment for individual-level
 differential expression analysis
 }
+\details{
+If treatment/exposure variables are assigned, it will calculate
+counterfactual individual effects (\code{resid.mu}).  Otherwise, it will
+only compute average effect estimations (\code{mu}).
+}
 \examples{
 
 sim.data <- make.sc.deg("temp",
@@ -87,6 +92,7 @@ nind <- length(sim.data$indv$W)
 indv2exp <- data.frame(indv=1:nind, exp = sim.data$indv$W)
 
 .cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp, knn = 50)
+.stat <- make.cocoa(mtx.data, "bulk", cell2indv)
 
 ncausal <- length(sim.data$indv$causal)
 ngene <- nrow(.cocoa$resid.mu)
@@ -96,16 +102,28 @@ W <- sim.data$indv$W
 for(k in sim.data$indv$causal){
     y0 <- .cocoa$resid.mu[k, W == 0]
     y1 <- .cocoa$resid.mu[k, W == 1]
-    boxplot(y0, y1)
+    boxplot(y0, y1, main=k)
 }
 
+W <- sim.data$indv$W
+for(k in sim.data$indv$causal){
+    y0 <- .stat$mu[k, W == 0]
+    y1 <- .stat$mu[k, W == 1]
+    boxplot(y0, y1, main=k)
+}
+
+par(mfrow=c(2, ncausal))
 for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
     y0 <- .cocoa$resid.mu[k, W == 0]
     y1 <- .cocoa$resid.mu[k, W == 1]
-    boxplot(y0, y1)
+    boxplot(y0, y1, main=k)
+}
+for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
+    y0 <- .stat$mu[k, W == 0]
+    y1 <- .stat$mu[k, W == 1]
+    boxplot(y0, y1, main=k)
 }
 
 unlink(list.files(pattern = "temp"))
-
 
 }
