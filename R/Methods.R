@@ -5,7 +5,6 @@
 #' @param celltype celltype/cluster assignments (1 x cells or just a single string)
 #' @param celltype.mat celltype/cluster assignment matrix (cells x cell types)
 #' @param cell2indv cell-level individual assignments (cells x 2), cell -> indv
-#' @param indv2exp individual treatment/exposure assignments (indiv x 2), indv -> exposure
 #' @param eps small number (default: 1e-8)
 #' @param knn number of neighbours `k` in kNN for matching
 #' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
@@ -42,12 +41,10 @@
 #'                         col.names=c("cell","indv"))
 #'
 #' nind <- length(sim.data$indv$W)
-#' indv2exp <- data.frame(indv=1:nind, exp=sim.data$indv$W)
 #'
 #' .pine <- make.pine(mtx.data,
 #'                    "bulk",
 #'                    cell2indv,
-#'                    indv2exp,
 #'                    knn.cell = 50,
 #'                    knn.indv = 1)
 #'
@@ -80,7 +77,7 @@
 make.pine <- function(mtx.data,
                       celltype,
                       cell2indv,
-                      indv2exp,
+                      indv2exp = NULL,
                       knn.cell = 50,
                       knn.indv = 1,
                       celltype.mat = NULL,
