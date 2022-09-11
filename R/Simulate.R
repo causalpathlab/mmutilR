@@ -67,6 +67,8 @@ make.sc.deg <- function(file.header,
                               rseed,
                               exposure.type)
 
+    dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
+
     .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
                                          .sim$rho,
                                          file.header)
@@ -164,7 +166,12 @@ make.sc.eqtl <- function(file.header,
     ######################
 
     .rr <- rgamma(ncell.ind * n.ind, shape=rho.a, scale=1/rho.b)
-    .mu <- exp(.sim$y)
+    y <- apply(.sim$y, 2, scale) # just for numerical stability
+    y[y > 8] <- 8
+    y[y < -8] <- -8
+    .mu <- exp(y)
+
+    dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
 
     .dat <- rcpp_mmutil_simulate_poisson(.mu, .rr, file.header, .ind)
 
@@ -431,6 +438,10 @@ simulate_indv_glm <- function(nind = 40,
         .scale(ln.mu.w) * sqrt(pve.1) +
         .scale(ln.mu.x) * sqrt(pve.c) +
         .scale(ln.mu.eps) * sqrt(1 - pve.1 - pve.c)
+
+    ln.mu <- .scale(ln.mu)  # numerical stability
+    ln.mu[ln.mu > 8] <- 8   #
+    ln.mu[ln.mu < -8] <- -8 #
 
     mu <- exp(ln.mu)
 
