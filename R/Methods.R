@@ -77,7 +77,6 @@
 make.pine <- function(mtx.data,
                       celltype,
                       cell2indv,
-                      indv2exp = NULL,
                       knn.cell = 50,
                       knn.indv = 1,
                       celltype.mat = NULL,
@@ -90,7 +89,7 @@ make.pine <- function(mtx.data,
                       num.threads = 1,
                       ...) {
 
-    .input <- check.cocoa.input(mtx.data, celltype, cell2indv, indv2exp, celltype.mat)
+    .input <- check.cocoa.input(mtx.data, celltype, cell2indv, NULL, celltype.mat)
 
     cells <- .input$cells
     individuals <- .input$individuals
