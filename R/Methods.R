@@ -123,8 +123,6 @@ make.pine <- function(mtx.data,
                                             NUM_THREADS = num.threads,
                                             ...)
 
-    .stat$indv2exp <- indv2exp
-
     message("Finished PINE statistics preparation")
     return(.stat)
 }
