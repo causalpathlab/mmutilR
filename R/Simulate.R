@@ -173,7 +173,7 @@ make.sc.eqtl <- function(file.header,
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
 
-    .dat <- rcpp_mmutil_simulate_poisson(.mu, .rr, file.header, .ind)
+    .dat <- rcpp_mmutil_simulate_poisson(t(.mu), .rr, file.header, .ind)
 
     list(indv = .sim, data = .dat)
 }
