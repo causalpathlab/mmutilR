@@ -145,6 +145,8 @@ make.sc.eqtl <- function(file.header,
                                pve.y.by.u0 = pve.y.by.u0,
                                n.causal.snps = n.causal.snps,
                                n.causal.genes = n.causal.genes,
+                               n.u1 = n.u1,
+                               n.u0 = n.u0,
                                n.genes = n.genes)
 
     n.ind <- nrow(.sim$x)
