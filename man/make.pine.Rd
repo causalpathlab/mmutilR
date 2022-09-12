@@ -9,7 +9,6 @@ make.pine(
   mtx.data,
   celltype,
   cell2indv,
-  indv2exp,
   knn.cell = 50,
   knn.indv = 1,
   celltype.mat = NULL,
@@ -29,8 +28,6 @@ make.pine(
 \item{celltype}{celltype/cluster assignments (1 x cells or just a single string)}
 
 \item{cell2indv}{cell-level individual assignments (cells x 2), cell -> indv}
-
-\item{indv2exp}{individual treatment/exposure assignments (indiv x 2), indv -> exposure}
 
 \item{celltype.mat}{celltype/cluster assignment matrix (cells x cell types)}
 
@@ -85,12 +82,10 @@ cell2indv <- read.table(sim.data$data$indv,
                         col.names=c("cell","indv"))
 
 nind <- length(sim.data$indv$W)
-indv2exp <- data.frame(indv=1:nind, exp=sim.data$indv$W)
 
 .pine <- make.pine(mtx.data,
                    "bulk",
                    cell2indv,
-                   indv2exp,
                    knn.cell = 50,
                    knn.indv = 1)
 
