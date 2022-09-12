@@ -144,7 +144,8 @@ make.sc.eqtl <- function(file.header,
                                pve.y.by.u1 = pve.y.by.u1,
                                pve.y.by.u0 = pve.y.by.u0,
                                n.causal.snps = n.causal.snps,
-                               n.causal.genes = n.causal.genes)
+                               n.causal.genes = n.causal.genes,
+                               n.genes = n.genes)
 
     n.ind <- nrow(.sim$x)
 
@@ -206,14 +207,14 @@ make.sc.eqtl <- function(file.header,
 #' * X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
 #'
 simulate_indv_eqtl <- function(X, h2,
-                               pve.u1.by.x = .4,
-                               pve.y.by.u1 = .2,
-                               pve.y.by.u0 = .3,
-                               n.causal.snps = 1,
-                               n.causal.genes = 5,
-                               n.u1 = 3,
-                               n.u0 = 3,
-                               n.genes = 50){
+                               pve.u1.by.x,
+                               pve.y.by.u1,
+                               pve.y.by.u0,
+                               n.causal.snps,
+                               n.causal.genes,
+                               n.u1,
+                               n.u0,
+                               n.genes){
 
     if(!is.matrix(X)) { X <- as.matrix(X) }
 
