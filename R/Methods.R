@@ -127,6 +127,39 @@ make.pine <- function(mtx.data,
     return(.stat)
 }
 
+#' Check duplicated pairs of individuals in the matching results
+#' and take the nearest ones
+#' 
+#' @param .pine the whole result of `make.pine`
+#'
+#' @return filtered `.pine` results
+#' 
+pine.remove.duplicated <- function(input){
+
+    require(data.table)
+
+    knn.dt <- data.table::setDT(copy(input$knn))
+    knn.dt$ii <- pmin(knn.dt$obs.index, knn.dt$matched.index)
+    knn.dt$jj <- pmax(knn.dt$obs.index, knn.dt$matched.index)
+
+    knn.out <- knn.dt[order(knn.dt$dist), head(.SD, 1), by=.(ii,jj)] 
+
+    cols <- data.table::data.table(col = colnames(input$delta))
+    cols[, c("obs.name","matched.name","ct") := tstrsplit(cols$col,split="_")]
+    cols[, col.pos := 1:.N]
+    valid.dt <- merge(knn.out, cols, all.x=TRUE)
+
+    out <- input
+    for(k in names(input)){
+        if(k != "knn"){
+            out[[k]] <- input[[k]][, valid.dt$col.pos, drop = FALSE]
+        }
+    }
+    out[["knn"]] <- as.list(valid.dt)
+
+    return(out)
+}
+
 #' Counterfactual confounder adjustment for individual-level
 #' differential expression analysis
 #'
