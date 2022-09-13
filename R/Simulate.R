@@ -249,6 +249,7 @@ simulate_indv_eqtl <- function(X, h2,
     non.causal <- setdiff(1:ncol(X), causal.snps)
     y.by.x <- lapply(1:n.genes, function(j) {
         xx <- X %c% sample(non.causal, n.causal.snps)
+        xx <- apply(xx, 2, sample) # permute
         xx %*% .rnorm(n.causal.snps, 1)
     })
     y.by.x <- as.matrix(do.call(cbind, y.by.x))
