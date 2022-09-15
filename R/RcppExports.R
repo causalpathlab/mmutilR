@@ -661,16 +661,35 @@ rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NUL
     .Call('_mmutilR_rcpp_mmutil_compute_scores', PACKAGE = 'mmutilR', mtx_file, row_file, col_file)
 }
 
-#' Simulation Poisson data
+#' Simulate sparse counting data with a mixture of Poisson parameters
 #'
-#' @param Mu depth-adjusted mean matrix (M x n), M= num. of features and n= num. of indv
-#' @param Rho column depth vector (N x 1), N= num. of cells
+#'
+#' @param r_mu_list a list of gene x individual matrices
+#' @param Ncell the total number of cells (may not make it if too sparse)
+#' @param output a file header string for output files
+#' @param dir_alpha a parameter for Dirichlet(alpha * [1, ..., 1])
+#' @param gam_alpha a parameter for Gamma(alpha, beta)
+#' @param gam_beta a parameter for Gamma(alpha, beta)
+#' @param rseed random seed
+#'
+rcpp_mmutil_simulate_poisson_mixture <- function(r_mu_list, Ncell, output, dir_alpha = 1.0, gam_alpha = 2.0, gam_beta = 2.0, rseed = 42L) {
+    .Call('_mmutilR_rcpp_mmutil_simulate_poisson_mixture', PACKAGE = 'mmutilR', r_mu_list, Ncell, output, dir_alpha, gam_alpha, gam_beta, rseed)
+}
+
+#' Simulation Poisson data based on Mu
+#'
+#' M= num. of features and n= num. of indv
+#'
+#' @param mu depth-adjusted mean matrix (M x n)
+#' @param rho column depth vector (N x 1), N= num. of cells
 #' @param output header for ${output}.{mtx.gz,cols.gz,indv.gz}
 #' @param r_indv N x 1 individual membership (1-based, [1 .. n])
+#' @param rseed random seed
 #'
 #' @return a list of file names: {output}.{mtx,rows,cols}.gz
 #'
 #' @examples
+#'
 #' rr <- rgamma(20, 1, 1)
 #' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 #' data.hdr <- "test_sim"
@@ -681,7 +700,7 @@ rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NUL
 #' head(A)
 #' unlink(list.files(pattern = data.hdr))
 #'
-rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL) {
-    .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output, r_indv)
+rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL, rseed = 42L) {
+    .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output, r_indv, rseed)
 }
 

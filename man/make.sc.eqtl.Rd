@@ -8,13 +8,15 @@ make.sc.eqtl(
   file.header,
   X,
   h2,
-  pve.u1.by.x = 0.4,
-  pve.y.by.u1 = 0.2,
-  pve.y.by.u0 = 0.3,
   n.causal.snps = 1,
   n.causal.genes = 5,
-  n.u1 = 3,
+  pve.y.by.u0 = 0.3,
   n.u0 = 3,
+  pve.u1.by.x = 0.8,
+  pve.y.by.u1 = 0.3,
+  n.u1 = 3,
+  pve.interaction = 0.5,
+  n.interaction = 0,
   n.genes = 50,
   rho.a = 2,
   rho.b = 2,
@@ -27,19 +29,23 @@ make.sc.eqtl(
 
 \item{h2}{heritability (proportion of variance of Y explained by genetic X)}
 
-\item{pve.u1.by.x}{(proportion of variance of U1 explained by X)}
+\item{n.causal.snps}{X variables directly affecting on Y}
 
-\item{pve.y.by.u1}{(proportion of variance of Y explained by U1)}
+\item{n.causal.genes}{Y variables directly regulated by X}
 
-\item{pve.y.by.u0}{(proportion of variance of Y explained by U0)}
+\item{pve.y.by.u0}{proportion of variance of Y explained by U0}
 
-\item{n.causal.snps}{#(X directly affecting on Y)}
+\item{n.u0}{number of covariates on Y}
 
-\item{n.causal.genes}{#(Y regulated by X)}
+\item{pve.u1.by.x}{proportion of variance of U1 explained by X}
 
-\item{n.u1}{#(U1 variables)}
+\item{pve.y.by.u1}{proportion of variance of Y explained by U1}
 
-\item{n.u0}{#(U0 variables)}
+\item{n.u1}{number of covariates on Y}
+
+\item{pve.interaction}{proportion of variance of Y explained by interaction}
+
+\item{n.interaction}{number of genes interacting with the causal genes}
 
 \item{n.genes}{total number of genes (Y variables)}
 
@@ -53,15 +59,13 @@ make.sc.eqtl(
 simulation results
 }
 \description{
-Possible confounding effect model:
+The goal is to have unbiased estimates of Y ~ X
 }
 \details{
-X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
-U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
+However, possible confounding effect models lurking:
 
-Another rare possibility (we don't consider here):
-
-X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
+Y1 ~ X + U
+Y0 ~ Y1 + U
 
 The simulation result list will have two lists:
 
@@ -76,11 +80,9 @@ The simulation result list will have two lists:
 
 \code{indv}:
 \itemize{
-\item \code{indv$obs.mu}: observed (noisy) gene x individual matrix
-\item \code{indv$clean.mu}: clean gene x individual matrix
-\item \code{indv$X}: confounder x individual matrix
-\item \code{indv$W}: individual-level treatment assignment,
-\item \code{indv$rho}: sequencing depth
-\item \code{indv$causal}: causal genes
+\item \code{indv$y}: observed (noisy) individual x gene matrix
+\item \code{indv$x}: observed individual x variants genotype matrix
+\item \code{indv$causal.snps}: causal variants (X variables)
+\item \code{indv$causal.genes}: causal genes (Y variables)
 }
 }

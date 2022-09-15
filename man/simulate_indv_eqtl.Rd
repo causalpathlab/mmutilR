@@ -7,13 +7,15 @@
 simulate_indv_eqtl(
   X,
   h2,
-  pve.u1.by.x,
-  pve.y.by.u1,
-  pve.y.by.u0,
   n.causal.snps,
   n.causal.genes,
-  n.u1,
+  pve.y.by.u0,
   n.u0,
+  pve.u1.by.x,
+  pve.y.by.u1,
+  n.u1,
+  pve.interaction,
+  n.interaction,
   n.genes
 )
 }
@@ -22,19 +24,23 @@ simulate_indv_eqtl(
 
 \item{h2}{heritability (proportion of variance of Y explained by genetic X)}
 
-\item{pve.u1.by.x}{(proportion of variance of U1 explained by X)}
+\item{n.causal.snps}{X variables directly affecting on Y}
 
-\item{pve.y.by.u1}{(proportion of variance of Y explained by U1)}
+\item{n.causal.genes}{Y variables directly regulated by X}
 
-\item{pve.y.by.u0}{(proportion of variance of Y explained by U0)}
+\item{pve.y.by.u0}{proportion of variance of Y explained by U0}
 
-\item{n.causal.snps}{#(X directly affecting on Y)}
+\item{n.u0}{number of covariates on Y}
 
-\item{n.causal.genes}{#(Y regulated by X)}
+\item{pve.u1.by.x}{proportion of variance of U1 explained by X}
 
-\item{n.u1}{#(U1 variables)}
+\item{pve.y.by.u1}{proportion of variance of Y explained by U1}
 
-\item{n.u0}{#(U0 variables)}
+\item{n.u1}{number of covariates on Y}
+
+\item{pve.interaction}{proportion of variance of Y explained by interaction}
+
+\item{n.interaction}{number of genes interacting with the causal genes}
 
 \item{n.genes}{total number of genes (Y variables)}
 }
@@ -45,14 +51,5 @@ simulation results
 Simulate individual-level eQTL data
 }
 \details{
-Possible confounding effect model:
-\itemize{
-\item X -> U1 -> Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)
-\item U0 -> Y : okay to adjust to boost the power (demographic variables, environments)
-}
 
-Another rare possibility (we don't consider here):
-\itemize{
-\item X -> Y -> Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)
-}
 }

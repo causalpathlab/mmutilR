@@ -394,9 +394,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_mmutil_simulate_poisson_mixture
+Rcpp::List rcpp_mmutil_simulate_poisson_mixture(const Rcpp::List r_mu_list, const std::size_t Ncell, const std::string output, const float dir_alpha, const float gam_alpha, const float gam_beta, const std::size_t rseed);
+RcppExport SEXP _mmutilR_rcpp_mmutil_simulate_poisson_mixture(SEXP r_mu_listSEXP, SEXP NcellSEXP, SEXP outputSEXP, SEXP dir_alphaSEXP, SEXP gam_alphaSEXP, SEXP gam_betaSEXP, SEXP rseedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::List >::type r_mu_list(r_mu_listSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type Ncell(NcellSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< const float >::type dir_alpha(dir_alphaSEXP);
+    Rcpp::traits::input_parameter< const float >::type gam_alpha(gam_alphaSEXP);
+    Rcpp::traits::input_parameter< const float >::type gam_beta(gam_betaSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type rseed(rseedSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_simulate_poisson_mixture(r_mu_list, Ncell, output, dir_alpha, gam_alpha, gam_beta, rseed));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_mmutil_simulate_poisson
-Rcpp::List rcpp_mmutil_simulate_poisson(const Eigen::MatrixXf mu, const Eigen::VectorXf rho, const std::string output, Rcpp::Nullable<Rcpp::IntegerVector> r_indv);
-RcppExport SEXP _mmutilR_rcpp_mmutil_simulate_poisson(SEXP muSEXP, SEXP rhoSEXP, SEXP outputSEXP, SEXP r_indvSEXP) {
+Rcpp::List rcpp_mmutil_simulate_poisson(const Eigen::MatrixXf mu, const Eigen::VectorXf rho, const std::string output, Rcpp::Nullable<Rcpp::IntegerVector> r_indv, const std::size_t rseed);
+RcppExport SEXP _mmutilR_rcpp_mmutil_simulate_poisson(SEXP muSEXP, SEXP rhoSEXP, SEXP outputSEXP, SEXP r_indvSEXP, SEXP rseedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -404,7 +421,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::VectorXf >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const std::string >::type output(outputSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::IntegerVector> >::type r_indv(r_indvSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv));
+    Rcpp::traits::input_parameter< const std::size_t >::type rseed(rseedSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv, rseed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -430,7 +448,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_aggregate_pairwise", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate_pairwise, 17},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 18},
     {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 3},
-    {"_mmutilR_rcpp_mmutil_simulate_poisson", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson, 4},
+    {"_mmutilR_rcpp_mmutil_simulate_poisson_mixture", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson_mixture, 7},
+    {"_mmutilR_rcpp_mmutil_simulate_poisson", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson, 5},
     {NULL, NULL, 0}
 };
 

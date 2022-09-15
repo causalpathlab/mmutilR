@@ -2,14 +2,14 @@ Package: mmutilR
 Type: Package
 Title: Utility functions for Matrix Market-formatted data
 Version: 1.0.5
-Date: 2022-07-27
+Date: 2022-09-14
 Authors@R: c(person("Yongjin", "Park", role = c("aut", "cre"), email = "ypp@stat.ubc.ca"))
 Maintainer: Yongjin Park <ypp@stat.ubc.ca>
 Description: Single-cell sequencing data often come in a matrix market
   format, which consists of triplets in each line (row, column, value).
 License: MIT License
-Imports: Rcpp (>= 1.0.0)
-LinkingTo: Rcpp, RcppEigen, RcppProgress
+Imports: Rcpp, RcppEigen, RcppProgress, dqrng, sitmo, BH
+LinkingTo: Rcpp, RcppEigen, RcppProgress, dqrng, sitmo, BH
 Suggests: data.table
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

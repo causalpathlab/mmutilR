@@ -2,26 +2,29 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_mmutil_simulate_poisson}
 \alias{rcpp_mmutil_simulate_poisson}
-\title{Simulation Poisson data}
+\title{Simulation Poisson data based on Mu}
 \usage{
-rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv = NULL)
+rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv = NULL, rseed = 42L)
 }
 \arguments{
+\item{mu}{depth-adjusted mean matrix (M x n)}
+
+\item{rho}{column depth vector (N x 1), N= num. of cells}
+
 \item{output}{header for ${output}.{mtx.gz,cols.gz,indv.gz}}
 
 \item{r_indv}{N x 1 individual membership (1-based, \link{1 .. n})}
 
-\item{Mu}{depth-adjusted mean matrix (M x n), M= num. of features and n= num. of indv}
-
-\item{Rho}{column depth vector (N x 1), N= num. of cells}
+\item{rseed}{random seed}
 }
 \value{
 a list of file names: {output}.{mtx,rows,cols}.gz
 }
 \description{
-Simulation Poisson data
+M= num. of features and n= num. of indv
 }
 \examples{
+
 rr <- rgamma(20, 1, 1)
 mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
 data.hdr <- "test_sim"

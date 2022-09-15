@@ -9,9 +9,15 @@
 // [[Rcpp::depends(RcppProgress)]]
 
 // [[Rcpp::plugins(openmp)]]
-// no need to have this: #include <omp.h>
+#include <omp.h>
 
-// #include <progress.hpp>
+// [[Rcpp::depends(dqrng, sitmo, BH)]]
+#include <dqrng.h>
+#include <dqrng_distribution.h>
+#include <boost/random/binomial_distribution.hpp>
+#include <boost/random/poisson_distribution.hpp>
+#include <boost/random/gamma_distribution.hpp>
+#include <xoshiro.h>
 
 #include <iomanip>
 #include <iostream>

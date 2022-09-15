@@ -92,6 +92,9 @@ make.sc.deg <- function(file.header,
 #' @param n.causal.genes Y variables directly regulated by X
 #' @param pve.y.by.u0 proportion of variance of Y explained by U0
 #' @param n.u0 number of covariates on Y
+#' @param pve.u1.by.x proportion of variance of U1 explained by X
+#' @param pve.y.by.u1 proportion of variance of Y explained by U1
+#' @param n.u1 number of covariates on Y
 #' @param pve.interaction proportion of variance of Y explained by interaction
 #' @param n.interaction number of genes interacting with the causal genes
 #' @param n.genes total number of genes (Y variables)
@@ -126,6 +129,9 @@ make.sc.eqtl <- function(file.header,
                          n.causal.genes = 5,
                          pve.y.by.u0 = .3,
                          n.u0 = 3,
+                         pve.u1.by.x = .8,
+                         pve.y.by.u1 = .3,
+                         n.u1 = 3,
                          pve.interaction = 0.5,
                          n.interaction = 0,
                          n.genes = 50,
@@ -139,6 +145,9 @@ make.sc.eqtl <- function(file.header,
                                n.causal.genes = n.causal.genes,
                                pve.y.by.u0 = pve.y.by.u0,
                                n.u0 = n.u0,
+                               pve.u1.by.x = pve.u1.by.x,
+                               pve.y.by.u1 = pve.y.by.u1,
+                               n.u1 = n.u1,
                                pve.interaction = pve.interaction,
                                n.interaction = n.interaction,
                                n.genes = n.genes)
@@ -183,6 +192,9 @@ make.sc.eqtl <- function(file.header,
 #' @param n.causal.genes Y variables directly regulated by X
 #' @param pve.y.by.u0 proportion of variance of Y explained by U0
 #' @param n.u0 number of covariates on Y
+#' @param pve.u1.by.x proportion of variance of U1 explained by X
+#' @param pve.y.by.u1 proportion of variance of Y explained by U1
+#' @param n.u1 number of covariates on Y
 #' @param pve.interaction proportion of variance of Y explained by interaction
 #' @param n.interaction number of genes interacting with the causal genes
 #' @param n.genes total number of genes (Y variables)
@@ -196,6 +208,9 @@ simulate_indv_eqtl <- function(X, h2,
                                n.causal.genes,
                                pve.y.by.u0,
                                n.u0,
+                               pve.u1.by.x,
+                               pve.y.by.u1,
+                               n.u1,
                                pve.interaction,
                                n.interaction,
                                n.genes){
@@ -214,21 +229,21 @@ simulate_indv_eqtl <- function(X, h2,
         mat[, cols, drop = FALSE]
     }
 
+    n.ind <- nrow(X)
+
     causal.genes <- sample(n.genes, min(n.genes, n.causal.genes))
 
     n.causal.snps <- min(n.causal.snps, floor(ncol(X)/2))
     causal.snps <- sample(ncol(X), n.causal.snps)
 
-    ## sample from both causal and non-causal snps
-    n.samp <- ceiling(n.causal.snps/2)
     non.causal <- setdiff(1:ncol(X), causal.snps)
-    n.ind <- nrow(X)
+    u1.snps <- sample(non.causal, n.causal.snps)
 
     ######################
     ## check parameters ##
     ######################
 
-    pve.y.tot <- h2 + pve.y.by.u0
+    pve.y.tot <- h2 + pve.y.by.u0 + pve.y.by.u1
     stopifnot(pve.y.tot >= 0 & pve.y.tot <= 1)
 
     y.err <- .rnorm(n.ind, n.genes)
@@ -238,6 +253,17 @@ simulate_indv_eqtl <- function(X, h2,
     #############
     u0 <- .rnorm(n.ind, n.u0)
     y.by.u0 <- u0 %*% .rnorm(n.u0, n.genes)
+
+    #############
+    ## U1 -> Y ##
+    #############
+    xx <- X %c% u1.snps
+    xx[is.na(xx)] <- 0
+    .beta.u <- .rnorm(ncol(xx), n.u1)
+    u1 <- (.scale(.rnorm(n.ind, n.u1)) * sqrt(1 - pve.u1.by.x) +
+           .scale(xx %*% .beta.u) * sqrt(pve.u1.by.x))
+    .beta.yu <- .rnorm(ncol(u1), n.genes)
+    y.by.u1 <- u1 %*% .beta.yu
 
     ############
     ## X -> Y ##
@@ -258,26 +284,25 @@ simulate_indv_eqtl <- function(X, h2,
     xy <- .rnorm(n.causal.snps, n.causal.genes)
     y.by.x[, causal.genes] <- (xx.causal %*% xy)
 
-    ## stochastic version of Y
-    y.obs <- (.scale(y.by.x) * sqrt(h2) +
-              .scale(y.by.u0) * sqrt(pve.y.by.u0) +
-              .scale(y.err) * sqrt(1 - pve.y.tot))
-
     ## introduce interactions between genes
     if(n.interaction > 0) {
         non.causal <- setdiff(1:n.genes, causal.genes)
         interacting <- sample(non.causal, n.interaction)
-        y.to.y <- .rnorm(n.causal.genes, n.interaction)
-
-        y.obs[, interacting] <- .scale(y.obs %c% interacting) * sqrt(1 - pve.interaction)
-
-        y.obs[, interacting] <- .scale((y.obs %c% causal.genes) %*% y.to.y) * sqrt(pve.interaction)
+        y.to.y <- .rnorm(n.causal.genes, n.interaction)        
+        y.by.x[, interacting] <- (y.by.x %c% causal.genes) %*% y.to.y
     }
 
+    ## stochastic version of Y
+    y.obs <- (.scale(y.by.x) * sqrt(h2) +
+              .scale(y.by.u0) * sqrt(pve.y.by.u0) +
+              .scale(y.by.u1) * sqrt(pve.y.by.u1) +
+              .scale(y.err) * sqrt(1 - pve.y.tot))
+
     list(y = y.obs, x = X, y.true = y.by.x,
+         u1.snps = u1.snps,
          causal.snps = causal.snps,
          causal.genes = causal.genes,
-         u0 = u0)
+         u0 = u0, u1 = u1)
 }
 
 #' Simulate individual-level effects by GLM

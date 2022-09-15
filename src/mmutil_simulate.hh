@@ -4,9 +4,20 @@
 #include "mmutil.hh"
 #include "mmutil_index.hh"
 
-#include "stat.hh"
+// #include "stat.hh"
 #include "std_util.hh"
 #include "bgzstream.hh"
+
+// [[Rcpp::depends(dqrng, sitmo, BH)]]
+#include <dqrng.h>
+#include <dqrng_distribution.h>
+#include <boost/random/binomial_distribution.hpp>
+#include <boost/random/poisson_distribution.hpp>
+#include <boost/random/gamma_distribution.hpp>
+#include <boost/random/discrete_distribution.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <xoshiro.h>
 
 #ifndef MMUTIL_SIMULATE_HH_
 #define MMUTIL_SIMULATE_HH_
@@ -23,17 +34,20 @@
 /// col_offset: column index offset
 /// ofs: write out sparse triplets here
 /// returns number of non-zero elements
-template <typename OFS>
+template <typename OFS, typename RNG>
 Index
 sample_poisson_data(const Vec mu,
                     const Vec rho,
                     const Index col_offset,
                     OFS &ofs,
+                    RNG &rng,
                     const std::string FS = " ")
 {
     const Index num_cols = rho.size();
     const Index num_rows = mu.size();
 
+    using rpois_t = boost::random::poisson_distribution<int>;
+    // dqrng::xoshiro256plus rng;
     rpois_t rpois;
 
     Vec temp(num_rows);
@@ -43,8 +57,9 @@ sample_poisson_data(const Vec mu,
     for (Index j = 0; j < num_cols; ++j) {
         const Scalar r = rho(j);
 
-        temp = mu.unaryExpr(
-            [&r, &rpois](const Scalar &m) -> Scalar { return rpois(r * m); });
+        temp = mu.unaryExpr([&r, &rpois, &rng](const Scalar &m) -> Scalar {
+            return rpois(rng, rpois_t::param_type(r * m));
+        });
 
         const Index col = col_offset + j + 1; // one-based
 
