@@ -87,6 +87,7 @@ make.pine <- function(mtx.data,
                       .em.iter = 0,
                       .em.tol = 1e-4,
                       num.threads = 1,
+                      remove.dup = TRUE,
                       ...) {
 
     .input <- check.cocoa.input(mtx.data, celltype, cell2indv, NULL, celltype.mat)
@@ -124,40 +125,60 @@ make.pine <- function(mtx.data,
                                             ...)
 
     message("Finished PINE statistics preparation")
+
+    if(remove.dup){
+        .stat <- pine.remove.duplicated(.stat)
+        message("Removed duplicated pairs")
+    }
     return(.stat)
 }
 
 #' Check duplicated pairs of individuals in the matching results
 #' and take the nearest ones
 #' 
-#' @param .pine the whole result of `make.pine`
+#' @param input the whole result of `make.pine`
 #'
-#' @return filtered `.pine` results
+#' @return filtered `input` results
 #' 
 pine.remove.duplicated <- function(input){
 
-    require(data.table)
+    left <- pmin(input$knn$obs.index,
+                 input$knn$matched.index)
+    right <- pmax(input$knn$obs.index,
+                  input$knn$matched.index)
 
-    knn.dt <- data.table::setDT(copy(input$knn))
-    knn.dt$ii <- pmin(knn.dt$obs.index, knn.dt$matched.index)
-    knn.dt$jj <- pmax(knn.dt$obs.index, knn.dt$matched.index)
+    dd <- input$knn$dist
+    dd.order <- order(dd)
+    left.sorted <- left[dd.order]
+    right.sorted <- right[dd.order]
 
-    knn.out <- knn.dt[order(knn.dt$dist), head(.SD, 1), by=.(ii,jj)] 
+    ij <- paste0(left.sorted, ".", right.sorted)
+    ij.uniq <- unique(ij, fromLast=FALSE)
 
-    cols <- data.table::data.table(col = colnames(input$delta))
-    cols[, c("obs.name","matched.name","ct") := tstrsplit(cols$col,split="_")]
-    cols[, col.pos := 1:.N]
-    valid.dt <- merge(knn.out, cols, all.x=TRUE)
+    if(length(ij) == length(ij.uniq)){
+        warning("all the pairs are already unique")
+        return(input)
+    }
 
-    out <- input
+    message(paste0("reducing ", length(ij), " to ", length(ij.uniq)))
+
+    ij.pos <- match(ij.uniq, ij)
+    knn.pos <- dd.order[ij.pos]
+
+    output <- list()
     for(k in names(input)){
-        if(k != "knn"){
-            out[[k]] <- input[[k]][, valid.dt$col.pos, drop = FALSE]
+        if(k != "knn" && is.matrix(input[[k]])){
+            output[[k]] <- input[[k]][, knn.pos, drop = FALSE]
         }
     }
-    out[["knn"]] <- as.list(valid.dt)
 
-    return(out)
+    output[["knn"]] <- list()
+
+    for(k in names(input[["knn"]])){
+        output[["knn"]][[k]] <- input[["knn"]][[k]][knn.pos]
+    }
+
+    return(output)
 }
 
 #' Counterfactual confounder adjustment for individual-level

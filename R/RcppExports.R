@@ -58,27 +58,6 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #'
 #' @return a list of (1) factors.adjusted (2) U (3) D (4) V
 #'
-#' @examples
-#' ## Generate some data
-#' set.seed(1)
-#' .sim <- mmutilR::simulate_gamma_glm(nind = 5, ncell.ind = 1000)
-#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-#'                                               .sim$rho,
-#'                                               "sim_test")
-#' .ind <- read.table(.dat$indv)
-#' .col <- unlist(read.table(.dat$col))
-#' .ind <- .ind[match(.col, .ind$V1), ]
-#' .bbknn <- mmutilR::rcpp_mmutil_bbknn_pca(.dat$mtx,
-#'                   r_batches = .ind$V2,
-#'                   knn = 10, RANK = 3, TAKE_LN = TRUE)
-#' plot(.bbknn$V[, 1], .bbknn$V[, 2], col = .ind$V2,
-#'      xlab = "PC1", ylab = "PC2", main = "no BBKNN")
-#' plot(.bbknn$factors.adjusted[, 1], .bbknn$factors.adjusted[, 2],
-#'      col = .ind$V2,
-#'      xlab = "PC1 (BBKNN)", ylab = "PC2 (BBKNN)")
-#' ## clean up temp directory
-#' unlink(list.files(pattern = "sim_test"))
-#'
 rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
     .Call('_mmutilR_rcpp_mmutil_bbknn_pca', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
 }
@@ -443,20 +422,6 @@ rcpp_mmutil_network_edge_cluster <- function(mtx_file, row_file, col_file, outpu
 #'
 #' @return feature.incidence, sample.incidence, edges, adjacency matrix files
 #'
-#' @examples
-#' ## Generate some data
-#' set.seed(1)
-#' .sim <- mmutilR::simulate_gamma_glm(nind = 3, ncell.ind = 10, ngene = 20)
-#' .dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-#'                                               .sim$rho,
-#'                                               "sim_test")
-#' .data <- mmutilR::rcpp_mmutil_network_topic_data(.dat$mtx,
-#'                   knn = 3, output = "net_data",
-#'                   RANK = 3, TAKE_LN = TRUE)
-#' ## clean up temp directory
-#' unlink(list.files(pattern = "sim_test"))
-#' unlink(list.files(pattern = "net_data"))
-#'
 rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2, WEIGHTED = FALSE, MAXW = 1, col_file = "", row_file = "", r_batches = NULL, r_U = NULL, r_D = NULL, r_V = NULL, RANK = 0L, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L) {
     .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, knn, output, CUTOFF, WEIGHTED, MAXW, col_file, row_file, r_batches, r_U, r_D, r_V, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS)
 }
@@ -482,59 +447,6 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' @param NUM_THREADS number of threads for multi-core processing
 #'
 #' @return a list of inference results
-#'
-#' @examples
-#' options(stringsAsFactors = FALSE)
-#' unlink(list.files(pattern = "sim_test"))
-#' .sim <- simulate_indv_glm()
-#' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-#'                                              .sim$rho,
-#'                                              "sim_test")
-#'
-#' .annot <- read.table(.dat$indv,
-#'                      col.names = c("col", "ind"))
-#' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
-#' .annot$ct <- "ct1"
-#'
-#' ## simple PCA
-#' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
-#'
-#' .agg <- rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
-#'                                                 row_file = .dat$row,
-#'                                                 col_file = .dat$col,
-#'                                                 r_indv = .annot$ind,
-#'                                                 r_V = .pca$V,
-#'                                                 r_annot = .annot$ct,
-#'                                                 r_lab_name = "ct1",
-#'                                                 knn_cell = 50,
-#'                                                 knn_indv = 3)
-#'
-#' .names <- lapply(colnames(.agg$delta), strsplit, split="[_]")
-#' .names <- lapply(.names, function(x) unlist(x))
-#' .pairs <- data.frame(do.call(rbind, .names), stringsAsFactors=FALSE)
-#' colnames(.pairs) <- c("src","tgt","ct")
-#'
-#' w.src <- .sim$W[as.integer(.pairs$src)]
-#' w.tgt <- .sim$W[as.integer(.pairs$tgt)]
-#' w.delta <- w.src - w.tgt
-#'
-#' .agg$delta[.agg$delta < 0] <- NA
-#'
-#' par(mfrow=c(2,length(.sim$causal)))
-#' for(k in .sim$causal){
-#'     boxplot(.agg$delta[k, w.delta<0],
-#'             .agg$delta[k, w.delta == 0],
-#'             .agg$delta[k, w.delta>0])
-#' }
-#' non.causal <- setdiff(1:nrow(.sim$obs.mu),
-#'               .sim$causal)
-#' for(k in sample(non.causal,length(.sim$causal))){
-#'     boxplot(.agg$delta[k, w.delta<0],
-#'             .agg$delta[k, w.delta == 0],
-#'             .agg$delta[k, w.delta>0])
-#' }
-#' ## clean up temp directory
-#' unlink(list.files(pattern = "sim_test"))
 #'
 rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn_cell = 10L, knn_indv = 1L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
     .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
@@ -562,77 +474,6 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 #'
 #' @return a list of inference results
-#'
-#' @examples
-#' options(stringsAsFactors = FALSE)
-#' ## combine two different mu matrices
-#' set.seed(1)
-#' rr <- rgamma(1000, 1, 1) # 1000 cells
-#' mm.1 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-#' mm.1[1:10, ] <- rgamma(5, 1, .1)
-#' mm.2 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-#' mm.2[11:20, ] <- rgamma(5, 1, .1)
-#' mm <- cbind(mm.1, mm.2)
-#' dat <- rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
-#' rows <- read.table(dat$row)$V1
-#' cols <- read.table(dat$col)$V1
-#' ## marker feature
-#' markers <- list(
-#'   annot.1 = list(
-#'     ct1 = rows[1:10],
-#'     ct2 = rows[11:20]
-#'   )
-#' )
-#' ## annotation on the MTX file
-#' out <- rcpp_mmutil_annotate_columns(
-#'        row_file = dat$row, col_file = dat$col,
-#'        mtx_file = dat$mtx, pos_labels = markers)
-#' annot <- out$annotation
-#' ## prepare column to individual
-#' .ind <- read.table(dat$indv, col.names = c("col", "ind"))
-#' .annot.ind <- .ind$ind[match(annot$col, .ind$col)]
-#' ## aggregate
-#' agg <- rcpp_mmutil_aggregate(mtx_file = dat$mtx,
-#'                                       row_file = dat$row,
-#'                                       col_file = dat$col,
-#'                                       r_cols = annot$col,
-#'                                       r_indv = .annot.ind,
-#'                                       r_annot = annot$argmax,
-#'                                       r_lab_name = c("ct1", "ct2"))
-#' ## show average marker features
-#' print(round(agg$mean[1:20, ]))
-#' unlink(list.files(pattern = "sim_test"))
-#' ## Case-control simulation
-#' .sim <- simulate_indv_glm()
-#' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-#'                                              .sim$rho,
-#'                                              "sim_test")
-#' ## find column-wise annotation
-#' .annot <- read.table(.dat$indv,
-#'                      col.names = c("col", "ind"))
-#' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
-#' .annot$ct <- "ct1"
-#' ## simple PCA
-#' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
-#' .agg <- rcpp_mmutil_aggregate(mtx_file = .dat$mtx,
-#'                                        row_file = .dat$row,
-#'                                        col_file = .dat$col,
-#'                                        r_cols = .annot$col,
-#'                                        r_indv = .annot$ind,
-#'                                        r_annot = .annot$ct,
-#'                                        r_lab_name = "ct1",
-#'                                        r_trt = .annot$trt,
-#'                                        r_V = .pca$V,
-#'                                        knn = 50,
-#'                                        IMPUTE_BY_KNN = TRUE)
-#' par(mfrow=c(1,3))
-#' for(k in sample(.sim$causal, 3)) {
-#'     y0 <- .agg$resid.mu[k, .sim$W == 0]
-#'     y1 <- .agg$resid.mu[k, .sim$W == 1]
-#'     boxplot(y0, y1)
-#' }
-#' ## clean up temp directory
-#' unlink(list.files(pattern = "sim_test"))
 #'
 rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = TRUE) {
     .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_annot_mat, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
@@ -687,18 +528,6 @@ rcpp_mmutil_simulate_poisson_mixture <- function(r_mu_list, Ncell, output, dir_a
 #' @param rseed random seed
 #'
 #' @return a list of file names: {output}.{mtx,rows,cols}.gz
-#'
-#' @examples
-#'
-#' rr <- rgamma(20, 1, 1)
-#' mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
-#' data.hdr <- "test_sim"
-#' .files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, data.hdr)
-#' Y <- Matrix::readMM(.files$mtx)
-#' print(Y)
-#' A <- read.table(.files$indv, col.names = c("col", "ind"))
-#' head(A)
-#' unlink(list.files(pattern = data.hdr))
 #'
 rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL, rseed = 42L) {
     .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output, r_indv, rseed)

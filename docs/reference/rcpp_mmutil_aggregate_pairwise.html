@@ -44,25 +44,25 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rcpp_mmutil_aggregate_pairwise</span><span class="op">(</span></span>
-<span>  <span class="va">mtx_file</span>,</span>
-<span>  <span class="va">row_file</span>,</span>
-<span>  <span class="va">col_file</span>,</span>
-<span>  <span class="va">r_indv</span>,</span>
-<span>  <span class="va">r_V</span>,</span>
-<span>  r_cols <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  r_annot <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  r_annot_mat <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  r_lab_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  a0 <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  b0 <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  eps <span class="op">=</span> <span class="fl">1e-08</span>,</span>
-<span>  knn_cell <span class="op">=</span> <span class="fl">10L</span>,</span>
-<span>  knn_indv <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>  KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,</span>
-<span>  KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,</span>
-<span>  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">rcpp_mmutil_aggregate_pairwise</span><span class="op">(</span>
+  <span class="va">mtx_file</span>,
+  <span class="va">row_file</span>,
+  <span class="va">col_file</span>,
+  <span class="va">r_indv</span>,
+  <span class="va">r_V</span>,
+  r_cols <span class="op">=</span> <span class="cn">NULL</span>,
+  r_annot <span class="op">=</span> <span class="cn">NULL</span>,
+  r_annot_mat <span class="op">=</span> <span class="cn">NULL</span>,
+  r_lab_name <span class="op">=</span> <span class="cn">NULL</span>,
+  a0 <span class="op">=</span> <span class="fl">1</span>,
+  b0 <span class="op">=</span> <span class="fl">1</span>,
+  eps <span class="op">=</span> <span class="fl">1e-08</span>,
+  knn_cell <span class="op">=</span> <span class="fl">10L</span>,
+  knn_indv <span class="op">=</span> <span class="fl">1L</span>,
+  KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,
+  KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,
+  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -142,63 +142,6 @@
 <p>a list of inference results</p>
     </div>
 
-    <div id="ref-examples">
-    <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"sim_test"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">.sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_indv_glm.html">simulate_indv_glm</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">.dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="rcpp_mmutil_simulate_poisson.html">rcpp_mmutil_simulate_poisson</a></span><span class="op">(</span><span class="va">.sim</span><span class="op">$</span><span class="va">obs.mu</span>,</span></span>
-<span class="r-in"><span>                                             <span class="va">.sim</span><span class="op">$</span><span class="va">rho</span>,</span></span>
-<span class="r-in"><span>                                             <span class="st">"sim_test"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">.annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">.dat</span><span class="op">$</span><span class="va">indv</span>,</span></span>
-<span class="r-in"><span>                     col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"col"</span>, <span class="st">"ind"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">.annot</span><span class="op">$</span><span class="va">trt</span> <span class="op">&lt;-</span> <span class="va">.sim</span><span class="op">$</span><span class="va">W</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">.annot</span><span class="op">$</span><span class="va">ind</span>, <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">.sim</span><span class="op">$</span><span class="va">W</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">.annot</span><span class="op">$</span><span class="va">ct</span> <span class="op">&lt;-</span> <span class="st">"ct1"</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## simple PCA</span></span></span>
-<span class="r-in"><span><span class="va">.pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="rcpp_mmutil_pca.html">rcpp_mmutil_pca</a></span><span class="op">(</span><span class="va">.dat</span><span class="op">$</span><span class="va">mtx</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">.agg</span> <span class="op">&lt;-</span> <span class="fu">rcpp_mmutil_aggregate_pairwise</span><span class="op">(</span>mtx_file <span class="op">=</span> <span class="va">.dat</span><span class="op">$</span><span class="va">mtx</span>,</span></span>
-<span class="r-in"><span>                                                row_file <span class="op">=</span> <span class="va">.dat</span><span class="op">$</span><span class="va">row</span>,</span></span>
-<span class="r-in"><span>                                                col_file <span class="op">=</span> <span class="va">.dat</span><span class="op">$</span><span class="va">col</span>,</span></span>
-<span class="r-in"><span>                                                r_indv <span class="op">=</span> <span class="va">.annot</span><span class="op">$</span><span class="va">ind</span>,</span></span>
-<span class="r-in"><span>                                                r_V <span class="op">=</span> <span class="va">.pca</span><span class="op">$</span><span class="va">V</span>,</span></span>
-<span class="r-in"><span>                                                r_annot <span class="op">=</span> <span class="va">.annot</span><span class="op">$</span><span class="va">ct</span>,</span></span>
-<span class="r-in"><span>                                                r_lab_name <span class="op">=</span> <span class="st">"ct1"</span>,</span></span>
-<span class="r-in"><span>                                                knn_cell <span class="op">=</span> <span class="fl">50</span>,</span></span>
-<span class="r-in"><span>                                                knn_indv <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">)</span>, <span class="va">strsplit</span>, split<span class="op">=</span><span class="st">"[_]"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">.names</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">.pairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">.names</span><span class="op">)</span>, stringsAsFactors<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">.pairs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"src"</span>,<span class="st">"tgt"</span>,<span class="st">"ct"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">w.src</span> <span class="op">&lt;-</span> <span class="va">.sim</span><span class="op">$</span><span class="va">W</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">.pairs</span><span class="op">$</span><span class="va">src</span><span class="op">)</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">w.tgt</span> <span class="op">&lt;-</span> <span class="va">.sim</span><span class="op">$</span><span class="va">W</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">.pairs</span><span class="op">$</span><span class="va">tgt</span><span class="op">)</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">w.delta</span> <span class="op">&lt;-</span> <span class="va">w.src</span> <span class="op">-</span> <span class="va">w.tgt</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">.agg</span><span class="op">$</span><span class="va">delta</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">.sim</span><span class="op">$</span><span class="va">causal</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="kw">for</span><span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="va">.sim</span><span class="op">$</span><span class="va">causal</span><span class="op">)</span><span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="va">w.delta</span><span class="op">&lt;</span><span class="fl">0</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>            <span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="va">w.delta</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>            <span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="va">w.delta</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span><span class="va">non.causal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">.sim</span><span class="op">$</span><span class="va">obs.mu</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>              <span class="va">.sim</span><span class="op">$</span><span class="va">causal</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="kw">for</span><span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">non.causal</span>,<span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">.sim</span><span class="op">$</span><span class="va">causal</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="va">w.delta</span><span class="op">&lt;</span><span class="fl">0</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>            <span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="va">w.delta</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span>,</span></span>
-<span class="r-in"><span>            <span class="va">.agg</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="va">w.delta</span><span class="op">&gt;</span><span class="fl">0</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-plt img"><img src="rcpp_mmutil_aggregate_pairwise-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co">## clean up temp directory</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"sim_test"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

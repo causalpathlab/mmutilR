@@ -42,8 +42,8 @@ make.sc.deg <- function(file.header,
                         nind = 40,
                         ngene = 1000,
                         ncausal = 5,
-                        ncovar.conf = 1,
-                        ncovar.batch = 3,
+                        ncovar.conf = 3,
+                        ncovar.batch = 0,
                         ncell.ind = 10,
                         pve.1 = 0.3,
                         pve.c = 0.5,
@@ -58,19 +58,22 @@ make.sc.deg <- function(file.header,
                               ncausal,
                               ncovar.conf,
                               ncovar.batch,
-                              ncell.ind,
                               pve.1,
                               pve.c,
                               pve.a,
-                              rho.a,
-                              rho.b,
                               rseed,
                               exposure.type)
+
+    ######################
+    ## sequencing depth ##
+    ######################
+
+    rr <- rgamma(ncell.ind * nn, shape=rho.a, scale=1/rho.b)
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
 
     .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-                                         .sim$rho,
+                                         rr,
                                          file.header)
 
     list(indv = .sim, data = .dat)
@@ -201,8 +204,6 @@ make.sc.eqtl <- function(file.header,
 #'
 #' @return simulation results
 #'
-#' @details
-#'
 simulate_indv_eqtl <- function(X, h2,
                                n.causal.snps,
                                n.causal.genes,
@@ -312,26 +313,20 @@ simulate_indv_eqtl <- function(X, h2,
 #' @param ncausal num of causal genes
 #' @param ncovar.conf num of confounding covariates
 #' @param ncovar.batch num of confounding batch variables
-#' @param ncell.ind num of cells per individual
 #' @param pve.1 variance of treatment/disease effect
 #' @param pve.c variance of confounding effect
 #' @param pve.a variance of confounders to the assignment
-#' @param rho.a rho ~ gamma(a, b)
-#' @param rho.b rho ~ gamma(a, b)
 #' @param rseed random seed
 #' @param exposure.type "binary" or "continuous"
 #'
 simulate_indv_glm <- function(nind = 40,
                               ngene = 1000,
                               ncausal = 5,
-                              ncovar.conf = 1,
-                              ncovar.batch = 3,
-                              ncell.ind = 10,
+                              ncovar.conf = 3,
+                              ncovar.batch = 0,
                               pve.1 = 0.3,
                               pve.c = 0.5,
                               pve.a = 0.5,
-                              rho.a = 2,
-                              rho.b = 2,
                               rseed = 13,
                               exposure.type = c("binary","continuous")){
 
@@ -339,6 +334,7 @@ simulate_indv_glm <- function(nind = 40,
 
     set.seed(rseed)
     stopifnot((pve.1 + pve.c) < 1)
+    ## stopifnot((ncovar.conf + ncovar.batch) > 0)
 
     ## simple concat
     `%&%` <- function(a,b) {
@@ -376,11 +372,11 @@ simulate_indv_glm <- function(nind = 40,
     }
 
     ## sample model parameters
-    ##  nind number of individuals/samples
-    ##  ncovar.conf number of covar shared
-    ##  ncovar.batch number of covar on mu, batch effect
-    ##  ngenes number of genes/features
-    ##  ncausal number of causal genes
+    ## - nind number of individuals/samples
+    ## - ncovar.conf number of covar shared
+    ## - ncovar.batch number of covar on mu, batch effect
+    ## - ngenes number of genes/features
+    ## - ncausal number of causal genes
     sample.seed.data <- function(nind, ncovar.conf, ncovar.batch, pve) {
 
         if(ncovar.conf > 0) {
@@ -478,18 +474,9 @@ simulate_indv_glm <- function(nind = 40,
 
     clean.mu <- exp(clean.ln.mu)
 
-    ######################
-    ## sequencing depth ##
-    ######################
-
-    rr <- rgamma(ncell.ind * nn, shape=rho.a, scale=1/rho.b)
-
-    cells <- 1:length(rr)
-
     list(obs.mu = t(mu),
          clean.mu = t(clean.mu),
          X = t(xx),
          W = ww,
-         rho = rr,
          causal = sort(causal))
 }

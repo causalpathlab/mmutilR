@@ -8,14 +8,11 @@ simulate_indv_glm(
   nind = 40,
   ngene = 1000,
   ncausal = 5,
-  ncovar.conf = 1,
-  ncovar.batch = 3,
-  ncell.ind = 10,
+  ncovar.conf = 3,
+  ncovar.batch = 0,
   pve.1 = 0.3,
   pve.c = 0.5,
   pve.a = 0.5,
-  rho.a = 2,
-  rho.b = 2,
   rseed = 13,
   exposure.type = c("binary", "continuous")
 )
@@ -31,17 +28,11 @@ simulate_indv_glm(
 
 \item{ncovar.batch}{num of confounding batch variables}
 
-\item{ncell.ind}{num of cells per individual}
-
 \item{pve.1}{variance of treatment/disease effect}
 
 \item{pve.c}{variance of confounding effect}
 
 \item{pve.a}{variance of confounders to the assignment}
-
-\item{rho.a}{rho ~ gamma(a, b)}
-
-\item{rho.b}{rho ~ gamma(a, b)}
 
 \item{rseed}{random seed}
 

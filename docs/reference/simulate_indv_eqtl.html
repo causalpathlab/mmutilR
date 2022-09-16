@@ -44,18 +44,20 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulate_indv_eqtl</span><span class="op">(</span></span>
-<span>  <span class="va">X</span>,</span>
-<span>  <span class="va">h2</span>,</span>
-<span>  <span class="va">pve.u1.by.x</span>,</span>
-<span>  <span class="va">pve.y.by.u1</span>,</span>
-<span>  <span class="va">pve.y.by.u0</span>,</span>
-<span>  <span class="va">n.causal.snps</span>,</span>
-<span>  <span class="va">n.causal.genes</span>,</span>
-<span>  <span class="va">n.u1</span>,</span>
-<span>  <span class="va">n.u0</span>,</span>
-<span>  <span class="va">n.genes</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">simulate_indv_eqtl</span><span class="op">(</span>
+  <span class="va">X</span>,
+  <span class="va">h2</span>,
+  <span class="va">n.causal.snps</span>,
+  <span class="va">n.causal.genes</span>,
+  <span class="va">pve.y.by.u0</span>,
+  <span class="va">n.u0</span>,
+  <span class="va">pve.u1.by.x</span>,
+  <span class="va">pve.y.by.u1</span>,
+  <span class="va">n.u1</span>,
+  <span class="va">pve.interaction</span>,
+  <span class="va">n.interaction</span>,
+  <span class="va">n.genes</span>
+<span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -68,32 +70,40 @@
 <dd><p>heritability (proportion of variance of Y explained by genetic X)</p></dd>
 
 
-<dt>pve.u1.by.x</dt>
-<dd><p>(proportion of variance of U1 explained by X)</p></dd>
-
-
-<dt>pve.y.by.u1</dt>
-<dd><p>(proportion of variance of Y explained by U1)</p></dd>
-
-
-<dt>pve.y.by.u0</dt>
-<dd><p>(proportion of variance of Y explained by U0)</p></dd>
-
-
 <dt>n.causal.snps</dt>
-<dd><p>#(X directly affecting on Y)</p></dd>
+<dd><p>X variables directly affecting on Y</p></dd>
 
 
 <dt>n.causal.genes</dt>
-<dd><p>#(Y regulated by X)</p></dd>
+<dd><p>Y variables directly regulated by X</p></dd>
 
 
-<dt>n.u1</dt>
-<dd><p>#(U1 variables)</p></dd>
+<dt>pve.y.by.u0</dt>
+<dd><p>proportion of variance of Y explained by U0</p></dd>
 
 
 <dt>n.u0</dt>
-<dd><p>#(U0 variables)</p></dd>
+<dd><p>number of covariates on Y</p></dd>
+
+
+<dt>pve.u1.by.x</dt>
+<dd><p>proportion of variance of U1 explained by X</p></dd>
+
+
+<dt>pve.y.by.u1</dt>
+<dd><p>proportion of variance of Y explained by U1</p></dd>
+
+
+<dt>n.u1</dt>
+<dd><p>number of covariates on Y</p></dd>
+
+
+<dt>pve.interaction</dt>
+<dd><p>proportion of variance of Y explained by interaction</p></dd>
+
+
+<dt>n.interaction</dt>
+<dd><p>number of genes interacting with the causal genes</p></dd>
 
 
 <dt>n.genes</dt>
@@ -106,12 +116,6 @@
 
 <p>simulation results</p>
     </div>
-    <div id="details">
-    <h2>Details</h2>
-    <p>Possible confounding effect model:</p><ul><li><p>X -&gt; U1 -&gt; Y : harmful if U1 was adjusted (epigenetics, gene regulation, trans-effects)</p></li>
-<li><p>U0 -&gt; Y : okay to adjust to boost the power (demographic variables, environments)</p></li>
-</ul><p>Another rare possibility (we don't consider here):</p><ul><li><p>X -&gt; Y -&gt; Z : harmful if Z was adjusted (downstream phenotypes mediated by genes)</p></li>
-</ul></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

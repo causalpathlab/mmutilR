@@ -38,59 +38,6 @@
 //'
 //' @return a list of inference results
 //'
-//' @examples
-//' options(stringsAsFactors = FALSE)
-//' unlink(list.files(pattern = "sim_test"))
-//' .sim <- simulate_indv_glm()
-//' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-//'                                              .sim$rho,
-//'                                              "sim_test")
-//'
-//' .annot <- read.table(.dat$indv,
-//'                      col.names = c("col", "ind"))
-//' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
-//' .annot$ct <- "ct1"
-//'
-//' ## simple PCA
-//' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
-//'
-//' .agg <- rcpp_mmutil_aggregate_pairwise(mtx_file = .dat$mtx,
-//'                                                 row_file = .dat$row,
-//'                                                 col_file = .dat$col,
-//'                                                 r_indv = .annot$ind,
-//'                                                 r_V = .pca$V,
-//'                                                 r_annot = .annot$ct,
-//'                                                 r_lab_name = "ct1",
-//'                                                 knn_cell = 50,
-//'                                                 knn_indv = 3)
-//'
-//' .names <- lapply(colnames(.agg$delta), strsplit, split="[_]")
-//' .names <- lapply(.names, function(x) unlist(x))
-//' .pairs <- data.frame(do.call(rbind, .names), stringsAsFactors=FALSE)
-//' colnames(.pairs) <- c("src","tgt","ct")
-//'
-//' w.src <- .sim$W[as.integer(.pairs$src)]
-//' w.tgt <- .sim$W[as.integer(.pairs$tgt)]
-//' w.delta <- w.src - w.tgt
-//'
-//' .agg$delta[.agg$delta < 0] <- NA
-//'
-//' par(mfrow=c(2,length(.sim$causal)))
-//' for(k in .sim$causal){
-//'     boxplot(.agg$delta[k, w.delta<0],
-//'             .agg$delta[k, w.delta == 0],
-//'             .agg$delta[k, w.delta>0])
-//' }
-//' non.causal <- setdiff(1:nrow(.sim$obs.mu),
-//'               .sim$causal)
-//' for(k in sample(non.causal,length(.sim$causal))){
-//'     boxplot(.agg$delta[k, w.delta<0],
-//'             .agg$delta[k, w.delta == 0],
-//'             .agg$delta[k, w.delta>0])
-//' }
-//' ## clean up temp directory
-//' unlink(list.files(pattern = "sim_test"))
-//'
 // [[Rcpp::export]]
 Rcpp::List
 rcpp_mmutil_aggregate_pairwise(
@@ -402,77 +349,6 @@ rcpp_mmutil_aggregate_pairwise(
 //' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 //'
 //' @return a list of inference results
-//'
-//' @examples
-//' options(stringsAsFactors = FALSE)
-//' ## combine two different mu matrices
-//' set.seed(1)
-//' rr <- rgamma(1000, 1, 1) # 1000 cells
-//' mm.1 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-//' mm.1[1:10, ] <- rgamma(5, 1, .1)
-//' mm.2 <- matrix(rgamma(100 * 3, 1, 1), 100, 3)
-//' mm.2[11:20, ] <- rgamma(5, 1, .1)
-//' mm <- cbind(mm.1, mm.2)
-//' dat <- rcpp_mmutil_simulate_poisson(mm, rr, "sim_test")
-//' rows <- read.table(dat$row)$V1
-//' cols <- read.table(dat$col)$V1
-//' ## marker feature
-//' markers <- list(
-//'   annot.1 = list(
-//'     ct1 = rows[1:10],
-//'     ct2 = rows[11:20]
-//'   )
-//' )
-//' ## annotation on the MTX file
-//' out <- rcpp_mmutil_annotate_columns(
-//'        row_file = dat$row, col_file = dat$col,
-//'        mtx_file = dat$mtx, pos_labels = markers)
-//' annot <- out$annotation
-//' ## prepare column to individual
-//' .ind <- read.table(dat$indv, col.names = c("col", "ind"))
-//' .annot.ind <- .ind$ind[match(annot$col, .ind$col)]
-//' ## aggregate
-//' agg <- rcpp_mmutil_aggregate(mtx_file = dat$mtx,
-//'                                       row_file = dat$row,
-//'                                       col_file = dat$col,
-//'                                       r_cols = annot$col,
-//'                                       r_indv = .annot.ind,
-//'                                       r_annot = annot$argmax,
-//'                                       r_lab_name = c("ct1", "ct2"))
-//' ## show average marker features
-//' print(round(agg$mean[1:20, ]))
-//' unlink(list.files(pattern = "sim_test"))
-//' ## Case-control simulation
-//' .sim <- simulate_indv_glm()
-//' .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-//'                                              .sim$rho,
-//'                                              "sim_test")
-//' ## find column-wise annotation
-//' .annot <- read.table(.dat$indv,
-//'                      col.names = c("col", "ind"))
-//' .annot$trt <- .sim$W[match(.annot$ind, 1:length(.sim$W))]
-//' .annot$ct <- "ct1"
-//' ## simple PCA
-//' .pca <- rcpp_mmutil_pca(.dat$mtx, 10)
-//' .agg <- rcpp_mmutil_aggregate(mtx_file = .dat$mtx,
-//'                                        row_file = .dat$row,
-//'                                        col_file = .dat$col,
-//'                                        r_cols = .annot$col,
-//'                                        r_indv = .annot$ind,
-//'                                        r_annot = .annot$ct,
-//'                                        r_lab_name = "ct1",
-//'                                        r_trt = .annot$trt,
-//'                                        r_V = .pca$V,
-//'                                        knn = 50,
-//'                                        IMPUTE_BY_KNN = TRUE)
-//' par(mfrow=c(1,3))
-//' for(k in sample(.sim$causal, 3)) {
-//'     y0 <- .agg$resid.mu[k, .sim$W == 0]
-//'     y1 <- .agg$resid.mu[k, .sim$W == 1]
-//'     boxplot(y0, y1)
-//' }
-//' ## clean up temp directory
-//' unlink(list.files(pattern = "sim_test"))
 //'
 // [[Rcpp::export]]
 Rcpp::List

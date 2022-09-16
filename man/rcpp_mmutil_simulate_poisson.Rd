@@ -23,16 +23,3 @@ a list of file names: {output}.{mtx,rows,cols}.gz
 \description{
 M= num. of features and n= num. of indv
 }
-\examples{
-
-rr <- rgamma(20, 1, 1)
-mm <- matrix(rgamma(10 * 2, 1, 1), 10, 2)
-data.hdr <- "test_sim"
-.files <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, data.hdr)
-Y <- Matrix::readMM(.files$mtx)
-print(Y)
-A <- read.table(.files$indv, col.names = c("col", "ind"))
-head(A)
-unlink(list.files(pattern = data.hdr))
-
-}

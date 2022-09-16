@@ -50,6 +50,3 @@ simulation results
 \description{
 Simulate individual-level eQTL data
 }
-\details{
-
-}

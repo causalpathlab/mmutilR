@@ -34,6 +34,9 @@
     <loc>/reference/make.sc.eqtl.html</loc>
   </url>
   <url>
+    <loc>/reference/pine.remove.duplicated.html</loc>
+  </url>
+  <url>
     <loc>/reference/rcpp_annotate_columns.html</loc>
   </url>
   <url>
@@ -119,6 +122,9 @@
   </url>
   <url>
     <loc>/reference/rcpp_mmutil_simulate_poisson.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rcpp_mmutil_simulate_poisson_mixture.html</loc>
   </url>
   <url>
     <loc>/reference/rcpp_mmutil_write_mtx.html</loc>

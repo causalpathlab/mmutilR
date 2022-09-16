@@ -79,18 +79,3 @@ feature.incidence, sample.incidence, edges, adjacency matrix files
 \description{
 Construct a kNN cell-cell interaction network and identify gene topics
 }
-\examples{
-## Generate some data
-set.seed(1)
-.sim <- mmutilR::simulate_gamma_glm(nind = 3, ncell.ind = 10, ngene = 20)
-.dat <- mmutilR::rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-                                              .sim$rho,
-                                              "sim_test")
-.data <- mmutilR::rcpp_mmutil_network_topic_data(.dat$mtx,
-                  knn = 3, output = "net_data",
-                  RANK = 3, TAKE_LN = TRUE)
-## clean up temp directory
-unlink(list.files(pattern = "sim_test"))
-unlink(list.files(pattern = "net_data"))
-
-}

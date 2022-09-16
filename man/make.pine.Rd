@@ -19,6 +19,7 @@ make.pine(
   .em.iter = 0,
   .em.tol = 1e-04,
   num.threads = 1,
+  remove.dup = TRUE,
   ...
 )
 }
