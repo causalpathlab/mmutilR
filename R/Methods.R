@@ -362,20 +362,18 @@ check.cocoa.input <- function(mtx.data,
     cells <- readLines(mtx.data$col)
     ncells <- length(cells)
 
-    .match.cells <- function(dict) {
-        .order <- match(cells, unlist(dict[,1]))
+    .match <- function(dict, .cells) {
+        .order <- match(.cells, unlist(dict[,1]))
         out <- as.character(unlist(dict[.order,2]))
         out[is.na(out)] <- "NA"
         return(out)
     }
-    individuals <- .match.cells(cell2indv)
+    individuals <- .match(cell2indv, cells)
 
     if(is.null(indv2exp)){
         treatments <- NULL
     } else {
-        .order <- match(individuals, indv2exp[,1])
-        treatments <- as.character(indv2exp[.order, 2])
-        treatments[is.na(treatments)] <- "NA"
+        treatments <- .match(indv2exp, individuals) 
     }
     #############################
     ## match cell -> cell type ##
@@ -392,7 +390,7 @@ check.cocoa.input <- function(mtx.data,
         if(length(celltype) == 1) {
             celltype.vec <- rep(celltype, ncells)
         } else if(ncol(celltype) > 1) {
-            celltype.vec <- .match.cells(celltype)
+            celltype.vec <- .match(celltype, cells)
         }
     }
     stopifnot(length(celltype.vec) == ncells)
