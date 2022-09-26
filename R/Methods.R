@@ -362,9 +362,13 @@ check.cocoa.input <- function(mtx.data,
     cells <- readLines(mtx.data$col)
     ncells <- length(cells)
 
-    .order <- match(cells, cell2indv[,1])
-    individuals <- as.character(cell2indv[.order, 2])
-    individuals[is.na(individuals)] <- "NA"
+    .match.cells <- function(dict) {
+        .order <- match(cells, dict[,1])
+        out <- as.character(dict[.order, 2])
+        out[is.na(out)] <- "NA"
+        return(out)
+    }
+    individuals <- .match.cells(cell2indv)
 
     if(is.null(indv2exp)){
         treatments <- NULL
@@ -376,9 +380,7 @@ check.cocoa.input <- function(mtx.data,
     #############################
     ## match cell -> cell type ##
     #############################
-    if(length(celltype) == 1) {
-        celltype.vec <- rep(celltype, ncells)
-    } else if(is.matrix(celltype.mat)){
+    if(is.matrix(celltype.mat)){
         ## use probabilistic assignment matrix
         celltype.lab <- colnames(celltype.mat)
         if(is.null(celltype.lab)){
@@ -386,8 +388,13 @@ check.cocoa.input <- function(mtx.data,
         }
         stopifnot(nrow(celltype.mat) == ncells)
         celltype.vec <- NULL
+    } else {
+        if(length(celltype) == 1) {
+            celltype.vec <- rep(celltype, ncells)
+        } else if(ncol(celltype) > 1) {
+            celltype.vec <- .match.cells(celltype)
+        }
     }
-
     stopifnot(length(celltype.vec) == ncells)
     celltype.lab = sort(unique(celltype.vec))
 
