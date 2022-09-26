@@ -68,7 +68,7 @@ make.sc.deg <- function(file.header,
     ## sequencing depth ##
     ######################
 
-    rr <- rgamma(ncell.ind * nn, shape=rho.a, scale=1/rho.b)
+    rr <- rgamma(ncell.ind * nind, shape=rho.a, scale=1/rho.b)
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
 
