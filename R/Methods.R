@@ -363,8 +363,8 @@ check.cocoa.input <- function(mtx.data,
     ncells <- length(cells)
 
     .match.cells <- function(dict) {
-        .order <- match(cells, dict[,1])
-        out <- as.character(dict[.order, 2])
+        .order <- match(cells, unlist(dict[,1]))
+        out <- as.character(unlist(dict[.order,2]))
         out[is.na(out)] <- "NA"
         return(out)
     }
