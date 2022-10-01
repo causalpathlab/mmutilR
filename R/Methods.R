@@ -2,7 +2,7 @@
 #' by Pairwise INdividual Effect matching
 #'
 #' @param mtx.data fileset.header ($mtx, $row, $col, $idx)
-#' @param celltype celltype/cluster assignments (1 x cells or just a single string)
+#' @param celltype celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)
 #' @param celltype.mat celltype/cluster assignment matrix (cells x cell types)
 #' @param cell2indv cell-level individual assignments (cells x 2), cell -> indv
 #' @param eps small number (default: 1e-8)
@@ -185,7 +185,7 @@ pine.remove.duplicated <- function(input){
 #' differential expression analysis
 #'
 #' @param mtx.data fileset.header ($mtx, $row, $col, $idx)
-#' @param celltype celltype/cluster assignments (1 x cells or just a single string)
+#' @param celltype celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)
 #' @param celltype.mat celltype/cluster assignment matrix (cells x cell types)
 #' @param cell2indv cell-level individual assignments (cells x 2), cell -> indv
 #' @param indv2exp individual treatment/exposure assignments (indiv x 2), indv -> exposure
@@ -345,7 +345,7 @@ make.cocoa <- function(mtx.data,
 #' Check CoCoA input
 #'
 #' @param mtx.data fileset.header ($mtx, $row, $col, $idx)
-#' @param celltype celltype/cluster assignments (1 x cells or just a single string)
+#' @param celltype celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)
 #' @param celltype.mat celltype/cluster assignment matrix (cells x cell types)
 #' @param cell2indv cell-level individual assignments (cells x 2), cell -> indv
 #' @param indv2exp individual treatment/exposure assignments (indiv x 2), indv -> exposure
@@ -391,6 +391,8 @@ check.cocoa.input <- function(mtx.data,
             celltype.vec <- rep(celltype, ncells)
         } else if(ncol(celltype) > 1) {
             celltype.vec <- .match(celltype, cells)
+        } else {
+            celltype.vec <- celltype
         }
     }
     stopifnot(length(celltype.vec) == ncells)
