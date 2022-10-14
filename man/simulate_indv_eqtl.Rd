@@ -16,7 +16,8 @@ simulate_indv_eqtl(
   n.u1,
   pve.interaction,
   n.interaction,
-  n.genes
+  n.genes,
+  n.covar.genes
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ simulate_indv_eqtl(
 \item{n.interaction}{number of genes interacting with the causal genes}
 
 \item{n.genes}{total number of genes (Y variables)}
+
+\item{n.covar.genes}{number of genes affected by covariates}
 }
 \value{
 simulation results

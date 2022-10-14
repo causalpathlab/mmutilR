@@ -76,15 +76,13 @@
 <span class="r-in"><span class="va">scr</span> <span class="op">&lt;-</span> <span class="fu">mmutilR</span><span class="fu">::</span><span class="fu">rcpp_mmutil_compute_scores</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/externalFormats.html" class="external-link">readMM</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">mtx</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.3 0.5 5.0 0.7 1.7 0.3 0.5 1.3 4.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.1 1.8 0.3 1.9 1.3 0.3 3.1 1.1 1.0 1.9</span>
 <span class="r-in"><span class="va">scr</span><span class="op">$</span><span class="va">col</span><span class="op">$</span><span class="va">mean</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.3 0.5 5.0 0.7 1.7 0.3 0.5 1.3 4.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.1 1.8 0.3 1.9 1.3 0.3 3.1 1.1 1.0 1.9</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 3.1111111 0.7777778 3.2222222 0.4444444 2.2222222 4.1111111 3.1111111</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.3333333 0.3333333 3.1111111</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.8 1.7 2.8 0.2 2.1 2.2 0.9 0.5 1.3 0.3</span>
 <span class="r-in"><span class="va">scr</span><span class="op">$</span><span class="va">row</span><span class="op">$</span><span class="va">mean</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 3.1111112 0.7777778 3.2222223 0.4444444 2.2222223 4.1111112 3.1111112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.3333333 0.3333333 3.1111112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.8 1.7 2.8 0.2 2.1 2.2 0.9 0.5 1.3 0.3</span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>

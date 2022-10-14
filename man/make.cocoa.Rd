@@ -25,7 +25,7 @@ make.cocoa(
 \arguments{
 \item{mtx.data}{fileset.header ($mtx, $row, $col, $idx)}
 
-\item{celltype}{celltype/cluster assignments (1 x cells or just a single string)}
+\item{celltype}{celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)}
 
 \item{cell2indv}{cell-level individual assignments (cells x 2), cell -> indv}
 
@@ -69,12 +69,14 @@ only compute average effect estimations (\code{mu}).
 }
 \examples{
 
-sim.data <- make.sc.deg("temp",
-                        nind = 20,
-                        ngene = 100,
-                        ncausal = 3,
-                        ncovar.conf = 3,
-                        ncovar.batch = 0,
+sim.data <- make.sc.deg.data("temp",
+                             nind = 20,
+                             ngenes = 100,
+                             ngenes.covar = 50,
+                             num.mixtures = 3,
+                             ncausal = 3,
+                             ncovar.conf = 3,
+                             ncovar.batch = 0,
                           ncell.ind = 10,
                           pve.1 = .3,
                           pve.c = .5,
@@ -88,37 +90,37 @@ cell2indv <- read.table(sim.data$data$indv,
                         header=FALSE,
                         col.names=c("cell","indv"))
 
-nind <- length(sim.data$indv$W)
-indv2exp <- data.frame(indv=1:nind, exp = sim.data$indv$W)
+nind <- length(sim.data$indv$assignment)
+indv2exp <- data.frame(indv=1:nind, exp = sim.data$indv$assignment)
 
 .cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp, knn = 50)
 .stat <- make.cocoa(mtx.data, "bulk", cell2indv)
 
-ncausal <- length(sim.data$indv$causal)
-ngene <- nrow(.cocoa$resid.mu)
+ncausal <- length(sim.data$causal)
+ngenes <- nrow(.cocoa$resid.mu)
 
 par(mfrow=c(2, ncausal))
-W <- sim.data$indv$W
-for(k in sim.data$indv$causal){
+W <- sim.data$indv$assignment
+for(k in sim.data$causal){
     y0 <- .cocoa$resid.mu[k, W == 0]
     y1 <- .cocoa$resid.mu[k, W == 1]
     boxplot(y0, y1, main=k)
 }
 
-W <- sim.data$indv$W
-for(k in sim.data$indv$causal){
+W <- sim.data$indv$assignment
+for(k in sim.data$causal){
     y0 <- .stat$mu[k, W == 0]
     y1 <- .stat$mu[k, W == 1]
     boxplot(y0, y1, main=k)
 }
 
 par(mfrow=c(2, ncausal))
-for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
+for(k in sample(setdiff(1:ngenes, sim.data$causal), ncausal)){
     y0 <- .cocoa$resid.mu[k, W == 0]
     y1 <- .cocoa$resid.mu[k, W == 1]
     boxplot(y0, y1, main=k)
 }
-for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
+for(k in sample(setdiff(1:ngenes, sim.data$causal), ncausal)){
     y0 <- .stat$mu[k, W == 0]
     y1 <- .stat$mu[k, W == 1]
     boxplot(y0, y1, main=k)

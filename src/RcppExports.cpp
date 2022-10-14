@@ -87,26 +87,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_mmutil_deconvolve_svd
-Rcpp::List rcpp_mmutil_deconvolve_svd(const std::string mtx_file, const std::string row_file, const std::string col_file, Rcpp::Nullable<Rcpp::NumericMatrix> r_U, Rcpp::Nullable<Rcpp::NumericMatrix> r_D, Rcpp::Nullable<Rcpp::NumericMatrix> r_V, Rcpp::Nullable<Rcpp::StringVector> r_rows, Rcpp::Nullable<Rcpp::StringVector> r_cols, const bool TAKE_LN, const bool VERBOSE);
-RcppExport SEXP _mmutilR_rcpp_mmutil_deconvolve_svd(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP r_USEXP, SEXP r_DSEXP, SEXP r_VSEXP, SEXP r_rowsSEXP, SEXP r_colsSEXP, SEXP TAKE_LNSEXP, SEXP VERBOSESEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string >::type mtx_file(mtx_fileSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type row_file(row_fileSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type col_file(col_fileSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type r_U(r_USEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type r_D(r_DSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type r_V(r_VSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_rows(r_rowsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type r_cols(r_colsSEXP);
-    Rcpp::traits::input_parameter< const bool >::type TAKE_LN(TAKE_LNSEXP);
-    Rcpp::traits::input_parameter< const bool >::type VERBOSE(VERBOSESEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_deconvolve_svd(mtx_file, row_file, col_file, r_U, r_D, r_V, r_rows, r_cols, TAKE_LN, VERBOSE));
-    return rcpp_result_gen;
-END_RCPP
-}
 // rcpp_mmutil_merge_file_sets
 Rcpp::List rcpp_mmutil_merge_file_sets(Rcpp::Nullable<const Rcpp::StringVector> r_headers, Rcpp::Nullable<const Rcpp::StringVector> r_batches, Rcpp::Nullable<const Rcpp::StringVector> r_mtx_files, Rcpp::Nullable<const Rcpp::StringVector> r_row_files, Rcpp::Nullable<const Rcpp::StringVector> r_col_files, Rcpp::Nullable<const Rcpp::StringVector> r_fixed_rows, const std::string output, const double nnz_cutoff, const std::string delim);
 RcppExport SEXP _mmutilR_rcpp_mmutil_merge_file_sets(SEXP r_headersSEXP, SEXP r_batchesSEXP, SEXP r_mtx_filesSEXP, SEXP r_row_filesSEXP, SEXP r_col_filesSEXP, SEXP r_fixed_rowsSEXP, SEXP outputSEXP, SEXP nnz_cutoffSEXP, SEXP delimSEXP) {
@@ -431,7 +411,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_pca, 13},
     {"_mmutilR_rcpp_mmutil_bbknn_pca", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn_pca, 15},
     {"_mmutilR_rcpp_mmutil_annotate_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_annotate_columns, 18},
-    {"_mmutilR_rcpp_mmutil_deconvolve_svd", (DL_FUNC) &_mmutilR_rcpp_mmutil_deconvolve_svd, 10},
     {"_mmutilR_rcpp_mmutil_merge_file_sets", (DL_FUNC) &_mmutilR_rcpp_mmutil_merge_file_sets, 9},
     {"_mmutilR_rcpp_mmutil_copy_selected_rows", (DL_FUNC) &_mmutilR_rcpp_mmutil_copy_selected_rows, 5},
     {"_mmutilR_rcpp_mmutil_copy_selected_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_copy_selected_columns, 5},

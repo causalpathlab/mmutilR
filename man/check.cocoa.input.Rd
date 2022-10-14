@@ -15,7 +15,7 @@ check.cocoa.input(
 \arguments{
 \item{mtx.data}{fileset.header ($mtx, $row, $col, $idx)}
 
-\item{celltype}{celltype/cluster assignments (1 x cells or just a single string)}
+\item{celltype}{celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)}
 
 \item{cell2indv}{cell-level individual assignments (cells x 2), cell -> indv}
 

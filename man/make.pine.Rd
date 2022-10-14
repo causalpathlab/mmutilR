@@ -26,7 +26,7 @@ make.pine(
 \arguments{
 \item{mtx.data}{fileset.header ($mtx, $row, $col, $idx)}
 
-\item{celltype}{celltype/cluster assignments (1 x cells or just a single string)}
+\item{celltype}{celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)}
 
 \item{cell2indv}{cell-level individual assignments (cells x 2), cell -> indv}
 
@@ -63,9 +63,10 @@ by Pairwise INdividual Effect matching
 }
 \examples{
 
-sim.data <- make.sc.deg("temp",
+sim.data <- make.sc.deg.data("temp",
                               nind = 20,
-                              ngene = 100,
+                              ngenes = 100,
+                              ngenes.covar = 50,
                               ncausal = 3,
                               ncovar.conf = 3,
                               ncovar.batch = 0,
@@ -82,7 +83,7 @@ cell2indv <- read.table(sim.data$data$indv,
                         header=FALSE,
                         col.names=c("cell","indv"))
 
-nind <- length(sim.data$indv$W)
+nind <- length(sim.data$indv$assignment)
 
 .pine <- make.pine(mtx.data,
                    "bulk",
@@ -95,22 +96,22 @@ nind <- length(sim.data$indv$W)
 .pairs <- data.frame(do.call(rbind, .names), stringsAsFactors=FALSE)
 colnames(.pairs) <- c("src","tgt","ct")
 
-W <- sim.data$indv$W
+W <- sim.data$indv$assignment
 w.src <- W[as.integer(.pairs$src)]
 w.tgt <- W[as.integer(.pairs$tgt)]
 w.delta <- w.src - w.tgt
 
 .pine$delta[.pine$delta < 0] <- NA # numerical errors
 
-ncausal <- length(sim.data$indv$causal)
-ngene <- nrow(.pine$delta)
+ncausal <- length(sim.data$causal)
+ngenes <- nrow(.pine$delta)
 
 par(mfrow=c(2, ncausal))
-for(k in sim.data$indv$causal){
+for(k in sim.data$causal){
     plot(w.delta, .pine$delta[k, ], xlab = "dW", ylab = "dY")
 }
 
-for(k in sample(setdiff(1:ngene, sim.data$indv$causal), ncausal)){
+for(k in sample(setdiff(1:ngenes, sim.data$causal), ncausal)){
     plot(w.delta, .pine$delta[k, ], xlab = "dW", ylab = "dY")
 }
 

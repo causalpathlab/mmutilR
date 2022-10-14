@@ -2,14 +2,17 @@
 #'
 #' @param file.header file set header
 #' @param nind num of individuals
-#' @param ngene num of genes/features
+#' @param ngenes num of genes/features
 #' @param ncausal num of causal genes
 #' @param ncovar.conf num of confounding covariates
 #' @param ncovar.batch num of confounding batch variables
+#' @param ngenes.covar num of genes affected by covariates
+#' @param num.mixtures num of cell mixtures
 #' @param ncell.ind num of cells per individual
 #' @param pve.1 variance of treatment/disease effect
 #' @param pve.c variance of confounding effect
 #' @param pve.a variance of confounders to the assignment
+#' @param pve.r variance of reverse causation
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
 #' @param rseed random seed
@@ -38,52 +41,57 @@
 #' * `rho` sequencing depth
 #' * `causal` causal genes
 #'
-make.sc.deg <- function(file.header, 
-                        nind = 40,
-                        ngene = 1000,
-                        ncausal = 5,
-                        ncovar.conf = 3,
-                        ncovar.batch = 0,
-                        ncell.ind = 10,
-                        pve.1 = 0.3,
-                        pve.c = 0.5,
-                        pve.a = 0.5,
-                        rho.a = 2,
-                        rho.b = 2,
-                        rseed = 13,
-                        exposure.type = c("binary","continuous")){
+make.sc.deg.data <- function(file.header,
+                             nind = 40,
+                             ngenes = 1000,
+                             ncausal = 5,
+                             ncovar.conf = 3,
+                             ncovar.batch = 0,
+                             ncell.ind = 10,
+                             ngenes.covar = ngenes,
+                             num.mixtures = 1,
+                             pve.1 = 0.3,
+                             pve.c = 0.5,
+                             pve.a = 0.5,
+                             pve.r = 0,
+                             rho.a = 2,
+                             rho.b = 2,
+                             rseed = 13,
+                             exposure.type = c("binary","continuous")){
 
-    .sim <- simulate_indv_glm(nind,
-                              ngene,
-                              ncausal,
-                              ncovar.conf,
-                              ncovar.batch,
-                              pve.1,
-                              pve.c,
-                              pve.a,
-                              rseed,
-                              exposure.type)
+    .sim <- simulate_indv_glm(nind = nind,
+                              ngenes = ngenes,
+                              ncausal = ncausal,
+                              ncovar.conf = ncovar.conf,
+                              ncovar.batch = ncovar.batch,
+                              ngenes.covar = ngenes.covar,
+                              num.mixtures = num.mixtures,
+                              pve.1 = pve.1,
+                              pve.c = pve.c,
+                              pve.r = pve.r,
+                              pve.a = pve.a,
+                              rseed = rseed,
+                              exposure.type = exposure.type)
 
-    ######################
-    ## sequencing depth ##
-    ######################
-
-    rr <- rgamma(ncell.ind * nind, shape=rho.a, scale=1/rho.b)
+    ncells <- ncell.ind * nind
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
+    .data <- rcpp_mmutil_simulate_poisson_mixture(.sim$mu.list,
+                                                  ncells,
+                                                  file.header,
+                                                  gam_alpha=rho.a,
+                                                  gam_beta=rho.b)
 
-    .dat <- rcpp_mmutil_simulate_poisson(.sim$obs.mu,
-                                         rr,
-                                         file.header)
-
-    list(indv = .sim, data = .dat)
+    list(indv = .sim$indv,
+         causal = .sim$causal,
+         reverse = .sim$reverse,
+         data = .data)
 }
-
 
 #' Simulate individual-level eQTL data
 #'
 #' The goal is to have unbiased estimates of Y ~ X
-#' 
+#'
 #' However, possible confounding effect models lurking:
 #'
 #' Y1 ~ X + U
@@ -101,7 +109,7 @@ make.sc.deg <- function(file.header,
 #' @param pve.interaction proportion of variance of Y explained by interaction
 #' @param n.interaction number of genes interacting with the causal genes
 #' @param n.genes total number of genes (Y variables)
-#' 
+#'
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
 #' @param ncell.ind number of cells per individual
@@ -138,6 +146,7 @@ make.sc.eqtl <- function(file.header,
                          pve.interaction = 0.5,
                          n.interaction = 0,
                          n.genes = 50,
+                         n.covar.genes = n.genes,
                          rho.a = 2,
                          rho.b = 2,
                          ncell.ind = 10,
@@ -153,7 +162,8 @@ make.sc.eqtl <- function(file.header,
                                n.u1 = n.u1,
                                pve.interaction = pve.interaction,
                                n.interaction = n.interaction,
-                               n.genes = n.genes)
+                               n.genes = n.genes,
+                               n.covar.genes = n.genes)
 
     n.ind <- nrow(.sim$x)
 
@@ -182,9 +192,9 @@ make.sc.eqtl <- function(file.header,
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
 
-    .dat <- rcpp_mmutil_simulate_poisson(t(.mu), .rr, file.header, .ind)
+    .data <- rcpp_mmutil_simulate_poisson(t(.mu), .rr, file.header, .ind)
 
-    list(indv = .sim, data = .dat)
+    list(indv = .sim, data = .data)
 }
 
 #' Simulate individual-level eQTL data
@@ -201,6 +211,7 @@ make.sc.eqtl <- function(file.header,
 #' @param pve.interaction proportion of variance of Y explained by interaction
 #' @param n.interaction number of genes interacting with the causal genes
 #' @param n.genes total number of genes (Y variables)
+#' @param n.covar.genes number of genes affected by covariates
 #'
 #' @return simulation results
 #'
@@ -214,7 +225,8 @@ simulate_indv_eqtl <- function(X, h2,
                                n.u1,
                                pve.interaction,
                                n.interaction,
-                               n.genes){
+                               n.genes,
+                               n.covar.genes){
 
     if(!is.matrix(X)) { X <- as.matrix(X) }
 
@@ -255,6 +267,12 @@ simulate_indv_eqtl <- function(X, h2,
     u0 <- .rnorm(n.ind, n.u0)
     y.by.u0 <- u0 %*% .rnorm(n.u0, n.genes)
 
+    if(n.covar.genes < n.genes){
+        ## some genes are not affected by covariates
+        n0 <- n.genes - n.covar.genes
+        y.by.u0[, sample(n.genes, n0)] <- .rnorm(n.ind, n0)
+    }
+
     #############
     ## U1 -> Y ##
     #############
@@ -265,6 +283,12 @@ simulate_indv_eqtl <- function(X, h2,
            .scale(xx %*% .beta.u) * sqrt(pve.u1.by.x))
     .beta.yu <- .rnorm(ncol(u1), n.genes)
     y.by.u1 <- u1 %*% .beta.yu
+
+    if(n.covar.genes < n.genes){
+        ## some genes are not affected by covariates
+        n0 <- n.genes - n.covar.genes
+        y.by.u1[, sample(n.genes, n0)] <- .rnorm(n.ind, n0)
+    }
 
     ############
     ## X -> Y ##
@@ -289,7 +313,7 @@ simulate_indv_eqtl <- function(X, h2,
     if(n.interaction > 0) {
         non.causal <- setdiff(1:n.genes, causal.genes)
         interacting <- sample(non.causal, n.interaction)
-        y.to.y <- .rnorm(n.causal.genes, n.interaction)        
+        y.to.y <- .rnorm(n.causal.genes, n.interaction)
         y.by.x[, interacting] <- (y.by.x %c% causal.genes) %*% y.to.y
     }
 
@@ -311,28 +335,35 @@ simulate_indv_eqtl <- function(X, h2,
 #' @param nind num of individuals
 #' @param ngene num of genes/features
 #' @param ncausal num of causal genes
+#' @param nreverse num of anti-causal genes
 #' @param ncovar.conf num of confounding covariates
 #' @param ncovar.batch num of confounding batch variables
+#' @param ngene.covar num of genes affected by covariates
+#' @param num.mixtures num of cell mixtures
 #' @param pve.1 variance of treatment/disease effect
 #' @param pve.c variance of confounding effect
 #' @param pve.a variance of confounders to the assignment
+#' @param pve.r variance of reverse causation
 #' @param rseed random seed
 #' @param exposure.type "binary" or "continuous"
 #'
 simulate_indv_glm <- function(nind = 40,
-                              ngene = 1000,
+                              ngenes = 1000,
                               ncausal = 5,
+                              nreverse = 0,
                               ncovar.conf = 3,
                               ncovar.batch = 0,
+                              ngenes.covar = ngenes,
+                              num.mixtures = 1,
                               pve.1 = 0.3,
                               pve.c = 0.5,
                               pve.a = 0.5,
+                              pve.r = 0,
                               rseed = 13,
                               exposure.type = c("binary","continuous")){
 
     exposure.type <- match.arg(exposure.type)
 
-    set.seed(rseed)
     stopifnot((pve.1 + pve.c) < 1)
     ## stopifnot((ncovar.conf + ncovar.batch) > 0)
 
@@ -371,112 +402,98 @@ simulate_indv_glm <- function(nind = 40,
         sweep(x, 2, .sd, `/`)
     }
 
-    ## sample model parameters
-    ## - nind number of individuals/samples
-    ## - ncovar.conf number of covar shared
-    ## - ncovar.batch number of covar on mu, batch effect
-    ## - ngenes number of genes/features
-    ## - ncausal number of causal genes
-    sample.seed.data <- function(nind, ncovar.conf, ncovar.batch, pve) {
+    sample.biased.assignment <- function(nind,
+                                         ncovar.conf,
+                                         ncovar.batch,
+                                         nreverse,
+                                         pve.r,
+                                         pve.bias,
+                                         exposure.type){
 
+        ## (1) sample confounding variables: U ~ epsilon
         if(ncovar.conf > 0) {
-            xx <- .rnorm(nind, ncovar.conf) # covariates
+            cv <- .rnorm(nind, ncovar.conf) # covariates
         } else {
-            xx <- .zero(nind, 1) # empty
+            cv <- .zero(nind, 1) # empty
         }
 
         if(ncovar.batch > 0) {
-            xx.mu <- .rnorm(nind, ncovar.batch) # covariates
+            uv <- .rnorm(nind, ncovar.batch) # covariates
         } else {
-            xx.mu <- .zero(nind, 1) # empty
+            uv <- .zero(nind, 1) # empty
         }
 
-        ## Biased assignment mechanism
-        .delta <- .rnorm(ncol(xx), 1) / sqrt(ncol(xx))
+        ## (2) sample reverse causation genes: mu(reverse) -> X
+        if(nreverse > 0){
+            mu.rev <- .scale(.rnorm(nind, nreverse))
+        } else {
+            mu.rev <- .rnorm(nind, 1) * 0
+        }
 
-        true.logit <- .rnorm(nind, 1)
-
-        logit <- .scale(xx %*% .delta) * sqrt(pve)
-        logit <- logit + true.logit * sqrt(1 - pve)
+        ## (3) sample composite treatment assignment: W ~ mu(reverse) + U + epsilon
+        random.assign <- .scale(.rnorm(nind, 1))
+        cv.rev <- cbind(cv, mu.rev)
+        biased.assign <- (random.assign * sqrt(1 - pve.bias - pve.r) +
+                          .scale(cv %*% .rnorm(ncol(cv), 1)) * sqrt(pve.bias) +
+                          .scale(mu.rev %*% .rnorm(ncol(mu.rev), 1)) %*% sqrt(pve.r))
 
         if(exposure.type == "binary"){
-            ww <- rbinom(prob=.sigmoid(logit), n=nind, size=1)
+            ww <- rbinom(prob=.sigmoid(biased.assign), n=nind, size=1)
+            ww <- matrix(ww, ncol = 1)
         } else {
-            ww <- logit
+            ww <- biased.assign
         }
 
-        list(w = ww, lib = true.logit, x = xx, x.mu = xx.mu)
+        list(assignment = ww,
+             covariates = cbind(cv, uv),
+             mu.reverse = mu.rev)
     }
 
-    .param <- sample.seed.data(nind, ncovar.conf, ncovar.batch, pve.a)
-
-    nn <- length(.param$w)
-
-    xx <- .param$x       # covariates shared --> confounding
-    xx.mu <- .param$x.mu # covariates on mu only --> non-confounding
-    ww <- .param$w       # stochastic assignment
-
-    causal <- sample(ngene, ncausal) # causal genes
-
-    ## Treatment effects ##
-
-    sample.w.rand <- function(j) {
-        ## make sure that we don't create unlabeled positive genes
-        r <- rnorm(length(ww))
-        r <- .scale(matrix(residuals(lm(r ~ ww)), ncol=1))
-        return(matrix(r * rnorm(1), ncol=1))
+    causal <- sample(ngenes, ncausal) # causal genes
+    reverse <- c()
+    if(nreverse > 0){  # reverse causation genes
+        reverse <- sample(setdiff(1:ngenes, causal), nreverse)
     }
 
-    ln.mu.w <- sapply(1:ngene, sample.w.rand)
-    ln.mu.w[, causal] <- sapply(1:ncausal, function(j) ww * rnorm(1))
+    ## Take biased assignments
+    ass <- sample.biased.assignment(nind,
+                                    ncovar.conf,
+                                    ncovar.batch,
+                                    nreverse,
+                                    pve.r,
+                                    pve.a,
+                                    exposure.type)
 
-    #########################
-    ## confounding effects ##
-    #########################
+    ## causal effects invariant across mixture components
+    tau <- .rnorm(1, ncausal)
 
-    ln.mu.x <- xx %*% .rand(ncol(xx), ngene)
+    sample.mu <- function(k){
+        ## a. non-causal genes w/o influence from the treatment assignment
+        ln.mu.tau.k <- .rand(nind, ngenes, unlist(ass$assignment))
+        ## b. causal genes exert invariant effects
+        ln.mu.tau.k[, causal] <- ass$assignment %*% tau
+        ## c. influence from the context-specific covariates
+        beta.covar <- .rnorm(ncol(ass$covariates), ngenes)
+        ln.mu.covar.k <- ass$covariates %*% beta.covar
+        if(ngenes.covar < ngenes){
+            .genes <- sample(ngenes, ngenes.covar)
+            n0 <- ngenes - ngenes.covar
+            ln.mu.covar.k[, - .genes] <- .rnorm(nrow(ln.mu.covar.k), n0)
+        }
+        ## d. unstructured noise
+        ln.mu.eps.k <- .rnorm(nind, ngenes)
+        ln.mu.k <- (.scale(ln.mu.tau.k) * sqrt(pve.1) +
+                    .scale(ln.mu.covar.k) * sqrt(pve.c) +
+                    .scale(ln.mu.eps.k) * sqrt(1 - pve.1 - pve.c))
+        ## e. reverse causation
+        if(nreverse > 0){
+            ln.mu.k[, reverse] <- .scale(ass$mu.reverse)
+        }
+        exp(t(ln.mu.k))
+    }
 
-    #########################
-    ## other batch effects ##
-    #########################
-
-    .batch <- xx.mu %*% .rand(ncol(xx.mu), ngene)
-
-    ln.mu.x <- ln.mu.x + .batch
-
-    ########################
-    ## unstructured noise ##
-    ########################
-
-    ln.mu.eps <- .rnorm(nn, ngene)
-
-    #############################
-    ## combine all the effects ##
-    #############################
-
-    ln.mu <-
-        .scale(ln.mu.w) * sqrt(pve.1) +
-        .scale(ln.mu.x) * sqrt(pve.c) +
-        .scale(ln.mu.eps) * sqrt(1 - pve.1 - pve.c)
-
-    ln.mu <- .scale(ln.mu)  # numerical stability
-    ln.mu[ln.mu > 8] <- 8   #
-    ln.mu[ln.mu < -8] <- -8 #
-
-    mu <- exp(ln.mu)
-
-    ##########################
-    ## unconfounded signals ##
-    ##########################
-
-    clean.ln.mu <- .scale(ln.mu.w) * sqrt(pve.1) +
-        .scale(ln.mu.eps) * sqrt(1 - pve.1)
-
-    clean.mu <- exp(clean.ln.mu)
-
-    list(obs.mu = t(mu),
-         clean.mu = t(clean.mu),
-         X = t(xx),
-         W = ww,
-         causal = sort(causal))
+    list(indv = ass,
+         causal = causal,
+         reverse = reverse,
+         mu.list = lapply(1:num.mixtures, sample.mu))
 }

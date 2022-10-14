@@ -127,15 +127,6 @@ rcpp_mmutil_annotate_columns <- function(pos_labels, r_rows = NULL, r_cols = NUL
     .Call('_mmutilR_rcpp_mmutil_annotate_columns', PACKAGE = 'mmutilR', pos_labels, r_rows, r_cols, r_neg_labels, r_qc_labels, mtx_file, row_file, col_file, r_U, r_D, r_V, KAPPA_MAX, TAKE_LN, BATCH_SIZE, EM_ITER, EM_TOL, VERBOSE, DO_STD)
 }
 
-#' Cell type deconvolution of bulk data based on single-cell data
-#'
-#' Salamander (semi-supervised annotation of latent states by marker
-#' gene-derived regression model)
-#'
-rcpp_mmutil_deconvolve_svd <- function(mtx_file = "", row_file = "", col_file = "", r_U = NULL, r_D = NULL, r_V = NULL, r_rows = NULL, r_cols = NULL, TAKE_LN = FALSE, VERBOSE = FALSE) {
-    .Call('_mmutilR_rcpp_mmutil_deconvolve_svd', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_U, r_D, r_V, r_rows, r_cols, TAKE_LN, VERBOSE)
-}
-
 #' Merge multiple 10x mtx file sets into one set
 #'
 #' @param r_headers file set headers

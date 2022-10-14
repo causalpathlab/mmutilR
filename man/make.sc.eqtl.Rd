@@ -18,6 +18,7 @@ make.sc.eqtl(
   pve.interaction = 0.5,
   n.interaction = 0,
   n.genes = 50,
+  n.covar.genes = n.genes,
   rho.a = 2,
   rho.b = 2,
   ncell.ind = 10,

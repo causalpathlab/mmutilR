@@ -46,13 +46,17 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">simulate_indv_glm</span><span class="op">(</span>
   nind <span class="op">=</span> <span class="fl">40</span>,
-  ngene <span class="op">=</span> <span class="fl">1000</span>,
+  ngenes <span class="op">=</span> <span class="fl">1000</span>,
   ncausal <span class="op">=</span> <span class="fl">5</span>,
+  nreverse <span class="op">=</span> <span class="fl">0</span>,
   ncovar.conf <span class="op">=</span> <span class="fl">3</span>,
   ncovar.batch <span class="op">=</span> <span class="fl">0</span>,
+  ngenes.covar <span class="op">=</span> <span class="va">ngenes</span>,
+  num.mixtures <span class="op">=</span> <span class="fl">1</span>,
   pve.1 <span class="op">=</span> <span class="fl">0.3</span>,
   pve.c <span class="op">=</span> <span class="fl">0.5</span>,
   pve.a <span class="op">=</span> <span class="fl">0.5</span>,
+  pve.r <span class="op">=</span> <span class="fl">0</span>,
   rseed <span class="op">=</span> <span class="fl">13</span>,
   exposure.type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"binary"</span>, <span class="st">"continuous"</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
@@ -64,12 +68,12 @@
 <dd><p>num of individuals</p></dd>
 
 
-<dt>ngene</dt>
-<dd><p>num of genes/features</p></dd>
-
-
 <dt>ncausal</dt>
 <dd><p>num of causal genes</p></dd>
+
+
+<dt>nreverse</dt>
+<dd><p>num of anti-causal genes</p></dd>
 
 
 <dt>ncovar.conf</dt>
@@ -78,6 +82,10 @@
 
 <dt>ncovar.batch</dt>
 <dd><p>num of confounding batch variables</p></dd>
+
+
+<dt>num.mixtures</dt>
+<dd><p>num of cell mixtures</p></dd>
 
 
 <dt>pve.1</dt>
@@ -92,12 +100,24 @@
 <dd><p>variance of confounders to the assignment</p></dd>
 
 
+<dt>pve.r</dt>
+<dd><p>variance of reverse causation</p></dd>
+
+
 <dt>rseed</dt>
 <dd><p>random seed</p></dd>
 
 
 <dt>exposure.type</dt>
 <dd><p>"binary" or "continuous"</p></dd>
+
+
+<dt>ngene</dt>
+<dd><p>num of genes/features</p></dd>
+
+
+<dt>ngene.covar</dt>
+<dd><p>num of genes affected by covariates</p></dd>
 
 </dl></div>
 
