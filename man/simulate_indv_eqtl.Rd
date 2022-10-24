@@ -17,7 +17,8 @@ simulate_indv_eqtl(
   pve.interaction,
   n.interaction,
   n.genes,
-  n.covar.genes
+  n.covar.genes,
+  num.mixtures = 1
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ simulate_indv_eqtl(
 \item{n.genes}{total number of genes (Y variables)}
 
 \item{n.covar.genes}{number of genes affected by covariates}
+
+\item{num.mixtures}{num of cell mixtures}
 }
 \value{
 simulation results
