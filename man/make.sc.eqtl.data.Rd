@@ -63,14 +63,9 @@ make.sc.eqtl.data(
 simulation results
 }
 \description{
-The goal is to have unbiased estimates of Y ~ X
+The goal is to have unbiased estimates of \code{Y ~ X} in the presence of other covariates and potentially confounding variables: Given \code{X} matrix, we generate \code{Y ~ X + U0 + U1} with confounding \code{U}, namely \code{X ~ U1}.
 }
 \details{
-However, possible confounding effect models lurking:
-
-Y1 ~ X + U
-Y0 ~ Y1 + U
-
 The simulation result list will have two lists:
 
 \code{data}:
@@ -88,5 +83,6 @@ The simulation result list will have two lists:
 \item \code{indv$x}: observed individual x variants genotype matrix
 \item \code{indv$causal.snps}: causal variants (X variables)
 \item \code{indv$causal.genes}: causal genes (Y variables)
+\item \code{indv$causal.label}: true labels
 }
 }

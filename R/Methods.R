@@ -47,7 +47,7 @@
 #'                    "bulk",
 #'                    cell2indv,
 #'                    knn.cell = 50,
-#'                    knn.indv = 1)
+#'                    knn.indv = 5)
 #'
 #' .names <- lapply(colnames(.pine$delta), strsplit, split="[_]")
 #' .names <- lapply(.names, function(x) unlist(x))

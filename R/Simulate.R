@@ -91,12 +91,7 @@ make.sc.deg.data <- function(file.header,
 
 #' Simulate individual-level eQTL data
 #'
-#' The goal is to have unbiased estimates of Y ~ X
-#'
-#' However, possible confounding effect models lurking:
-#'
-#' Y1 ~ X + U
-#' Y0 ~ Y1 + U
+#' The goal is to have unbiased estimates of `Y ~ X` in the presence of other covariates and potentially confounding variables: Given `X` matrix, we generate `Y ~ X + U0 + U1` with confounding `U`, namely `X ~ U1`.
 #'
 #' @param X genotype matrix (individual x SNPs)
 #' @param h2 heritability (proportion of variance of Y explained by genetic X)
@@ -135,6 +130,7 @@ make.sc.deg.data <- function(file.header,
 #' * `indv$x`: observed individual x variants genotype matrix
 #' * `indv$causal.snps`: causal variants (X variables)
 #' * `indv$causal.genes`: causal genes (Y variables)
+#' * `indv$causal.label`: true labels
 #'
 make.sc.eqtl.data <- function(file.header,
                               X, h2,
