@@ -80,7 +80,8 @@ make.sc.deg.data <- function(file.header,
                                                   ncells,
                                                   file.header,
                                                   gam_alpha=rho.a,
-                                                  gam_beta=rho.b)
+                                                  gam_beta=rho.b,
+                                                  rseed = rseed)
 
     list(indv = .sim$indv,
          causal = .sim$causal,
@@ -109,6 +110,7 @@ make.sc.deg.data <- function(file.header,
 #' @param pve.interaction proportion of variance of Y explained by interaction
 #' @param n.interaction number of genes interacting with the causal genes
 #' @param n.genes total number of genes (Y variables)
+#' @param num.mixtures num of cell mixtures
 #'
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
@@ -134,25 +136,29 @@ make.sc.deg.data <- function(file.header,
 #' * `indv$causal.snps`: causal variants (X variables)
 #' * `indv$causal.genes`: causal genes (Y variables)
 #'
-make.sc.eqtl <- function(file.header,
-                         X, h2,
-                         n.causal.snps = 1,
-                         n.causal.genes = 5,
-                         pve.y.by.u0 = .3,
-                         n.u0 = 3,
-                         pve.u1.by.x = .8,
-                         pve.y.by.u1 = .3,
-                         n.u1 = 3,
-                         pve.interaction = 0.5,
-                         n.interaction = 0,
-                         n.genes = 50,
-                         n.covar.genes = n.genes,
-                         rho.a = 2,
-                         rho.b = 2,
-                         ncell.ind = 10,
-                         ind.prob = NULL){
+make.sc.eqtl.data <- function(file.header,
+                              X, h2,
+                              n.causal.snps = 1,
+                              n.causal.genes = 5,
+                              pve.y.by.u0 = .3,
+                              n.u0 = 3,
+                              pve.u1.by.x = .8,
+                              pve.y.by.u1 = .3,
+                              n.u1 = 3,
+                              pve.interaction = 0.5,
+                              n.interaction = 0,
+                              n.genes = 50,
+                              n.covar.genes = n.genes,
+                              num.mixtures = 1,
+                              rho.a = 2,
+                              rho.b = 2,
+                              ncell.ind = 10,
+                              rseed = 13){
 
-    .sim <- simulate_indv_eqtl(X = X, h2 = h2,
+    set.seed(rseed)
+
+    .sim <- simulate_indv_eqtl(X = X,
+                               h2 = h2,
                                n.causal.snps = n.causal.snps,
                                n.causal.genes = n.causal.genes,
                                pve.y.by.u0 = pve.y.by.u0,
@@ -163,36 +169,21 @@ make.sc.eqtl <- function(file.header,
                                pve.interaction = pve.interaction,
                                n.interaction = n.interaction,
                                n.genes = n.genes,
-                               n.covar.genes = n.genes)
+                               n.covar.genes = n.genes,
+                               num.mixtures = num.mixtures)
 
     n.ind <- nrow(.sim$x)
+    ncells <- ncell.ind * n.ind
 
-    if(is.null(ind.prob)){
-        .prob <- rep(1/n.ind, n.ind)
-    } else {
-        .prob <- ind.prob
-    }
-
-    stopifnot(length(.prob) == n.ind)
-
-    .ind <- sample(n.ind,
-                   n.ind * ncell.ind,
-                   replace=TRUE,
-                   prob=.prob)
-
-    ######################
-    ## Sequencing depth ##
-    ######################
-
-    .rr <- rgamma(ncell.ind * n.ind, shape=rho.a, scale=1/rho.b)
-    y <- apply(.sim$y, 2, scale) # just for numerical stability
-    y[y > 8] <- 8
-    y[y < -8] <- -8
-    .mu <- exp(y)
+    mu.list <- lapply(.sim$y, function(y) exp(t(y)))
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
-
-    .data <- rcpp_mmutil_simulate_poisson(t(.mu), .rr, file.header, .ind)
+    .data <- rcpp_mmutil_simulate_poisson_mixture(mu.list,
+                                                  ncells,
+                                                  file.header,
+                                                  gam_alpha=rho.a,
+                                                  gam_beta=rho.b,
+                                                  rseed = rseed)
 
     list(indv = .sim, data = .data)
 }
@@ -212,6 +203,7 @@ make.sc.eqtl <- function(file.header,
 #' @param n.interaction number of genes interacting with the causal genes
 #' @param n.genes total number of genes (Y variables)
 #' @param n.covar.genes number of genes affected by covariates
+#' @param num.mixtures num of cell mixtures
 #'
 #' @return simulation results
 #'
@@ -226,12 +218,15 @@ simulate_indv_eqtl <- function(X, h2,
                                pve.interaction,
                                n.interaction,
                                n.genes,
-                               n.covar.genes){
+                               n.covar.genes,
+                               num.mixtures = 1){
 
     if(!is.matrix(X)) { X <- as.matrix(X) }
 
     .scale <- function(.mat) {
-        apply(.mat, 2, scale)
+        ret <- apply(.mat, 2, scale)
+        ret[is.na(ret)] <- 0
+        return(ret)
     }
 
     .rnorm <- function(d1, d2) {
@@ -243,14 +238,15 @@ simulate_indv_eqtl <- function(X, h2,
     }
 
     n.ind <- nrow(X)
-
-    causal.genes <- sample(n.genes, min(n.genes, n.causal.genes))
-
+    n.causal.genes <- min(n.genes, n.causal.genes)
     n.causal.snps <- min(n.causal.snps, floor(ncol(X)/2))
-    causal.snps <- sample(ncol(X), n.causal.snps)
 
-    non.causal <- setdiff(1:ncol(X), causal.snps)
-    u1.snps <- sample(non.causal, n.causal.snps)
+    causal.genes <- sample(n.genes, n.causal.genes)
+    causal.snps <- sample(ncol(X), n.causal.snps * n.causal.genes)
+
+    causal.label <- data.frame(snp = causal.snps,
+                               gene = rep(causal.genes, n.causal.snps),
+                               beta = rnorm(n.causal.genes * n.causal.snps))
 
     ######################
     ## check parameters ##
@@ -259,75 +255,75 @@ simulate_indv_eqtl <- function(X, h2,
     pve.y.tot <- h2 + pve.y.by.u0 + pve.y.by.u1
     stopifnot(pve.y.tot >= 0 & pve.y.tot <= 1)
 
-    y.err <- .rnorm(n.ind, n.genes)
+    sample.y <- function(k){
 
-    #############
-    ## U0 -> Y ##
-    #############
-    u0 <- .rnorm(n.ind, n.u0)
-    y.by.u0 <- u0 %*% .rnorm(n.u0, n.genes)
+        y.err <- .rnorm(n.ind, n.genes)
 
-    if(n.covar.genes < n.genes){
-        ## some genes are not affected by covariates
-        n0 <- n.genes - n.covar.genes
-        y.by.u0[, sample(n.genes, n0)] <- .rnorm(n.ind, n0)
+        ######################################
+        ## unconfounded covariates: U0 -> Y ##
+        ######################################
+        stopifnot(n.u0 > 0)
+        u0 <- .rnorm(n.ind, n.u0)
+        y.by.u0 <- u0 %*% .rnorm(n.u0, n.genes)
+
+        if(n.covar.genes < n.genes){
+            ## some genes are not affected by covariates
+            n0 <- n.genes - n.covar.genes
+            y.by.u0[, sample(n.genes, n0)] <- .rnorm(n.ind, n0)
+        }
+
+        #############
+        ## U1 -> Y ##
+        #############
+        X.safe <- .scale(X)
+        stopifnot(n.u1 > 0)
+        .svd <- svd(X.safe, nu=n.u1, nv=n.u1)
+
+        u1 <- (.scale(.svd$u) * sqrt(pve.u1.by.x) +
+               .rnorm(n.ind, n.u1) * sqrt(1 - pve.u1.by.x))
+
+        y.by.u1 <- u1 %*% .rnorm(ncol(u1), n.genes)
+
+        if(n.covar.genes < n.genes){
+            ## some genes are not affected by covariates
+            n0 <- n.genes - n.covar.genes
+            y.by.u1[, sample(n.genes, n0)] <- .rnorm(n.ind, n0)
+        }
+        
+        ##################################################
+        ## genetic effects for each causal gene: X -> Y ##
+        ##################################################
+        y.by.x <- .rnorm(n.ind, n.genes)
+
+        for(g in causal.genes){
+            .causal.g <- causal.label[causal.label$gene == g, ]
+            .snps <- .causal.g$snp
+            xx.causal <- X %c% .snps
+            xx.causal[is.na(xx.causal)] <- 0
+            xy <- matrix(.causal.g$beta, ncol=1)
+            y.by.x[, g] <- (xx.causal %*% xy)
+        }
+
+        ## introduce interactions between genes
+        if(n.interaction > 0) {
+            non.causal <- setdiff(1:n.genes, causal.genes)
+            interacting <- sample(non.causal, n.interaction)
+            y.to.y <- .rnorm(n.causal.genes, n.interaction)
+            y.by.x[, interacting] <- (y.by.x %c% causal.genes) %*% y.to.y
+        }
+
+        ## stochastic version of Y
+        y.obs <- (.scale(y.by.x) * sqrt(h2) +
+                  .scale(y.by.u0) * sqrt(pve.y.by.u0) +
+                  .scale(y.by.u1) * sqrt(pve.y.by.u1) +
+                  .scale(y.err) * sqrt(max(0, 1 - pve.y.tot)))
     }
 
-    #############
-    ## U1 -> Y ##
-    #############
-    xx <- X %c% u1.snps
-    xx[is.na(xx)] <- 0
-    .beta.u <- .rnorm(ncol(xx), n.u1)
-    u1 <- (.scale(.rnorm(n.ind, n.u1)) * sqrt(1 - pve.u1.by.x) +
-           .scale(xx %*% .beta.u) * sqrt(pve.u1.by.x))
-    .beta.yu <- .rnorm(ncol(u1), n.genes)
-    y.by.u1 <- u1 %*% .beta.yu
-
-    if(n.covar.genes < n.genes){
-        ## some genes are not affected by covariates
-        n0 <- n.genes - n.covar.genes
-        y.by.u1[, sample(n.genes, n0)] <- .rnorm(n.ind, n0)
-    }
-
-    ############
-    ## X -> Y ##
-    ############
-    xx.causal <- X %c% causal.snps
-    xx.causal[is.na(xx.causal)] <- 0
-
-    ## null effect
-    non.causal <- setdiff(1:ncol(X), causal.snps)
-    y.by.x <- lapply(1:n.genes, function(j) {
-        xx <- X %c% sample(non.causal, n.causal.snps)
-        xx <- apply(xx, 2, sample) # permute
-        xx %*% .rnorm(n.causal.snps, 1)
-    })
-    y.by.x <- as.matrix(do.call(cbind, y.by.x))
-
-    ## direct effect
-    xy <- .rnorm(n.causal.snps, n.causal.genes)
-    y.by.x[, causal.genes] <- (xx.causal %*% xy)
-
-    ## introduce interactions between genes
-    if(n.interaction > 0) {
-        non.causal <- setdiff(1:n.genes, causal.genes)
-        interacting <- sample(non.causal, n.interaction)
-        y.to.y <- .rnorm(n.causal.genes, n.interaction)
-        y.by.x[, interacting] <- (y.by.x %c% causal.genes) %*% y.to.y
-    }
-
-    ## stochastic version of Y
-    y.obs <- (.scale(y.by.x) * sqrt(h2) +
-              .scale(y.by.u0) * sqrt(pve.y.by.u0) +
-              .scale(y.by.u1) * sqrt(pve.y.by.u1) +
-              .scale(y.err) * sqrt(1 - pve.y.tot))
-
-    list(y = y.obs, x = X, y.true = y.by.x,
-         u1.snps = u1.snps,
+    list(x = X,
          causal.snps = causal.snps,
          causal.genes = causal.genes,
-         u0 = u0, u1 = u1)
+         causal.label = causal.label,
+         y = lapply(1:num.mixtures, sample.y))
 }
 
 #' Simulate individual-level effects by GLM
