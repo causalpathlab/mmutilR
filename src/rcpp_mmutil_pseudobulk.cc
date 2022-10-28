@@ -212,10 +212,21 @@ rcpp_mmutil_aggregate_pairwise(
     Mat delta_sd(D, K * Npairs);
     Mat ln_delta(D, K * Npairs);
     Mat ln_delta_sd(D, K * Npairs);
+
     delta.setZero();
     delta_sd.setZero();
     ln_delta.setZero();
     ln_delta_sd.setZero();
+
+    Mat mu(D, K * Npairs);
+    Mat mu_sd(D, K * Npairs);
+    Mat ln_mu(D, K * Npairs);
+    Mat ln_mu_sd(D, K * Npairs);
+
+    mu.setZero();
+    mu_sd.setZero();
+    ln_mu.setZero();
+    ln_mu_sd.setZero();
 
     Index npair_proc = 0;
     TLOG("Processed: " << npair_proc);
@@ -244,18 +255,28 @@ rcpp_mmutil_aggregate_pairwise(
 
         poisson_t pois(yy, zz, y0, zz, a0, b0);
         pois.optimize();
+        const Mat mu_ij = pois.mu_DK();
+        const Mat mu_sd_ij = pois.mu_sd_DK();
+        const Mat ln_mu_ij = pois.ln_mu_DK();
+        const Mat ln_mu_sd_ij = pois.ln_mu_sd_DK();
+
         pois.residual_optimize();
-        const Mat mu_ij = pois.residual_mu_DK();
-        const Mat mu_sd_ij = pois.residual_mu_sd_DK();
-        const Mat ln_mu_ij = pois.ln_residual_mu_DK();
-        const Mat ln_mu_sd_ij = pois.ln_residual_mu_sd_DK();
+        const Mat delta_ij = pois.residual_mu_DK();
+        const Mat delta_sd_ij = pois.residual_mu_sd_DK();
+        const Mat ln_delta_ij = pois.ln_residual_mu_DK();
+        const Mat ln_delta_sd_ij = pois.ln_residual_mu_sd_DK();
 
         for (Index k = 0; k < K; ++k) {
             const Index s = K * pi + k;
-            delta.col(s) = mu_ij.col(k);
-            delta_sd.col(s) = mu_sd_ij.col(k);
-            ln_delta.col(s) = ln_mu_ij.col(k);
-            ln_delta_sd.col(s) = ln_mu_sd_ij.col(k);
+            delta.col(s) = delta_ij.col(k);
+            delta_sd.col(s) = delta_sd_ij.col(k);
+            ln_delta.col(s) = ln_delta_ij.col(k);
+            ln_delta_sd.col(s) = ln_delta_sd_ij.col(k);
+
+            mu.col(s) = mu_ij.col(k);
+            mu_sd.col(s) = mu_sd_ij.col(k);
+            ln_mu.col(s) = ln_mu_ij.col(k);
+            ln_mu_sd.col(s) = ln_mu_sd_ij.col(k);
 
             const std::string pair_name =
                 indv_name_ii + "_" + indv_name_jj + "_" + lab_name.at(k);
@@ -324,6 +345,10 @@ rcpp_mmutil_aggregate_pairwise(
                               Rcpp::_["delta.sd"] = named_mat(delta_sd),
                               Rcpp::_["ln.delta"] = named_mat(ln_delta),
                               Rcpp::_["ln.delta.sd"] = named_mat(ln_delta_sd),
+                              Rcpp::_["mu"] = named_mat(mu),
+                              Rcpp::_["mu.sd"] = named_mat(mu_sd),
+                              Rcpp::_["ln.mu"] = named_mat(ln_mu),
+                              Rcpp::_["ln.mu.sd"] = named_mat(ln_mu_sd),
                               Rcpp::_["knn"] = _knn);
 }
 

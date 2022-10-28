@@ -18,7 +18,8 @@ simulate_indv_eqtl(
   n.interaction,
   n.genes,
   n.covar.genes,
-  num.mixtures = 1
+  num.mixtures = 1,
+  resample.u0 = FALSE
 )
 }
 \arguments{

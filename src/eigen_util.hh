@@ -603,6 +603,16 @@ struct running_stat_t {
 };
 
 template <typename T>
+struct inf_zero_op {
+    using Scalar = typename T::Scalar;
+    const Scalar operator()(const Scalar &x) const
+    {
+        return std::isfinite(x) ? x : zero_val;
+    }
+    static constexpr Scalar zero_val = 0.0;
+};
+
+template <typename T>
 struct is_obs_op {
     using Scalar = typename T::Scalar;
     const Scalar operator()(const Scalar &x) const

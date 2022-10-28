@@ -49,6 +49,7 @@ sample_poisson_data(const Vec mu,
     using rpois_t = boost::random::poisson_distribution<int>;
     // dqrng::xoshiro256plus rng;
     rpois_t rpois;
+    inf_zero_op<Vec> inf_zero; // remove inf -> 0
 
     Vec temp(num_rows);
 
@@ -57,9 +58,10 @@ sample_poisson_data(const Vec mu,
     for (Index j = 0; j < num_cols; ++j) {
         const Scalar r = rho(j);
 
-        temp = mu.unaryExpr([&r, &rpois, &rng](const Scalar &m) -> Scalar {
-            return rpois(rng, rpois_t::param_type(r * m));
-        });
+        temp = mu.unaryExpr(inf_zero).unaryExpr(
+            [&r, &rpois, &rng](const Scalar &m) -> Scalar {
+                return rpois(rng, rpois_t::param_type(r * m));
+            });
 
         const Index col = col_offset + j + 1; // one-based
 

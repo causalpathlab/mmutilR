@@ -1,3 +1,120 @@
+#' Simulate mosaic (multi-batch) single-cell MTX data for eQTL analysis
+#'
+#' @param X genotype matrix (individual x SNPs)
+#' @param h2 heritability (proportion of variance of Y explained by genetic X)
+#'
+#' @param n.causal.snps X variables directly affecting on Y
+#' @param n.causal.genes Y variables directly regulated by X
+#'
+#' @param pve.y.by.u0 proportion of variance of Y explained by U0
+#' @param n.u0 number of covariates on Y
+#'
+#' @param pve.u1.by.x proportion of variance of U1 explained by X
+#' @param pve.y.by.u1 proportion of variance of Y explained by U1
+#' @param n.u1 number of covariates on Y
+#'
+#' @param pve.interaction proportion of variance of Y explained by interaction
+#' @param n.interaction number of genes interacting with the causal genes
+#' @param n.genes total number of genes (Y variables)
+#' @param num.mixtures num of cell mixtures
+#' @param num.batches num of single-cell data batches
+#'
+#' @param rho.a rho ~ gamma(a, b)
+#' @param rho.b rho ~ gamma(a, b)
+#' @param ncell.ind number of cells per individual
+#' @param rseed random seed
+#'
+#' @return simulation results
+#'
+#' @details
+#'
+#' The simulation result list will have two lists:
+#'
+#' `data`:
+#'
+#' * `data$mtx`: a matrix market data file
+#' * `data$row`: a file with row names
+#' * `data$col`: a file with column names
+#' * `data$idx`: an indexing file for the columns
+#' * `data$indv`: a mapping file between column and individual names
+#'
+#' `indv`:
+#' * `indv$y`: observed (noisy) individual x gene matrix
+#' * `indv$x`: observed individual x variants genotype matrix
+#' * `indv$causal.snps`: causal variants (X variables)
+#' * `indv$causal.genes`: causal genes (Y variables)
+#' * `indv$causal.label`: true labels
+#'
+make.sc.eqtl.mosaic <- function(file.header,
+                                X, h2,
+                                n.causal.snps = 1,
+                                n.causal.genes = 5,
+                                pve.y.by.u0 = .3,
+                                n.u0 = 3,
+                                pve.u1.by.x = .8,
+                                pve.y.by.u1 = .3,
+                                n.u1 = 3,
+                                pve.interaction = 0.5,
+                                n.interaction = 0,
+                                n.genes = 50,
+                                n.covar.genes = n.genes,
+                                num.mixtures = 1,
+                                num.mosaic = 1,
+                                rho.a = 2,
+                                rho.b = 2,
+                                ncell.ind = 10,
+                                rseed = 13){
+
+    set.seed(rseed)
+
+    .sim <- simulate_indv_eqtl(X = X,
+                               h2 = h2,
+                               n.causal.snps = n.causal.snps,
+                               n.causal.genes = n.causal.genes,
+                               pve.y.by.u0 = pve.y.by.u0,
+                               n.u0 = n.u0,
+                               pve.u1.by.x = pve.u1.by.x,
+                               pve.y.by.u1 = pve.y.by.u1,
+                               n.u1 = n.u1,
+                               pve.interaction = pve.interaction,
+                               n.interaction = n.interaction,
+                               n.genes = n.genes,
+                               n.covar.genes = n.genes,
+                               num.mixtures = num.mixtures * num.mosaic,
+                               resample.u0 = TRUE)
+
+    .mosaic.ind <- sample(num.mosaic, nrow(X), TRUE)
+    .mosaic.mixture <- sample(rep(1:num.mosaic, num.mixtures))
+
+    .fun.mix <- function(k) {
+        ret <- matrix(NA, nrow(X), n.genes)
+        for(b in 1:num.mosaic){
+            r <- which(.mosaic.mixture == b)[k]
+            y.r <- .sim$y[[r]]
+            ret[.mosaic.ind == b, ] <- y.r[.mosaic.ind == b, ]
+        }
+        exp(t(ret))
+    }
+
+    mu.list <- lapply(1:num.mixtures, .fun.mix)
+
+    n.ind <- nrow(.sim$x)
+    ncells <- ncell.ind * n.ind
+
+    dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
+    .data <- rcpp_mmutil_simulate_poisson_mixture(mu.list,
+                                                  ncells,
+                                                  file.header,
+                                                  gam_alpha=rho.a,
+                                                  gam_beta=rho.b,
+                                                  rseed = rseed)
+
+    list(indv = .sim, data = .data,
+         mosaic.ind = .mosaic.ind,
+         mosaic.mixture = .mosaic.mixture)
+}
+
+
 #' Simulate single-cell MTX data for DEG analysis
 #'
 #' @param file.header file set header
@@ -84,14 +201,13 @@ make.sc.deg.data <- function(file.header,
                                                   rseed = rseed)
 
     list(indv = .sim$indv,
+         mu.list = .sim$mu.list,
          causal = .sim$causal,
          reverse = .sim$reverse,
          data = .data)
 }
 
-#' Simulate individual-level eQTL data
-#'
-#' The goal is to have unbiased estimates of `Y ~ X` in the presence of other covariates and potentially confounding variables: Given `X` matrix, we generate `Y ~ X + U0 + U1` with confounding `U`, namely `X ~ U1`.
+#' Simulate single-cell MTX data for eQTL analysis
 #'
 #' @param X genotype matrix (individual x SNPs)
 #' @param h2 heritability (proportion of variance of Y explained by genetic X)
@@ -110,6 +226,7 @@ make.sc.deg.data <- function(file.header,
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
 #' @param ncell.ind number of cells per individual
+#' @param rseed random seed
 #'
 #' @return simulation results
 #'
@@ -215,7 +332,8 @@ simulate_indv_eqtl <- function(X, h2,
                                n.interaction,
                                n.genes,
                                n.covar.genes,
-                               num.mixtures = 1){
+                               num.mixtures = 1,
+                               resample.u0 = FALSE){
 
     if(!is.matrix(X)) { X <- as.matrix(X) }
 
@@ -244,6 +362,17 @@ simulate_indv_eqtl <- function(X, h2,
                                gene = rep(causal.genes, n.causal.snps),
                                beta = rnorm(n.causal.genes * n.causal.snps))
 
+    safe.lm <- function(Y, C){
+        Y.resid <- matrix(NA, nrow=nrow(Y), ncol=ncol(Y))
+        Y.fitted <- matrix(NA, nrow=nrow(Y), ncol=ncol(Y))
+        for(j in 1:ncol(Y)){
+            .lm <- lm(Y[, j] ~ C, na.action = "na.exclude")
+            Y.resid[,j] <- residuals(.lm)
+            Y.fitted[,j] <- fitted(.lm)
+        }
+        list(fitted = Y.fitted, residuals = Y.resid)
+    }
+
     ######################
     ## check parameters ##
     ######################
@@ -251,17 +380,33 @@ simulate_indv_eqtl <- function(X, h2,
     pve.y.tot <- h2 + pve.y.by.u0 + pve.y.by.u1
     stopifnot(pve.y.tot >= 0 & pve.y.tot <= 1)
 
+    stopifnot(n.u0 > 0)
+    u0 <- .rnorm(n.ind, n.u0)
+
+    X.safe <- .scale(X)
+    stopifnot(n.u1 > 0)
+    .svd <- svd(X.safe, nu=n.u1, nv=n.u1)
+
+    u1 <- (.scale(.svd$u) * sqrt(pve.u1.by.x) +
+           .rnorm(n.ind, n.u1) * sqrt(1 - pve.u1.by.x))
+
+    xx.clean <- safe.lm(X.safe, u1)$residuals
+
     sample.y <- function(k){
 
         y.err <- .rnorm(n.ind, n.genes)
 
+        if(resample.u0){
+            u0 <- .rnorm(n.ind, n.u0)
+        }
+
         ######################################
         ## unconfounded covariates: U0 -> Y ##
         ######################################
-        stopifnot(n.u0 > 0)
-        u0 <- .rnorm(n.ind, n.u0)
-        y.by.u0 <- u0 %*% .rnorm(n.u0, n.genes)
-
+        y.by.u0 <- 0
+        if(ncol(u0) > 0){
+            y.by.u0 <- u0 %*% .rnorm(ncol(u0), n.genes)
+        }
         if(n.covar.genes < n.genes){
             ## some genes are not affected by covariates
             n0 <- n.genes - n.covar.genes
@@ -271,21 +416,16 @@ simulate_indv_eqtl <- function(X, h2,
         #############
         ## U1 -> Y ##
         #############
-        X.safe <- .scale(X)
-        stopifnot(n.u1 > 0)
-        .svd <- svd(X.safe, nu=n.u1, nv=n.u1)
-
-        u1 <- (.scale(.svd$u) * sqrt(pve.u1.by.x) +
-               .rnorm(n.ind, n.u1) * sqrt(1 - pve.u1.by.x))
-
-        y.by.u1 <- u1 %*% .rnorm(ncol(u1), n.genes)
-
+        y.by.u1 <- 0
+        if(ncol(u1) > 0){
+            y.by.u1 <- u1 %*% .rnorm(ncol(u1), n.genes)
+        }
         if(n.covar.genes < n.genes){
             ## some genes are not affected by covariates
             n0 <- n.genes - n.covar.genes
             y.by.u1[, sample(n.genes, n0)] <- .rnorm(n.ind, n0)
         }
-        
+
         ##################################################
         ## genetic effects for each causal gene: X -> Y ##
         ##################################################
@@ -294,7 +434,7 @@ simulate_indv_eqtl <- function(X, h2,
         for(g in causal.genes){
             .causal.g <- causal.label[causal.label$gene == g, ]
             .snps <- .causal.g$snp
-            xx.causal <- X %c% .snps
+            xx.causal <- xx.clean %c% .snps
             xx.causal[is.na(xx.causal)] <- 0
             xy <- matrix(.causal.g$beta, ncol=1)
             y.by.x[, g] <- (xx.causal %*% xy)
@@ -312,7 +452,15 @@ simulate_indv_eqtl <- function(X, h2,
         y.obs <- (.scale(y.by.x) * sqrt(h2) +
                   .scale(y.by.u0) * sqrt(pve.y.by.u0) +
                   .scale(y.by.u1) * sqrt(pve.y.by.u1) +
-                  .scale(y.err) * sqrt(max(0, 1 - pve.y.tot)))
+                  .scale(y.err) * sqrt(1 - pve.y.tot + 1e-8))
+
+        ## Avoid Inf, we need to scale down
+        y.obs <- .scale(y.obs)
+        y.obs[y.obs > 8] <- 8
+        y.obs[y.obs < -8] <- -8
+        y.obs <- .scale(y.obs)
+        stopifnot(all(is.finite(y.obs)))
+        return(y.obs)
     }
 
     list(x = X,
@@ -476,12 +624,18 @@ simulate_indv_glm <- function(nind = 40,
         ln.mu.eps.k <- .rnorm(nind, ngenes)
         ln.mu.k <- (.scale(ln.mu.tau.k) * sqrt(pve.1) +
                     .scale(ln.mu.covar.k) * sqrt(pve.c) +
-                    .scale(ln.mu.eps.k) * sqrt(1 - pve.1 - pve.c))
+                    .scale(ln.mu.eps.k) * sqrt(1 - pve.1 - pve.c + 1e-8))
         ## e. reverse causation
         if(nreverse > 0){
             ln.mu.k[, reverse] <- .scale(ass$mu.reverse)
         }
-        exp(t(ln.mu.k))
+        ## To avoid Inf, we need to scale down
+        ln.mu.k <- .scale(ln.mu.k)
+        ln.mu.k[ln.mu.k > 8] <- 8
+        ln.mu.k[ln.mu.k < -8] <- -8
+        ln.mu.k <- .scale(ln.mu.k)
+        stopifnot(all(is.finite(ln.mu.k)))
+        return(exp(t(ln.mu.k)))
     }
 
     list(indv = ass,

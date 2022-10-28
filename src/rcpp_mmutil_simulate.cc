@@ -55,6 +55,8 @@ rcpp_mmutil_simulate_poisson_mixture(const Rcpp::List r_mu_list,
 
     dqrng::xoshiro256plus rng(rseed);
 
+    inf_zero_op<Vec> inf_zero; // remove inf -> 0
+
     /////////////////////////////////
     // Assign cells to individuals //
     /////////////////////////////////
@@ -133,7 +135,7 @@ rcpp_mmutil_simulate_poisson_mixture(const Rcpp::List r_mu_list,
                 continue;
 
             Vec rho_ik(n_ik);
-            rho_ik = rho_ik.unaryExpr(rgamma);
+            rho_ik = rho_ik.unaryExpr(rgamma).unaryExpr(inf_zero);
 
             std::string _temp_file = output + "_temp_" + std::to_string(i) +
                 "_k_" + std::to_string(k) + ".gz";
@@ -319,6 +321,8 @@ rcpp_mmutil_simulate_poisson(
     std::vector<Index> col_names;
     col_names.reserve(Nsample);
 
+    inf_zero_op<Vec> inf_zero; // remove inf -> 0
+
     for (Index i = 0; i < partition.size(); ++i) {
         const Index n_i = partition[i].size();
 
@@ -334,6 +338,8 @@ rcpp_mmutil_simulate_poisson(
             const Index k = unif_rho(rng);
             rho_i(j) = rho(k);
         }
+
+        rho_i = rho_i.unaryExpr(inf_zero);
 
         const Index nelem =
             sample_poisson_data(mu.col(i), rho_i, ncol, ofs, rng, FS);

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Simulate.R
 \name{make.sc.eqtl.data}
 \alias{make.sc.eqtl.data}
-\title{Simulate individual-level eQTL data}
+\title{Simulate single-cell MTX data for eQTL analysis}
 \usage{
 make.sc.eqtl.data(
   file.header,
@@ -58,12 +58,14 @@ make.sc.eqtl.data(
 \item{rho.b}{rho ~ gamma(a, b)}
 
 \item{ncell.ind}{number of cells per individual}
+
+\item{rseed}{random seed}
 }
 \value{
 simulation results
 }
 \description{
-The goal is to have unbiased estimates of \code{Y ~ X} in the presence of other covariates and potentially confounding variables: Given \code{X} matrix, we generate \code{Y ~ X + U0 + U1} with confounding \code{U}, namely \code{X ~ U1}.
+Simulate single-cell MTX data for eQTL analysis
 }
 \details{
 The simulation result list will have two lists:
