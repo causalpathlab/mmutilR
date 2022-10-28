@@ -209,23 +209,23 @@ rcpp_mmutil_aggregate_pairwise(
     TLOG("Total " << out_col_names.size() << " pairs");
 
     Mat delta(D, K * Npairs);
-    Mat delta_sd(D, K * Npairs);
     Mat ln_delta(D, K * Npairs);
-    Mat ln_delta_sd(D, K * Npairs);
-
     delta.setZero();
-    delta_sd.setZero();
     ln_delta.setZero();
-    ln_delta_sd.setZero();
 
     Mat mu(D, K * Npairs);
-    Mat mu_sd(D, K * Npairs);
     Mat ln_mu(D, K * Npairs);
-    Mat ln_mu_sd(D, K * Npairs);
-
     mu.setZero();
-    mu_sd.setZero();
     ln_mu.setZero();
+
+    Mat delta_sd(D, K * Npairs);
+    Mat ln_delta_sd(D, K * Npairs);
+    delta_sd.setZero();
+    ln_delta_sd.setZero();
+
+    Mat mu_sd(D, K * Npairs);
+    Mat ln_mu_sd(D, K * Npairs);
+    mu_sd.setZero();
     ln_mu_sd.setZero();
 
     Index npair_proc = 0;

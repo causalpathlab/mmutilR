@@ -114,7 +114,8 @@ paired_data_t::match_individuals()
 
     ASSERT(Vt.cols() == Nsample, "#rows(V) != Nsample");
 
-    Mat Vind = Vt * M;
+    Vind.resize(Vt.rows(), M.cols());
+    Vind = Vt * M;
     normalize_columns(Vind);
     const std::size_t rank = Vind.rows();
 

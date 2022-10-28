@@ -78,6 +78,7 @@ private:
     idx_vec_t indv_map;                    // map: col -> indv index
     std::vector<idx_vec_t> indv_index_set; // map: indv -> cols
     Mat Vt;                                // rank x column matching data
+    Mat Vind;                              // rank x individual data
 
     std::vector<std::shared_ptr<vs_type>> vs_vec_indv;
     std::vector<std::shared_ptr<KnnAlg>> knn_lookup_indv;

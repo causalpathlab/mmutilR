@@ -1,4 +1,6 @@
-#' Simulate mosaic (multi-batch) single-cell MTX data for eQTL analysis
+#' Simulate mosaic (multi-batch) single-cell MTX data for eQTL analysis.
+#'
+#' We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
 #'
 #' @param X genotype matrix (individual x SNPs)
 #' @param h2 heritability (proportion of variance of Y explained by genetic X)
@@ -19,8 +21,9 @@
 #' @param num.mixtures num of cell mixtures
 #' @param num.batches num of single-cell data batches
 #'
-#' @param rho.a rho ~ gamma(a, b)
-#' @param rho.b rho ~ gamma(a, b)
+#' @param smudge a scaling factor for 
+#' @param rho.a rho ~ Gamma(a, b)
+#' @param rho.b rho ~ Gamma(a, b)
 #' @param ncell.ind number of cells per individual
 #' @param rseed random seed
 #'
@@ -87,13 +90,16 @@ make.sc.eqtl.mosaic <- function(file.header,
     .mosaic.mixture <- sample(rep(1:num.mosaic, num.mixtures))
 
     .fun.mix <- function(k) {
-        ret <- matrix(NA, nrow(X), n.genes)
+        log.ret <- matrix(NA, nrow(X), n.genes)
         for(b in 1:num.mosaic){
             r <- which(.mosaic.mixture == b)[k]
             y.r <- .sim$y[[r]]
-            ret[.mosaic.ind == b, ] <- y.r[.mosaic.ind == b, ]
+            log.ret[.mosaic.ind == b, ] <- y.r[.mosaic.ind == b, ]
         }
-        exp(t(ret))
+        ret <- log.ret
+        ret[log.ret > 0] <- log.ret[log.ret > 0] * log(1 + exp(-log.ret[log.ret > 0]))
+        ret[log.ret <= 0] <- log(1 + exp(log.ret[log.ret <= 0]))
+        return(t(ret))
     }
 
     mu.list <- lapply(1:num.mixtures, .fun.mix)
@@ -116,6 +122,8 @@ make.sc.eqtl.mosaic <- function(file.header,
 
 
 #' Simulate single-cell MTX data for DEG analysis
+#' 
+#' We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
 #'
 #' @param file.header file set header
 #' @param nind num of individuals
@@ -209,6 +217,8 @@ make.sc.deg.data <- function(file.header,
 
 #' Simulate single-cell MTX data for eQTL analysis
 #'
+#' We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
+#' 
 #' @param X genotype matrix (individual x SNPs)
 #' @param h2 heritability (proportion of variance of Y explained by genetic X)
 #' @param n.causal.snps X variables directly affecting on Y
@@ -288,7 +298,14 @@ make.sc.eqtl.data <- function(file.header,
     n.ind <- nrow(.sim$x)
     ncells <- ncell.ind * n.ind
 
-    mu.list <- lapply(.sim$y, function(y) exp(t(y)))
+    .softplus.t <- function(log.ret){
+        ret <- log.ret
+        ret[log.ret > 0] <- log.ret[log.ret > 0] * log(1 + exp(-log.ret[log.ret > 0]))
+        ret[log.ret <= 0] <- log(1 + exp(log.ret[log.ret <= 0]))
+        return(t(ret))
+    }
+
+    mu.list <- lapply(.sim$y, .softplus.t)
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
     .data <- rcpp_mmutil_simulate_poisson_mixture(mu.list,
@@ -607,6 +624,13 @@ simulate_indv_glm <- function(nind = 40,
     ## causal effects invariant across mixture components
     tau <- .rnorm(1, ncausal)
 
+    .softplus.t <- function(log.ret){
+        ret <- log.ret
+        ret[log.ret > 0] <- log.ret[log.ret > 0] * log(1 + exp(-log.ret[log.ret > 0]))
+        ret[log.ret <= 0] <- log(1 + exp(log.ret[log.ret <= 0]))
+        return(t(ret))
+    }
+
     sample.mu <- function(k){
         ## a. non-causal genes w/o influence from the treatment assignment
         ln.mu.tau.k <- .rand(nind, ngenes, unlist(ass$assignment))
@@ -635,7 +659,7 @@ simulate_indv_glm <- function(nind = 40,
         ln.mu.k[ln.mu.k < -8] <- -8
         ln.mu.k <- .scale(ln.mu.k)
         stopifnot(all(is.finite(ln.mu.k)))
-        return(exp(t(ln.mu.k)))
+        return(.softplus.t(ln.mu.k))
     }
 
     list(indv = ass,
