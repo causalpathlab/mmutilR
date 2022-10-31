@@ -9,6 +9,7 @@ make.pine(
   mtx.data,
   celltype,
   cell2indv,
+  V = NULL,
   knn.cell = 50,
   knn.indv = 1,
   celltype.mat = NULL,
@@ -19,6 +20,7 @@ make.pine(
   .em.iter = 0,
   .em.tol = 1e-04,
   num.threads = 1,
+  impute.by.knn = FALSE,
   remove.dup = TRUE,
   ...
 )
@@ -45,6 +47,10 @@ make.pine(
 \item{.em.tol}{EM convergence (default: 1e-4)}
 
 \item{num.threads}{number of threads for multi-core processing}
+
+\item{impute.by.knn}{imputation by kNN weighting (default: FALSE)}
+
+\item{remove.dup}{remove duplicated pairs (default: TRUE)}
 
 \item{eps}{small number (default: 1e-8)}
 

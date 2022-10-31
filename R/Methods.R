@@ -16,6 +16,8 @@
 #' @param .col.norm column normalization for SVD
 #' @param .em.iter EM iteration for factorization (default: 0)
 #' @param .em.tol EM convergence (default: 1e-4)
+#' @param impute.by.knn imputation by kNN weighting (default: FALSE)
+#' @param remove.dup remove duplicated pairs (default: TRUE)
 #'
 #' @return a list of sufficient statistics matrices
 #'
@@ -78,6 +80,7 @@
 make.pine <- function(mtx.data,
                       celltype,
                       cell2indv,
+                      V = NULL,
                       knn.cell = 50,
                       knn.indv = 1,
                       celltype.mat = NULL,
@@ -88,6 +91,7 @@ make.pine <- function(mtx.data,
                       .em.iter = 0,
                       .em.tol = 1e-4,
                       num.threads = 1,
+                      impute.by.knn = FALSE,
                       remove.dup = TRUE,
                       ...) {
 
@@ -99,16 +103,17 @@ make.pine <- function(mtx.data,
     celltype.lab <- .input$celltype.lab
     treatments <- .input$treatments
 
-    message("Running PCA...")
-
-    .pca <- rcpp_mmutil_pca(mtx_file = mtx.data$mtx,
-                            RANK=.rank,
-                            TAKE_LN = .take.ln,
-                            TAU = .pca.reg,
-                            COL_NORM = .col.norm,
-                            EM_ITER = .em.iter,
-                            EM_TOL = .em.tol)
-
+    if(is.null(V)){
+        message("Running PCA...")
+        .pca <- rcpp_mmutil_pca(mtx_file = mtx.data$mtx,
+                                RANK=.rank,
+                                TAKE_LN = .take.ln,
+                                TAU = .pca.reg,
+                                COL_NORM = .col.norm,
+                                EM_ITER = .em.iter,
+                                EM_TOL = .em.tol)
+        V <- .pca$V
+    }
     message("Estimating sufficient statistics by matching...")
 
     .stat <- rcpp_mmutil_aggregate_pairwise(mtx_file = mtx.data$mtx,
@@ -119,10 +124,11 @@ make.pine <- function(mtx.data,
                                             r_annot = celltype.vec,
                                             r_annot_mat = celltype.mat,
                                             r_lab_name = celltype.lab,
-                                            r_V = .pca$V,
+                                            r_V = V,
                                             knn_cell = knn.cell,
                                             knn_indv = knn.indv,
                                             NUM_THREADS = num.threads,
+                                            IMPUTE_BY_KNN = impute.by.knn,
                                             ...)
 
     message("Finished PINE statistics preparation")
@@ -205,6 +211,7 @@ pine.remove.duplicated <- function(input){
 #' @param .col.norm column normalization for SVD
 #' @param .em.iter EM iteration for factorization (default: 0)
 #' @param .em.tol EM convergence (default: 1e-4)
+#' @param impute.by.knn imputation by kNN weighting (default: FALSE)
 #'
 #' @return a list of sufficient statistics matrices
 #'
@@ -288,6 +295,7 @@ make.cocoa <- function(mtx.data,
                        .em.iter = 0,
                        .em.tol = 1e-4,
                        num.threads = 1,
+                       impute.by.knn = FALSE,
                        ...) {
 
     .input <- check.cocoa.input(mtx.data, celltype, cell2indv, indv2exp, celltype.mat)
@@ -324,7 +332,7 @@ make.cocoa <- function(mtx.data,
                                        r_trt = treatments,
                                        r_V = .pca$V,
                                        knn = knn,
-                                       IMPUTE_BY_KNN = TRUE,
+                                       IMPUTE_BY_KNN = impute.by.knn,
                                        NUM_THREADS = num.threads,
                                        ...)
 

@@ -9,6 +9,7 @@ make.sc.deg.data(
   nind = 40,
   ngenes = 1000,
   ncausal = 5,
+  nreverse = 0,
   ncovar.conf = 3,
   ncovar.batch = 0,
   ncell.ind = 10,
@@ -33,6 +34,8 @@ make.sc.deg.data(
 \item{ngenes}{num of genes/features}
 
 \item{ncausal}{num of causal genes}
+
+\item{nreverse}{num of anti-causal genes}
 
 \item{ncovar.conf}{num of confounding covariates}
 

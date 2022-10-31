@@ -233,8 +233,19 @@ rcpp_mmutil_aggregate_pairwise(
     mu_sd.setZero();
     ln_mu_sd.setZero();
 
+    Mat delta_sum(D, K * Npairs);
+    Mat delta_mean(D, K * Npairs);
+    Mat nobs(D, K * Npairs);
+    delta_sum.setZero();
+    delta_mean.setZero();
+    nobs.setZero();
+
+    is_positive_op<Mat> is_positive; // check nnz > 0 between pairs
+
     Index npair_proc = 0;
     TLOG("Processed: " << npair_proc);
+
+    using RowVec = Eigen::internal::plain_row_type<Mat>::type;
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
@@ -247,13 +258,18 @@ rcpp_mmutil_aggregate_pairwise(
         const std::string indv_name_jj = pdata.indv_name(jj);
         TLOG("compare " << indv_name_ii << " vs. " << indv_name_jj);
 
-        Mat yy = pdata.read_block(ii);
-        Mat zz = row_sub(Z, pdata.cell_indexes(ii));
-        zz.transposeInPlace(); // Z: K x N
+        Mat yy = pdata.read_block(ii);                            // D x N
+        Mat zz = row_sub(Z, pdata.cell_indexes(ii));              // N x K
+        zz.transposeInPlace();                                    // Z: K x N
+        Mat y0 = pdata.read_matched_block(ii, jj, IMPUTE_BY_KNN); // D x N
 
-        // auto storage_index = [&K, &pi](const Index k) { return K * pi + k; };
-
-        Mat y0 = pdata.read_matched_block(ii, jj, IMPUTE_BY_KNN);
+        Mat y_sum = yy * zz.transpose();   // D x K
+        Mat y0_sum = y0 * zz.transpose();  // D x K
+        Mat delta_sum_ij = y_sum - y0_sum; // difference
+        Mat delta_mean_ij =
+            delta_sum_ij.array().rowwise() / zz.colwise().sum().array();
+        Mat nobs_ij =
+            y_sum.unaryExpr(is_positive) + y0_sum.unaryExpr(is_positive);
 
         Vec u_ij = pdata.read_matched_covar(ii, jj);
 
@@ -274,6 +290,7 @@ rcpp_mmutil_aggregate_pairwise(
         const Mat ln_delta_ij = pois.ln_residual_mu_DK();
         const Mat ln_delta_sd_ij = pois.ln_residual_mu_sd_DK();
 
+        // auto storage_index = [&K, &pi](const Index k) { return K * pi + k; };
         for (Index k = 0; k < K; ++k) {
             const Index s = K * pi + k;
             delta.col(s) = delta_ij.col(k);
@@ -285,6 +302,10 @@ rcpp_mmutil_aggregate_pairwise(
             mu_sd.col(s) = mu_sd_ij.col(k);
             ln_mu.col(s) = ln_mu_ij.col(k);
             ln_mu_sd.col(s) = ln_mu_sd_ij.col(k);
+
+            delta_sum.col(s) = delta_sum_ij.col(k);
+            delta_mean.col(s) = delta_mean_ij.col(k);
+            nobs.col(s) = nobs_ij.col(k);
 
             covar.col(s) = u_ij;
 
@@ -362,6 +383,9 @@ rcpp_mmutil_aggregate_pairwise(
     const Mat Vind = pdata.export_covar_indv();
 
     return Rcpp::List::create(Rcpp::_["delta"] = named_mat(delta),
+                              Rcpp::_["sum.delta"] = named_mat(delta_sum),
+                              Rcpp::_["mean.delta"] = named_mat(delta_mean),
+                              Rcpp::_["nobs"] = named_mat(nobs),
                               Rcpp::_["delta.sd"] = named_mat(delta_sd),
                               Rcpp::_["ln.delta"] = named_mat(ln_delta),
                               Rcpp::_["ln.delta.sd"] = named_mat(ln_delta_sd),

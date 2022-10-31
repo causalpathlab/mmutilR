@@ -1,6 +1,6 @@
 #' Simulate mosaic (multi-batch) single-cell MTX data for eQTL analysis.
 #'
-#' We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
+#' We will generate Y ~ Poisson(mu * rho) where mu ~ exp(log.mu/smudge), rho ~ Gamma(a,b)
 #'
 #' @param X genotype matrix (individual x SNPs)
 #' @param h2 heritability (proportion of variance of Y explained by genetic X)
@@ -21,7 +21,7 @@
 #' @param num.mixtures num of cell mixtures
 #' @param num.batches num of single-cell data batches
 #'
-#' @param smudge a scaling factor for 
+#' @param smudge a scaling factor for a GLM model (default: 1)
 #' @param rho.a rho ~ Gamma(a, b)
 #' @param rho.b rho ~ Gamma(a, b)
 #' @param ncell.ind number of cells per individual
@@ -63,6 +63,7 @@ make.sc.eqtl.mosaic <- function(file.header,
                                 n.covar.genes = n.genes,
                                 num.mixtures = 1,
                                 num.mosaic = 1,
+                                smudge = 1,
                                 rho.a = 2,
                                 rho.b = 2,
                                 ncell.ind = 10,
@@ -96,9 +97,7 @@ make.sc.eqtl.mosaic <- function(file.header,
             y.r <- .sim$y[[r]]
             log.ret[.mosaic.ind == b, ] <- y.r[.mosaic.ind == b, ]
         }
-        ret <- log.ret
-        ret[log.ret > 0] <- log.ret[log.ret > 0] * log(1 + exp(-log.ret[log.ret > 0]))
-        ret[log.ret <= 0] <- log(1 + exp(log.ret[log.ret <= 0]))
+        ret <- exp(log.ret/smudge)
         return(t(ret))
     }
 
@@ -123,12 +122,13 @@ make.sc.eqtl.mosaic <- function(file.header,
 
 #' Simulate single-cell MTX data for DEG analysis
 #' 
-#' We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
+#' We will generate Y ~ Poisson(mu * rho) where mu ~  exp(log.mu/smudge), rho ~ Gamma(a,b)
 #'
 #' @param file.header file set header
 #' @param nind num of individuals
 #' @param ngenes num of genes/features
 #' @param ncausal num of causal genes
+#' @param nreverse num of anti-causal genes
 #' @param ncovar.conf num of confounding covariates
 #' @param ncovar.batch num of confounding batch variables
 #' @param ngenes.covar num of genes affected by covariates
@@ -138,9 +138,9 @@ make.sc.eqtl.mosaic <- function(file.header,
 #' @param pve.c variance of confounding effect
 #' @param pve.a variance of confounders to the assignment
 #' @param pve.r variance of reverse causation
+#' @param smudge a scaling factor for a GLM model (default: 1)
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
-#' @param smudge smudge factor
 #' @param rseed random seed
 #' @param exposure.type "binary" or "continuous"
 #'
@@ -171,6 +171,7 @@ make.sc.deg.data <- function(file.header,
                              nind = 40,
                              ngenes = 1000,
                              ncausal = 5,
+                             nreverse = 0,
                              ncovar.conf = 3,
                              ncovar.batch = 0,
                              ncell.ind = 10,
@@ -180,15 +181,16 @@ make.sc.deg.data <- function(file.header,
                              pve.c = 0.5,
                              pve.a = 0.5,
                              pve.r = 0,
+                             smudge = 1,
                              rho.a = 2,
                              rho.b = 2,
-                             smudge = 1,
                              rseed = 13,
                              exposure.type = c("binary","continuous")){
 
     .sim <- simulate_indv_glm(nind = nind,
                               ngenes = ngenes,
                               ncausal = ncausal,
+                              nreverse = nreverse,
                               ncovar.conf = ncovar.conf,
                               ncovar.batch = ncovar.batch,
                               ngenes.covar = ngenes.covar,
@@ -220,7 +222,7 @@ make.sc.deg.data <- function(file.header,
 
 #' Simulate single-cell MTX data for eQTL analysis
 #'
-#' We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
+#' We will generate Y ~ Poisson(mu * rho) where mu ~ exp(log.mu/smudge), rho ~ Gamma(a,b)
 #' 
 #' @param X genotype matrix (individual x SNPs)
 #' @param h2 heritability (proportion of variance of Y explained by genetic X)
@@ -236,6 +238,7 @@ make.sc.deg.data <- function(file.header,
 #' @param n.genes total number of genes (Y variables)
 #' @param num.mixtures num of cell mixtures
 #'
+#' @param smudge a scaling factor for a GLM model (default: 1)
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
 #' @param ncell.ind number of cells per individual
@@ -276,6 +279,7 @@ make.sc.eqtl.data <- function(file.header,
                               n.genes = 50,
                               n.covar.genes = n.genes,
                               num.mixtures = 1,
+                              smudge = 1,
                               rho.a = 2,
                               rho.b = 2,
                               ncell.ind = 10,
@@ -301,14 +305,7 @@ make.sc.eqtl.data <- function(file.header,
     n.ind <- nrow(.sim$x)
     ncells <- ncell.ind * n.ind
 
-    .softplus.t <- function(log.ret){
-        ret <- log.ret
-        ret[log.ret > 0] <- log.ret[log.ret > 0] * log(1 + exp(-log.ret[log.ret > 0]))
-        ret[log.ret <= 0] <- log(1 + exp(log.ret[log.ret <= 0]))
-        return(t(ret))
-    }
-
-    mu.list <- lapply(.sim$y, .softplus.t)
+    mu.list <- lapply(.sim$y, function(y) exp(t(y/smudge)))
 
     dir.create(dirname(file.header), recursive = TRUE, showWarnings = FALSE)
     .data <- rcpp_mmutil_simulate_poisson_mixture(mu.list,
@@ -577,7 +574,8 @@ simulate_indv_glm <- function(nind = 40,
 
         ## (2) sample reverse causation genes: mu(reverse) -> X
         if(nreverse > 0){
-            mu.rev <- .scale(.rnorm(nind, nreverse))
+            rev.effect <- .rnorm(ncol(uv), nreverse)
+            mu.rev <- uv %*% rev.effect
         } else {
             mu.rev <- .rnorm(nind, 1) * 0
         }
@@ -641,6 +639,10 @@ simulate_indv_glm <- function(nind = 40,
         ln.mu.tau.k <- .rand(nind, ngenes, unlist(ass$assignment))
         ## b. causal genes exert invariant effects
         ln.mu.tau.k[, causal] <- ass$assignment %*% tau
+        ## reverse causation
+        if(nreverse > 0){
+            ln.mu.tau.k[, reverse] <- .scale(ass$mu.reverse)
+        }
         ## c. influence from the context-specific covariates
         beta.covar <- .rnorm(ncol(ass$covariates), ngenes)
         ln.mu.covar.k <- ass$covariates %*% beta.covar
@@ -654,10 +656,6 @@ simulate_indv_glm <- function(nind = 40,
         ln.mu.k <- (.scale(ln.mu.tau.k) * sqrt(pve.1) +
                     .scale(ln.mu.covar.k) * sqrt(pve.c) +
                     .scale(ln.mu.eps.k) * sqrt(1 - pve.1 - pve.c + 1e-8))
-        ## e. reverse causation
-        if(nreverse > 0){
-            ln.mu.k[, reverse] <- .scale(ass$mu.reverse)
-        }
         ## To avoid Inf, we need to scale down
         ln.mu.k <- .scale(ln.mu.k)
         ln.mu.k[ln.mu.k > 8] <- 8
@@ -671,5 +669,6 @@ simulate_indv_glm <- function(nind = 40,
     list(indv = ass,
          causal = causal,
          reverse = reverse,
-         mu.list = lapply(1:num.mixtures, sample.mu))
+         mu.list = lapply(1:num.mixtures, sample.mu),
+         tau = tau)
 }

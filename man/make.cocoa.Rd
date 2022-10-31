@@ -19,6 +19,7 @@ make.cocoa(
   .em.iter = 0,
   .em.tol = 1e-04,
   num.threads = 1,
+  impute.by.knn = FALSE,
   ...
 )
 }
@@ -48,6 +49,8 @@ make.cocoa(
 \item{.em.tol}{EM convergence (default: 1e-4)}
 
 \item{num.threads}{number of threads for multi-core processing}
+
+\item{impute.by.knn}{imputation by kNN weighting (default: FALSE)}
 
 \item{a0}{hyperparameter for gamma(a0, b0) (default: 1)}
 
