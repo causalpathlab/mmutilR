@@ -19,9 +19,9 @@ make.sc.deg.data(
   pve.c = 0.5,
   pve.a = 0.5,
   pve.r = 0,
+  smudge = 1,
   rho.a = 2,
   rho.b = 2,
-  smudge = 1,
   rseed = 13,
   exposure.type = c("binary", "continuous")
 )
@@ -55,11 +55,11 @@ make.sc.deg.data(
 
 \item{pve.r}{variance of reverse causation}
 
+\item{smudge}{a scaling factor for a GLM model (default: 1)}
+
 \item{rho.a}{rho ~ gamma(a, b)}
 
 \item{rho.b}{rho ~ gamma(a, b)}
-
-\item{smudge}{smudge factor}
 
 \item{rseed}{random seed}
 
@@ -69,7 +69,7 @@ make.sc.deg.data(
 simulation results
 }
 \description{
-We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
+We will generate Y ~ Poisson(mu * rho) where mu ~  exp(log.mu/smudge), rho ~ Gamma(a,b)
 }
 \details{
 The simulation result list will have two lists:

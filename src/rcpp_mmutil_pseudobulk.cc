@@ -266,8 +266,8 @@ rcpp_mmutil_aggregate_pairwise(
         Mat y_sum = yy * zz.transpose();   // D x K
         Mat y0_sum = y0 * zz.transpose();  // D x K
         Mat delta_sum_ij = y_sum - y0_sum; // difference
-        Mat delta_mean_ij =
-            delta_sum_ij.array().rowwise() / zz.colwise().sum().array();
+        Mat delta_mean_ij = (delta_sum_ij.array().rowwise() /
+                             zz.transpose().colwise().sum().array());
         Mat nobs_ij =
             y_sum.unaryExpr(is_positive) + y0_sum.unaryExpr(is_positive);
 

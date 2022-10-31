@@ -20,6 +20,7 @@ make.sc.eqtl.data(
   n.genes = 50,
   n.covar.genes = n.genes,
   num.mixtures = 1,
+  smudge = 1,
   rho.a = 2,
   rho.b = 2,
   ncell.ind = 10,
@@ -53,6 +54,8 @@ make.sc.eqtl.data(
 
 \item{num.mixtures}{num of cell mixtures}
 
+\item{smudge}{a scaling factor for a GLM model (default: 1)}
+
 \item{rho.a}{rho ~ gamma(a, b)}
 
 \item{rho.b}{rho ~ gamma(a, b)}
@@ -65,7 +68,7 @@ make.sc.eqtl.data(
 simulation results
 }
 \description{
-We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
+We will generate Y ~ Poisson(mu * rho) where mu ~ exp(log.mu/smudge), rho ~ Gamma(a,b)
 }
 \details{
 The simulation result list will have two lists:
