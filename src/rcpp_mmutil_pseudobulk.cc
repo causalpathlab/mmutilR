@@ -35,6 +35,7 @@
 //' @param KNN_BILINK num. of bidirectional links (default: 10)
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
+//' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
 //'
 //' @return a list of inference results
 //'
@@ -57,7 +58,8 @@ rcpp_mmutil_aggregate_pairwise(
     const std::size_t knn_indv = 1,
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
-    const std::size_t NUM_THREADS = 1)
+    const std::size_t NUM_THREADS = 1,
+    const bool IMPUTE_BY_KNN = false)
 {
 
     Eigen::initParallel();
@@ -251,7 +253,7 @@ rcpp_mmutil_aggregate_pairwise(
 
         // auto storage_index = [&K, &pi](const Index k) { return K * pi + k; };
 
-        Mat y0 = pdata.read_matched_block(ii, jj);
+        Mat y0 = pdata.read_matched_block(ii, jj, IMPUTE_BY_KNN);
 
         Vec u_ij = pdata.read_matched_covar(ii, jj);
 
@@ -391,7 +393,7 @@ rcpp_mmutil_aggregate_pairwise(
 //' @param KNN_BILINK num. of bidirectional links (default: 10)
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
-//' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
+//' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
 //'
 //' @return a list of inference results
 //'
@@ -415,7 +417,7 @@ rcpp_mmutil_aggregate(
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
     const std::size_t NUM_THREADS = 1,
-    const bool IMPUTE_BY_KNN = true)
+    const bool IMPUTE_BY_KNN = false)
 {
     Eigen::initParallel();
     CHK_RETL(mmutil::bgzf::convert_bgzip(mtx_file));

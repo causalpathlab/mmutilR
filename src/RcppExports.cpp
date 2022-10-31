@@ -307,8 +307,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_aggregate_pairwise
-Rcpp::List rcpp_mmutil_aggregate_pairwise(const std::string mtx_file, const std::string row_file, const std::string col_file, Rcpp::Nullable<Rcpp::StringVector> r_indv, Rcpp::Nullable<Rcpp::NumericMatrix> r_V, Rcpp::Nullable<Rcpp::StringVector> r_cols, Rcpp::Nullable<Rcpp::StringVector> r_annot, Rcpp::Nullable<Rcpp::NumericMatrix> r_annot_mat, Rcpp::Nullable<Rcpp::StringVector> r_lab_name, const double a0, const double b0, const double eps, const std::size_t knn_cell, const std::size_t knn_indv, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_aggregate_pairwise(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP r_indvSEXP, SEXP r_VSEXP, SEXP r_colsSEXP, SEXP r_annotSEXP, SEXP r_annot_matSEXP, SEXP r_lab_nameSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP epsSEXP, SEXP knn_cellSEXP, SEXP knn_indvSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::List rcpp_mmutil_aggregate_pairwise(const std::string mtx_file, const std::string row_file, const std::string col_file, Rcpp::Nullable<Rcpp::StringVector> r_indv, Rcpp::Nullable<Rcpp::NumericMatrix> r_V, Rcpp::Nullable<Rcpp::StringVector> r_cols, Rcpp::Nullable<Rcpp::StringVector> r_annot, Rcpp::Nullable<Rcpp::NumericMatrix> r_annot_mat, Rcpp::Nullable<Rcpp::StringVector> r_lab_name, const double a0, const double b0, const double eps, const std::size_t knn_cell, const std::size_t knn_indv, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS, const bool IMPUTE_BY_KNN);
+RcppExport SEXP _mmutilR_rcpp_mmutil_aggregate_pairwise(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP r_indvSEXP, SEXP r_VSEXP, SEXP r_colsSEXP, SEXP r_annotSEXP, SEXP r_annot_matSEXP, SEXP r_lab_nameSEXP, SEXP a0SEXP, SEXP b0SEXP, SEXP epsSEXP, SEXP knn_cellSEXP, SEXP knn_indvSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP, SEXP IMPUTE_BY_KNNSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -329,7 +329,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_BILINK(KNN_BILINKSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_NNLIST(KNN_NNLISTSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_aggregate_pairwise(mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS));
+    Rcpp::traits::input_parameter< const bool >::type IMPUTE_BY_KNN(IMPUTE_BY_KNNSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_aggregate_pairwise(mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -424,7 +425,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 15},
     {"_mmutilR_rcpp_mmutil_network_edge_cluster", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_edge_cluster, 12},
     {"_mmutilR_rcpp_mmutil_network_topic_data", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_topic_data, 23},
-    {"_mmutilR_rcpp_mmutil_aggregate_pairwise", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate_pairwise, 17},
+    {"_mmutilR_rcpp_mmutil_aggregate_pairwise", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate_pairwise, 18},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 18},
     {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 3},
     {"_mmutilR_rcpp_mmutil_simulate_poisson_mixture", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson_mixture, 7},

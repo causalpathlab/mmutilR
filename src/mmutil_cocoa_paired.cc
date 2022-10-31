@@ -51,7 +51,9 @@ paired_data_t::read_matched_covar(const Index i, const Index j)
 }
 
 Mat
-paired_data_t::read_matched_block(const Index i, const Index j)
+paired_data_t::read_matched_block(const Index i,
+                                  const Index j,
+                                  bool impute_by_knn)
 {
     ASSERT(i >= 0 && i < Nindv, "invalid i index: " << i);
     ASSERT(j >= 0 && j < Nindv, "invalid j index: " << j);
@@ -68,6 +70,7 @@ paired_data_t::read_matched_block(const Index i, const Index j)
 
     float *mass = Vt.data();
 
+    Mat y = _read_block(cells_i);
     Mat y0(D, n_i);
     y0.setZero();
 
@@ -97,14 +100,30 @@ paired_data_t::read_matched_block(const Index i, const Index j)
 
         if (counterfactual_neigh.size() > 1) {
 
-            Index deg_ = counterfactual_neigh.size();
-            weights_neigh.resize(deg_);
-            normalize_weights(deg_, dist_neigh, weights_neigh);
-            Vec w0_ = eigen_vector(weights_neigh);
-            Mat y0_ = _read_block(counterfactual_neigh);
+            if (impute_by_knn) {
 
-            const Scalar denom = w0_.sum(); // must be > 0
-            y0.col(ith) = y0_ * w0_ / denom;
+                Index deg_ = counterfactual_neigh.size();
+                weights_neigh.resize(deg_);
+                normalize_weights(deg_, dist_neigh, weights_neigh);
+                Vec w0_ = eigen_vector(weights_neigh);
+                Mat y0_ = _read_block(counterfactual_neigh);
+
+                const Scalar denom = w0_.sum(); // must be > 0
+                y0.col(ith) = y0_ * w0_ / denom;
+
+            } else {
+                Mat yy = y.col(ith);
+                Mat xx =
+                    _read_block(counterfactual_neigh).unaryExpr(glm_feature);
+                const bool glm_intercept = true;
+                y0.col(ith) = predict_poisson_glm(xx,
+                                                  yy,
+                                                  glm_iter,
+                                                  glm_reg,
+                                                  glm_intercept,
+                                                  glm_std,
+                                                  glm_sd);
+            }
 
         } else if (counterfactual_neigh.size() == 1) {
             y0.col(ith) = _read_block(counterfactual_neigh).col(0);

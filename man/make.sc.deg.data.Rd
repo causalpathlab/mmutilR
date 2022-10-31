@@ -20,6 +20,7 @@ make.sc.deg.data(
   pve.r = 0,
   rho.a = 2,
   rho.b = 2,
+  smudge = 1,
   rseed = 13,
   exposure.type = c("binary", "continuous")
 )
@@ -54,6 +55,8 @@ make.sc.deg.data(
 \item{rho.a}{rho ~ gamma(a, b)}
 
 \item{rho.b}{rho ~ gamma(a, b)}
+
+\item{smudge}{smudge factor}
 
 \item{rseed}{random seed}
 

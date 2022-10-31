@@ -436,11 +436,12 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2,
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
 #' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
+#' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
 #'
 #' @return a list of inference results
 #'
-rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn_cell = 10L, knn_indv = 1L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
+rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn_cell = 10L, knn_indv = 1L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
+    .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
 }
 
 #' Create pseudo-bulk data by aggregating columns
@@ -462,11 +463,11 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
 #' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
-#' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
+#' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
 #'
 #' @return a list of inference results
 #'
-rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = TRUE) {
+rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
     .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_annot_mat, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
 }
 
