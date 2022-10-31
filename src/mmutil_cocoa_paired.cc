@@ -1,5 +1,11 @@
 #include "mmutil_cocoa_paired.hh"
 
+const Index
+paired_data_t::rank() const
+{
+    return Vt.rows();
+}
+
 Mat
 paired_data_t::read_block(const Index i)
 {
@@ -27,6 +33,21 @@ paired_data_t::_read_block(const idx_vec_t &cells_j)
     return Mat(mmutil::io::read_eigen_sparse_subset_col(mtx_file,
                                                         mtx_idx_tab,
                                                         cells_j));
+}
+
+const Mat
+paired_data_t::export_covar_indv() const
+{
+    return Vind;
+}
+
+Vec
+paired_data_t::read_matched_covar(const Index i, const Index j)
+{
+    ASSERT(i >= 0 && i < Nindv, "invalid i index: " << i);
+    ASSERT(j >= 0 && j < Nindv, "invalid j index: " << j);
+    Vec ret = Vind.col(i) - Vind.col(j);
+    return ret;
 }
 
 Mat
@@ -114,9 +135,11 @@ paired_data_t::match_individuals()
 
     ASSERT(Vt.cols() == Nsample, "#rows(V) != Nsample");
 
-    Vind.resize(Vt.rows(), M.cols());
-    Vind = Vt * M;
-    normalize_columns(Vind);
+    Vind.resize(Vt.rows(), M.cols()); //
+    Mat VindT = (Vt * M).transpose(); //
+    normalize_columns(VindT);         // normalize across individuals
+    Vind = VindT.transpose();         //
+    normalize_columns(Vind);          // normalize across factors
     const std::size_t rank = Vind.rows();
 
     TLOG("Aggregate Vind matrix: " << Vind.rows() << " x " << Vind.cols());

@@ -140,6 +140,7 @@ make.sc.eqtl.mosaic <- function(file.header,
 #' @param pve.r variance of reverse causation
 #' @param rho.a rho ~ gamma(a, b)
 #' @param rho.b rho ~ gamma(a, b)
+#' @param smudge smudge factor
 #' @param rseed random seed
 #' @param exposure.type "binary" or "continuous"
 #'
@@ -181,6 +182,7 @@ make.sc.deg.data <- function(file.header,
                              pve.r = 0,
                              rho.a = 2,
                              rho.b = 2,
+                             smudge = 1,
                              rseed = 13,
                              exposure.type = c("binary","continuous")){
 
@@ -196,7 +198,8 @@ make.sc.deg.data <- function(file.header,
                               pve.r = pve.r,
                               pve.a = pve.a,
                               rseed = rseed,
-                              exposure.type = exposure.type)
+                              exposure.type = exposure.type,
+                              smudge = smudge)
 
     ncells <- ncell.ind * nind
 
@@ -379,17 +382,6 @@ simulate_indv_eqtl <- function(X, h2,
                                gene = rep(causal.genes, n.causal.snps),
                                beta = rnorm(n.causal.genes * n.causal.snps))
 
-    safe.lm <- function(Y, C){
-        Y.resid <- matrix(NA, nrow=nrow(Y), ncol=ncol(Y))
-        Y.fitted <- matrix(NA, nrow=nrow(Y), ncol=ncol(Y))
-        for(j in 1:ncol(Y)){
-            .lm <- lm(Y[, j] ~ C, na.action = "na.exclude")
-            Y.resid[,j] <- residuals(.lm)
-            Y.fitted[,j] <- fitted(.lm)
-        }
-        list(fitted = Y.fitted, residuals = Y.resid)
-    }
-
     ######################
     ## check parameters ##
     ######################
@@ -457,6 +449,8 @@ simulate_indv_eqtl <- function(X, h2,
             y.by.x[, g] <- (xx.causal %*% xy)
         }
 
+        y.causal <- y.by.x[, causal.genes, drop=FALSE]
+
         ## introduce interactions between genes
         if(n.interaction > 0) {
             non.causal <- setdiff(1:n.genes, causal.genes)
@@ -517,7 +511,8 @@ simulate_indv_glm <- function(nind = 40,
                               pve.a = 0.5,
                               pve.r = 0,
                               rseed = 13,
-                              exposure.type = c("binary","continuous")){
+                              exposure.type = c("binary","continuous"),
+                              smudge = 1){
 
     exposure.type <- match.arg(exposure.type)
 
@@ -590,9 +585,19 @@ simulate_indv_glm <- function(nind = 40,
         ## (3) sample composite treatment assignment: W ~ mu(reverse) + U + epsilon
         random.assign <- .scale(.rnorm(nind, 1))
         cv.rev <- cbind(cv, mu.rev)
+
+        ## Biased assignment mechanism
+        random.assign <- .rnorm(nind, 1)
+
+        .delta <- .rnorm(ncol(cv), 1) / sqrt(ncol(cv))
+        cv.assign <- cv %*% .delta
+
+        .delta <- .rnorm(ncol(mu.rev), 1) / sqrt(ncol(mu.rev))
+        rv.assign <- mu.rev %*% .delta
+
         biased.assign <- (random.assign * sqrt(1 - pve.bias - pve.r) +
-                          .scale(cv %*% .rnorm(ncol(cv), 1)) * sqrt(pve.bias) +
-                          .scale(mu.rev %*% .rnorm(ncol(mu.rev), 1)) %*% sqrt(pve.r))
+                          cv.assign * sqrt(pve.bias) +
+                          rv.assign * sqrt(pve.r))
 
         if(exposure.type == "binary"){
             ww <- rbinom(prob=.sigmoid(biased.assign), n=nind, size=1)
@@ -614,20 +619,20 @@ simulate_indv_glm <- function(nind = 40,
 
     ## Take biased assignments
     ass <- sample.biased.assignment(nind,
-                                    ncovar.conf,
-                                    ncovar.batch,
-                                    nreverse,
-                                    pve.r,
-                                    pve.a,
-                                    exposure.type)
+                                    ncovar.conf = ncovar.conf,
+                                    ncovar.batch = ncovar.batch,
+                                    nreverse = nreverse,
+                                    pve.r = pve.r,
+                                    pve.bias = pve.a,
+                                    exposure.type = exposure.type)
 
     ## causal effects invariant across mixture components
-    tau <- .rnorm(1, ncausal)
+    tau <- sign(.rnorm(1, ncausal))
 
     .softplus.t <- function(log.ret){
         ret <- log.ret
-        ret[log.ret > 0] <- log.ret[log.ret > 0] * log(1 + exp(-log.ret[log.ret > 0]))
-        ret[log.ret <= 0] <- log(1 + exp(log.ret[log.ret <= 0]))
+        ret[log.ret > 10] <- log.ret[log.ret > 10] * log(1 + exp(-log.ret[log.ret > 10]))
+        ret[log.ret <= 10] <- log(1 + exp(log.ret[log.ret <= 10]))
         return(t(ret))
     }
 
@@ -658,8 +663,9 @@ simulate_indv_glm <- function(nind = 40,
         ln.mu.k[ln.mu.k > 8] <- 8
         ln.mu.k[ln.mu.k < -8] <- -8
         ln.mu.k <- .scale(ln.mu.k)
-        stopifnot(all(is.finite(ln.mu.k)))
-        return(.softplus.t(ln.mu.k))
+        ret <- exp(t(ln.mu.k)/smudge)
+        ret[!is.finite(ret)] <- 0
+        return(ret)
     }
 
     list(indv = ass,

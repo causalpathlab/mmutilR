@@ -52,6 +52,7 @@ struct paired_data_t {
     Mat read_block(const Index i);
     Mat _read_block(const idx_vec_t &cells_j);
     Mat read_matched_block(const Index i, const Index j);
+    Vec read_matched_covar(const Index i, const Index j);
 
     void set_individual_info(const str_vec_t &indv);
 
@@ -70,6 +71,9 @@ struct paired_data_t {
 
     const std::string indv_name(const Index i) const;
     const idx_vec_t &cell_indexes(const Index i) const;
+    const Mat export_covar_indv() const;
+
+    const Index rank() const;
 
 private:
     Index D;

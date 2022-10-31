@@ -65,7 +65,7 @@ make.sc.eqtl.data(
 simulation results
 }
 \description{
-Simulate single-cell MTX data for eQTL analysis
+We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
 }
 \details{
 The simulation result list will have two lists:

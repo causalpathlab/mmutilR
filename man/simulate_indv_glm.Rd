@@ -18,7 +18,8 @@ simulate_indv_glm(
   pve.a = 0.5,
   pve.r = 0,
   rseed = 13,
-  exposure.type = c("binary", "continuous")
+  exposure.type = c("binary", "continuous"),
+  smudge = 10
 )
 }
 \arguments{

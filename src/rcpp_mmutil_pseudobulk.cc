@@ -218,6 +218,9 @@ rcpp_mmutil_aggregate_pairwise(
     mu.setZero();
     ln_mu.setZero();
 
+    Mat covar(pdata.rank(), K * Npairs);
+    covar.setZero();
+
     Mat delta_sd(D, K * Npairs);
     Mat ln_delta_sd(D, K * Npairs);
     delta_sd.setZero();
@@ -247,7 +250,10 @@ rcpp_mmutil_aggregate_pairwise(
         zz.transposeInPlace(); // Z: K x N
 
         // auto storage_index = [&K, &pi](const Index k) { return K * pi + k; };
+
         Mat y0 = pdata.read_matched_block(ii, jj);
+
+        Vec u_ij = pdata.read_matched_covar(ii, jj);
 
         TLOG("Estimating [" << ii << ", #cells=" << yy.cols() << "] vs. "
                             << "Estimating [" << jj << ", #cells=" << y0.cols()
@@ -277,6 +283,8 @@ rcpp_mmutil_aggregate_pairwise(
             mu_sd.col(s) = mu_sd_ij.col(k);
             ln_mu.col(s) = ln_mu_ij.col(k);
             ln_mu_sd.col(s) = ln_mu_sd_ij.col(k);
+
+            covar.col(s) = u_ij;
 
             const std::string pair_name =
                 indv_name_ii + "_" + indv_name_jj + "_" + lab_name.at(k);
@@ -333,6 +341,14 @@ rcpp_mmutil_aggregate_pairwise(
         return x;
     };
 
+    auto col_named_mat = [&out_row_names, &out_col_names](const Mat &xx) {
+        Rcpp::NumericMatrix x = Rcpp::wrap(xx);
+        if (xx.cols() == out_col_names.size()) {
+            Rcpp::colnames(x) = Rcpp::wrap(out_col_names);
+        }
+        return x;
+    };
+
     Rcpp::List _knn =
         Rcpp::List::create(Rcpp::_["obs.index"] = obs_index,
                            Rcpp::_["matched.index"] = matched_index,
@@ -340,6 +356,8 @@ rcpp_mmutil_aggregate_pairwise(
                            Rcpp::_["dist"] = distance_vec,
                            Rcpp::_["obs.name"] = obs_name,
                            Rcpp::_["matched.name"] = matched_name);
+
+    const Mat Vind = pdata.export_covar_indv();
 
     return Rcpp::List::create(Rcpp::_["delta"] = named_mat(delta),
                               Rcpp::_["delta.sd"] = named_mat(delta_sd),
@@ -349,7 +367,9 @@ rcpp_mmutil_aggregate_pairwise(
                               Rcpp::_["mu.sd"] = named_mat(mu_sd),
                               Rcpp::_["ln.mu"] = named_mat(ln_mu),
                               Rcpp::_["ln.mu.sd"] = named_mat(ln_mu_sd),
-                              Rcpp::_["knn"] = _knn);
+                              Rcpp::_["knn"] = _knn,
+                              Rcpp::_["covar.matched"] = col_named_mat(covar),
+                              Rcpp::_["covar.ind"] = Vind);
 }
 
 //' Create pseudo-bulk data by aggregating columns

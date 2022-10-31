@@ -63,7 +63,7 @@ make.sc.deg.data(
 simulation results
 }
 \description{
-Simulate single-cell MTX data for DEG analysis
+We will generate Y ~ Poisson(mu * rho) where mu ~ log(1 + exp(log.mu)), rho ~ Gamma(a,b)
 }
 \details{
 The simulation result list will have two lists:
