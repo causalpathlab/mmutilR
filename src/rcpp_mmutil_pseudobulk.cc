@@ -612,8 +612,10 @@ rcpp_mmutil_aggregate(
         CHK_RETL(matched_data.build_dictionary(Rcpp::NumericMatrix(r_V),
                                                NUM_THREADS));
         do_cocoa = true;
-    } else if (r_trt.isNotNull()) {
-        WLOG("For counterfactual analysis, we need covariate matrix r_V");
+    } else {
+        if (r_trt.isNotNull()) {
+            WLOG("For counterfactual analysis, we need covariate matrix r_V");
+        }
     }
 
     const Index Ntrt = matched_data.num_treatment();

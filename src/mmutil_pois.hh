@@ -383,14 +383,15 @@ public:
         }
         Scalar operator()(const Scalar &a, const Scalar &b) const
         {
+            const Scalar one = 1.0;
+            const Scalar zero = 0.0;
+
             if ((a + a0) > one)
                 return fasterdigamma(a + a0 - one) - fasterlog(b + b0);
 
             return fasterdigamma(a + a0) - fasterlog(b + b0);
         }
         const Scalar a0, b0;
-        static constexpr Scalar one = 1.0;
-        static constexpr Scalar zero = 0.0;
     };
 
     // Delta method
@@ -404,14 +405,14 @@ public:
         }
         Scalar operator()(const Scalar &a) const
         {
+            const Scalar one = 1.0;
+            const Scalar zero = 0.0;
             if ((a + a0) > one)
                 return std::max(one / std::sqrt(a + a0 - one), zero);
 
             return std::max(one / std::sqrt(a + a0), zero);
         }
         const Scalar a0;
-        static constexpr Scalar one = 1.0;
-        static constexpr Scalar zero = 0.0;
     };
 
     struct ent_op_t {

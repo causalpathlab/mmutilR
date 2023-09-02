@@ -153,9 +153,9 @@ build_bbknn(const svd_out_t &svd,
             prog.update();
             prog(std::cerr);
         }
-
-        keep_reciprocal_knn(backbone);
     }
+
+    auto backbone_rec = keep_reciprocal_knn(backbone);
 
     TLOG("Constructed kNN graph backbone");
 
@@ -164,7 +164,7 @@ build_bbknn(const svd_out_t &svd,
     ///////////////////////////////////
 
     {
-        const SpMat B = build_eigen_sparse(backbone, Nsample, Nsample);
+        const SpMat B = build_eigen_sparse(backbone_rec, Nsample, Nsample);
         knn_index.clear();
         knn_index.reserve(B.nonZeros());
 

@@ -188,6 +188,7 @@ struct annotation_stat_t {
         , unc_stat_anti(M, K)
         , nsize(K)
     {
+        const Scalar pseudo = 1e-8;
         nsize.setConstant(pseudo);     //
         Stat.setConstant(pseudo);      // sum x(g,j) * z(j, k)
         Stat_anti.setConstant(pseudo); // sum x0(g,j) * z(j, k)
@@ -229,8 +230,6 @@ struct annotation_stat_t {
 
     std::vector<std::string> labels;
     std::vector<Index> subrow;
-
-    static constexpr Scalar pseudo = 1e-8;
 };
 
 struct mm_data_loader_t {
@@ -759,13 +758,6 @@ train_model(std::vector<std::shared_ptr<STAT>> &stat_vector,
 
         for (Index iter = 0; iter < max_em_iter; ++iter) {
             score = 0;
-
-#ifdef CPYTHON
-            if (PyErr_CheckSignals() != 0) {
-                ELOG("Interrupted at Iter = " << (iter + 1));
-                break;
-            }
-#endif
 
             // #pragma omp parallel for
             for (Index lb = 0; lb < N; lb += batch_size) {     // batch
