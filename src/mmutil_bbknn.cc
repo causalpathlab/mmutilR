@@ -49,7 +49,7 @@ build_bbknn(const svd_out_t &svd,
 
         for (Index j = 0; j < Nk; ++j) {
             const Index r = col_k[j];
-            ret.col(j) = svd.V.row(r).transpose();
+            ret.col(j) = svd.V.row(r).transpose().cwiseProduct(svd.D);
         }
         return ret;
     };
@@ -64,7 +64,7 @@ build_bbknn(const svd_out_t &svd,
     const Index Nsample = svd.V.rows();
     const Index Nbatch = batch_index_set.size();
 
-    Mat V(param_rank, Nsample);
+    Mat VD(param_rank, Nsample);
 
     for (Index bb = 0; bb < Nbatch; ++bb) {
         const Index n_tot = batch_index_set[bb].size();
@@ -100,7 +100,7 @@ build_bbknn(const svd_out_t &svd,
                 {
                     alg.addPoint((void *)(mass + param_rank * i), i);
                     const Index j = bset.at(i);
-                    V.col(j) = dat.col(i);
+                    VD.col(j) = dat.col(i);
                     prog.update();
                     prog(Rcpp::Rcerr);
                 }
@@ -116,7 +116,7 @@ build_bbknn(const svd_out_t &svd,
     std::vector<std::tuple<Index, Index, Scalar>> backbone;
 
     {
-        float *mass = V.data();
+        float *mass = VD.data();
         progress_bar_t<Index> prog(Nsample, 1e2);
 
         for (Index j = 0; j < Nsample; ++j) {
@@ -185,7 +185,8 @@ build_bbknn(const svd_out_t &svd,
                 Index deg_j = 0;
                 for (SpMat::InnerIterator it(B, j); it; ++it) {
                     Index k = it.col();
-                    dist_j[deg_j] = 1. - V.col(k).cwiseProduct(V.col(j)).sum();
+                    dist_j[deg_j] =
+                        1. - VD.col(k).cwiseProduct(VD.col(j)).sum();
                     neigh_j[deg_j] = k;
                     ++deg_j;
                     if (deg_j >= param_knn)
