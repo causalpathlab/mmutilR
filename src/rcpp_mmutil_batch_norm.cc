@@ -50,8 +50,6 @@ rcpp_mmutil_pca(const std::string mtx_file,
                 const double COL_NORM = 1e4,
                 const std::size_t EM_ITER = 0,
                 const double EM_TOL = 1e-4,
-                const std::size_t KNN_BILINK = 10,
-                const std::size_t KNN_NNLIST = 10,
                 const std::size_t LU_ITER = 5,
                 const std::string row_weight_file = "",
                 const std::size_t NUM_THREADS = 1,
@@ -243,7 +241,9 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
     }
 
     std::vector<std::tuple<Index, Index, Scalar, Scalar>> knn_index;
-    CHECK(build_bbknn(svd,
+    Mat VD_rank_sample = (svd.V * svd.D.asDiagonal()).transpose();
+
+    CHECK(build_bbknn(VD_rank_sample,
                       batch_index_set,
                       knn,
                       knn_index,
@@ -314,27 +314,106 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
     Vadj.transposeInPlace();
     Vorg.transposeInPlace();
 
-    const std::size_t nout = knn_index.size();
+    Rcpp::List knn_out;
+    {
 
-    Rcpp::IntegerVector src_index(nout, NA_INTEGER);
-    Rcpp::IntegerVector tgt_index(nout, NA_INTEGER);
-    Rcpp::NumericVector weight_vec(nout, NA_REAL);
-    Rcpp::NumericVector distance_vec(nout, NA_REAL);
-    Rcpp::StringVector src_batch(nout, "");
-    Rcpp::StringVector tgt_batch(nout, "");
+        const std::size_t nout = knn_index.size();
+        Rcpp::IntegerVector src_index(nout, NA_INTEGER);
+        Rcpp::IntegerVector tgt_index(nout, NA_INTEGER);
+        Rcpp::NumericVector weight_vec(nout, NA_REAL);
+        Rcpp::NumericVector distance_vec(nout, NA_REAL);
+        Rcpp::StringVector src_batch(nout, "");
+        Rcpp::StringVector tgt_batch(nout, "");
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
 #pragma omp for
 #endif
-    for (std::size_t i = 0; i < knn_index.size(); ++i) {
-        auto &tt = knn_index.at(i);
-        src_index[i] = std::get<0>(tt) + 1;
-        tgt_index[i] = std::get<1>(tt) + 1;
-        weight_vec[i] = std::get<2>(tt);
-        distance_vec[i] = std::get<3>(tt);
-        src_batch[i] = batch_id_name.at(batch.at(std::get<0>(tt)));
-        tgt_batch[i] = batch_id_name.at(batch.at(std::get<1>(tt)));
+        for (std::size_t i = 0; i < knn_index.size(); ++i) {
+            auto &tt = knn_index.at(i);
+            src_index[i] = std::get<0>(tt) + 1;
+            tgt_index[i] = std::get<1>(tt) + 1;
+            weight_vec[i] = std::get<2>(tt);
+            distance_vec[i] = std::get<3>(tt);
+            src_batch[i] = batch_id_name.at(batch.at(std::get<0>(tt)));
+            tgt_batch[i] = batch_id_name.at(batch.at(std::get<1>(tt)));
+        }
+
+        knn_out = Rcpp::List::create(Rcpp::_["src.index"] = src_index,
+                                     Rcpp::_["tgt.index"] = tgt_index,
+                                     Rcpp::_["weight"] = weight_vec,
+                                     Rcpp::_["dist"] = distance_vec,
+                                     Rcpp::_["src.batch"] = src_batch,
+                                     Rcpp::_["tgt.batch"] = tgt_batch);
+    }
+
+    Rcpp::List knn_adj_out;
+    if (Nbatch <= 1) {
+
+        TLOG("No need to recompute the kNN graph.");
+
+    } else {
+
+        TLOG("Building kNN graph after adjusting batch effects.");
+
+        Mat X = (Vadj * svd.D.asDiagonal()).transpose();
+        std::size_t param_bilink = KNN_BILINK;
+        std::size_t param_nnlist = KNN_NNLIST;
+
+        if (param_bilink >= X.rows()) {
+            WLOG("Shrink M value: " << param_bilink << " vs. " << X.rows());
+            param_bilink = X.rows() - 1;
+        }
+
+        if (param_bilink < 2) {
+            WLOG("too small M value");
+            param_bilink = 2;
+        }
+
+        if (param_nnlist <= knn) {
+            WLOG("too small N value");
+            param_nnlist = knn + 1;
+        }
+
+        std::vector<std::tuple<Index, Index, Scalar>> backbone;
+        std::vector<std::tuple<Index, Index, Scalar, Scalar>> knn_adj_index;
+
+        CHECK(
+            search_knn<hnswlib::L2Space>(SrcDataT(X.data(), X.rows(), X.cols()),
+                                         TgtDataT(X.data(), X.rows(), X.cols()),
+                                         KNN(knn),
+                                         BILINK(param_bilink),
+                                         NNLIST(param_nnlist),
+                                         NUM_THREADS,
+                                         backbone));
+
+        auto backbone_rec = keep_reciprocal_knn(backbone);
+
+        reweight_knn_graph(X, backbone_rec, knn, knn_adj_index, NUM_THREADS);
+
+        const std::size_t nout = knn_adj_index.size();
+
+        Rcpp::IntegerVector src_adj_index(nout, NA_INTEGER);
+        Rcpp::IntegerVector tgt_adj_index(nout, NA_INTEGER);
+        Rcpp::NumericVector dist_adj_vec(nout, NA_REAL);
+        Rcpp::NumericVector weight_adj_vec(nout, NA_REAL);
+
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(NUM_THREADS)
+#pragma omp for
+#endif
+        for (std::size_t i = 0; i < knn_adj_index.size(); ++i) {
+            auto &tt = knn_adj_index.at(i);
+            src_adj_index[i] = std::get<0>(tt) + 1;
+            tgt_adj_index[i] = std::get<1>(tt) + 1;
+            weight_adj_vec[i] = std::get<2>(tt);
+            dist_adj_vec[i] = std::get<3>(tt);
+        }
+
+        knn_adj_out = Rcpp::List::create(Rcpp::_["src.index"] = src_adj_index,
+                                         Rcpp::_["tgt.index"] = tgt_adj_index,
+                                         Rcpp::_["weight"] = weight_adj_vec,
+                                         Rcpp::_["dist"] = dist_adj_vec);
     }
 
     return Rcpp::List::create(Rcpp::_["factors.adjusted"] = Vadj,
@@ -343,17 +422,6 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
                               Rcpp::_["V"] = Vorg,
                               Rcpp::_["delta.samples"] = Delta_factor,
                               Rcpp::_["delta.features"] = Delta_feature,
-                              Rcpp::_["knn"] =
-                                  Rcpp::List::create(Rcpp::_["src.index"] =
-                                                         src_index,
-                                                     Rcpp::_["tgt.index"] =
-                                                         tgt_index,
-                                                     Rcpp::_["weight"] =
-                                                         weight_vec,
-                                                     Rcpp::_["dist"] =
-                                                         distance_vec,
-                                                     Rcpp::_["src.batch"] =
-                                                         src_batch,
-                                                     Rcpp::_["tgt.batch"] =
-                                                         tgt_batch));
+                              Rcpp::_["knn"] = knn_out,
+                              Rcpp::_["knn.adj"] = knn_adj_out);
 }

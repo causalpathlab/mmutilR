@@ -34,8 +34,8 @@
 #' ## clean up temp directory
 #' unlink(list.files(pattern = "sim_test"))
 #'
-rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
-    .Call('_mmutilR_rcpp_mmutil_pca', PACKAGE = 'mmutilR', mtx_file, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
+rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
+    .Call('_mmutilR_rcpp_mmutil_pca', PACKAGE = 'mmutilR', mtx_file, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
 }
 
 #' BBKNN(Batch-balancing kNN)-adjusted PCA

@@ -12,8 +12,6 @@ rcpp_mmutil_pca(
   COL_NORM = 10000,
   EM_ITER = 0L,
   EM_TOL = 1e-04,
-  KNN_BILINK = 10L,
-  KNN_NNLIST = 10L,
   LU_ITER = 5L,
   row_weight_file = "",
   NUM_THREADS = 1L,

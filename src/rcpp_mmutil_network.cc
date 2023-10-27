@@ -400,7 +400,9 @@ rcpp_mmutil_network_topic_data(
     }
 
     std::vector<std::tuple<Index, Index, Scalar, Scalar>> knn_index;
-    CHECK(build_bbknn(svd,
+    Mat VD_rank_sample = (svd.V * svd.D.asDiagonal()).transpose();
+
+    CHECK(build_bbknn(VD_rank_sample,
                       batch_index_set,
                       knn,
                       knn_index,
