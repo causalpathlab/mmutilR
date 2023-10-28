@@ -121,10 +121,11 @@ rcpp_mmutil_pca(const std::string mtx_file,
 //' @param r_batches batch names (n x 1)
 //' @param knn kNN parameter k
 //' @param RANK SVD rank
+//' @param RECIPROCAL_MATCH do reciprocal match (default: TRUE)
 //' @param TAKE_LN take log(1 + x) trans or not
-//' @param TAU regularization parameter (default = 1)
+//' @param TAU regularization parameter (default: 1)
 //' @param COL_NORM column normalization
-//' @param EM_ITER EM iteration for factorization (default: 10)
+//' @param EM_ITER EM iteration for factorization (default: 0)
 //' @param EM_TOL EM convergence (default: 1e-4)
 //' @param LU_ITER LU iteration
 //' @param KNN_BILINK num. of bidirectional links (default: 10)
@@ -141,6 +142,7 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
                       const Rcpp::StringVector &r_batches,
                       const std::size_t knn,
                       const std::size_t RANK,
+                      const bool RECIPROCAL_MATCH = true,
                       const bool TAKE_LN = true,
                       const double TAU = 1.,
                       const double COL_NORM = 1e4,
@@ -247,6 +249,7 @@ rcpp_mmutil_bbknn_pca(const std::string mtx_file,
                       batch_index_set,
                       knn,
                       knn_index,
+                      RECIPROCAL_MATCH,
                       KNN_BILINK,
                       KNN_NNLIST,
                       NUM_THREADS));

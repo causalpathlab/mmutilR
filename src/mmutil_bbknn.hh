@@ -71,6 +71,7 @@ build_bbknn(Eigen::MatrixBase<Derived> &VD_rank_sample,
             const std::vector<std::vector<Index>> &batch_index_set,
             const std::size_t knn,
             std::vector<std::tuple<Index, Index, Scalar, Scalar>> &knn_index,
+            const bool reciprocal_match = true,
             const std::size_t KNN_BILINK = 10,
             const std::size_t KNN_NNLIST = 10,
             const std::size_t NUM_THREADS = 1)
@@ -217,19 +218,29 @@ build_bbknn(Eigen::MatrixBase<Derived> &VD_rank_sample,
         }
     }
 
-    auto backbone_rec = keep_reciprocal_knn(backbone);
-
     TLOG("Constructed kNN graph backbone");
 
     ///////////////////////////////////
     // step2: calibrate edge weights //
     ///////////////////////////////////
 
-    reweight_knn_graph(VD_rank_sample,
-                       backbone_rec,
-                       param_knn,
-                       knn_index,
-                       NUM_THREADS);
+    if (reciprocal_match) {
+
+        reweight_knn_graph(VD_rank_sample,
+                           backbone,
+                           param_knn,
+                           knn_index,
+                           NUM_THREADS);
+    } else {
+
+        auto backbone_rec = keep_reciprocal_knn(backbone);
+
+        reweight_knn_graph(VD_rank_sample,
+                           backbone_rec,
+                           param_knn,
+                           knn_index,
+                           NUM_THREADS);
+    }
 
     TLOG("Adjusted kNN weights");
     return EXIT_SUCCESS;

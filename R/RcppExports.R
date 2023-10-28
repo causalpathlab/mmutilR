@@ -44,10 +44,11 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #' @param r_batches batch names (n x 1)
 #' @param knn kNN parameter k
 #' @param RANK SVD rank
+#' @param RECIPROCAL_MATCH do reciprocal match (default: TRUE)
 #' @param TAKE_LN take log(1 + x) trans or not
-#' @param TAU regularization parameter (default = 1)
+#' @param TAU regularization parameter (default: 1)
 #' @param COL_NORM column normalization
-#' @param EM_ITER EM iteration for factorization (default: 10)
+#' @param EM_ITER EM iteration for factorization (default: 0)
 #' @param EM_TOL EM convergence (default: 1e-4)
 #' @param LU_ITER LU iteration
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
@@ -58,8 +59,8 @@ rcpp_mmutil_pca <- function(mtx_file, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM =
 #'
 #' @return a list of (1) factors.adjusted (2) U (3) D (4) V
 #'
-rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
-    .Call('_mmutilR_rcpp_mmutil_bbknn_pca', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
+rcpp_mmutil_bbknn_pca <- function(mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH = TRUE, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
+    .Call('_mmutilR_rcpp_mmutil_bbknn_pca', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
 }
 
 #' Annotate columns by marker feature information

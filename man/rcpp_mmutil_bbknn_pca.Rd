@@ -9,6 +9,7 @@ rcpp_mmutil_bbknn_pca(
   r_batches,
   knn,
   RANK,
+  RECIPROCAL_MATCH = TRUE,
   TAKE_LN = TRUE,
   TAU = 1,
   COL_NORM = 10000,
@@ -31,13 +32,15 @@ rcpp_mmutil_bbknn_pca(
 
 \item{RANK}{SVD rank}
 
+\item{RECIPROCAL_MATCH}{do reciprocal match (default: TRUE)}
+
 \item{TAKE_LN}{take log(1 + x) trans or not}
 
-\item{TAU}{regularization parameter (default = 1)}
+\item{TAU}{regularization parameter (default: 1)}
 
 \item{COL_NORM}{column normalization}
 
-\item{EM_ITER}{EM iteration for factorization (default: 10)}
+\item{EM_ITER}{EM iteration for factorization (default: 0)}
 
 \item{EM_TOL}{EM convergence (default: 1e-4)}
 
