@@ -6,70 +6,40 @@
 \usage{
 rcpp_mmutil_network_topic_data(
   mtx_file,
+  row_file,
+  col_file,
+  latent_factor,
   knn,
   output,
+  r_batches = NULL,
   CUTOFF = 0.01,
   WEIGHTED = FALSE,
   MAXW = 1,
-  col_file = "",
-  row_file = "",
-  r_batches = NULL,
-  r_U = NULL,
-  r_D = NULL,
-  r_V = NULL,
-  RANK = 0L,
-  TAKE_LN = TRUE,
-  TAU = 1,
-  COL_NORM = 10000,
-  EM_ITER = 0L,
-  EM_TOL = 1e-04,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
-  LU_ITER = 5L,
-  row_weight_file = "",
   NUM_THREADS = 1L
 )
 }
 \arguments{
 \item{mtx_file}{data file (feature x n)}
 
+\item{row_file}{row file (feature x 1)}
+
+\item{col_file}{row file (n x 1)}
+
+\item{latent_factor}{(n x K)}
+
 \item{knn}{kNN parameter}
 
 \item{output}{a file header for resulting files}
 
+\item{r_batches}{batch names (n x 1, default: NULL)}
+
 \item{CUTOFF}{expression present/absent call cutoff (default: 1e-2)}
-
-\item{WEIGHTED}{keep weights for edges (default: FALSE)}
-
-\item{MAXW}{maximum weight (default: 1)}
-
-\item{r_batches}{batch info (default: NULL)}
-
-\item{r_U}{SVD for kNN network construction (X = UDV')}
-
-\item{r_D}{SVD for kNN network construction (X = UDV')}
-
-\item{r_V}{SVD for kNN network construction (X = UDV')}
-
-\item{RANK}{SVD rank}
-
-\item{TAKE_LN}{take log(1 + x) trans or not}
-
-\item{TAU}{regularization parameter (default = 1)}
-
-\item{COL_NORM}{column normalization for SVD}
-
-\item{EM_ITER}{EM iteration for factorization (default: 10)}
-
-\item{EM_TOL}{EM convergence (default: 1e-4)}
 
 \item{KNN_BILINK}{num. of bidirectional links (default: 10)}
 
 \item{KNN_NNLIST}{num. of nearest neighbor lists (default: 10)}
-
-\item{LU_ITER}{LU iteration}
-
-\item{row_weight_file}{row-wise weight file}
 
 \item{NUM_THREADS}{number of threads for multi-core processing}
 }

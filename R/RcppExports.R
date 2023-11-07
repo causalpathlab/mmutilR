@@ -376,46 +376,26 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
     .Call('_mmutilR_rcpp_mmutil_match_files', PACKAGE = 'mmutilR', src_mtx, tgt_mtx, knn, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, LU_ITER, KNN_BILINK, KNN_NNLIST, row_weight_file, NUM_THREADS, BLOCK_SIZE)
 }
 
-#' Clustering columns of the network mtx file (feature incidence matrix)
-#'
-#' @param mtx_file data file (feature x edge)
-#' @param row_file row file (feature x 1)
-#' @param col_file col file (sample x 1)
-#' @param output a file header for result/temporary files
-#' @param nnz_cutoff Only consider edge with NNZ >= nnz_cutoff (default: 1)
-#'
-rcpp_mmutil_network_edge_cluster <- function(mtx_file, row_file, col_file, output, num_clust = 10L, num_gibbs = 100L, num_burnin = 100L, nnz_cutoff = 1L, A0 = 1., B0 = 1., Dir0 = 1., verbose = TRUE) {
-    .Call('_mmutilR_rcpp_mmutil_network_edge_cluster', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, output, num_clust, num_gibbs, num_burnin, nnz_cutoff, A0, B0, Dir0, verbose)
-}
-
 #' Construct a kNN cell-cell interaction network and identify gene topics
 #'
 #' @param mtx_file data file (feature x n)
+#' @param row_file row file (feature x 1)
+#' @param col_file row file (n x 1)
+#' @param latent_factor (n x K)
 #' @param knn kNN parameter
 #' @param output a file header for resulting files
+#'
+#' @param r_batches batch names (n x 1, default: NULL)
+#'
 #' @param CUTOFF expression present/absent call cutoff (default: 1e-2)
-#' @param WEIGHTED keep weights for edges (default: FALSE)
-#' @param MAXW maximum weight (default: 1)
-#' @param r_batches batch info (default: NULL)
-#' @param r_U SVD for kNN network construction (X = UDV')
-#' @param r_D SVD for kNN network construction (X = UDV')
-#' @param r_V SVD for kNN network construction (X = UDV')
-#' @param RANK SVD rank
-#' @param TAKE_LN take log(1 + x) trans or not
-#' @param TAU regularization parameter (default = 1)
-#' @param COL_NORM column normalization for SVD
-#' @param EM_ITER EM iteration for factorization (default: 10)
-#' @param EM_TOL EM convergence (default: 1e-4)
-#' @param LU_ITER LU iteration
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
 #' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
-#' @param row_weight_file row-wise weight file
 #' @param NUM_THREADS number of threads for multi-core processing
 #'
 #' @return feature.incidence, sample.incidence, edges, adjacency matrix files
 #'
-rcpp_mmutil_network_topic_data <- function(mtx_file, knn, output, CUTOFF = 1e-2, WEIGHTED = FALSE, MAXW = 1, col_file = "", row_file = "", r_batches = NULL, r_U = NULL, r_D = NULL, r_V = NULL, RANK = 0L, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, knn, output, CUTOFF, WEIGHTED, MAXW, col_file, row_file, r_batches, r_U, r_D, r_V, RANK, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS)
+rcpp_mmutil_network_topic_data <- function(mtx_file, row_file, col_file, latent_factor, knn, output, r_batches = NULL, CUTOFF = 1e-2, WEIGHTED = FALSE, MAXW = 1, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
+    .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, latent_factor, knn, output, r_batches, CUTOFF, WEIGHTED, MAXW, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
 }
 
 #' Create pseudo-bulk data for pairwise comparisons
