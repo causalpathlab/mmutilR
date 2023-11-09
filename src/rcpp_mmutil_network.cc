@@ -7,7 +7,15 @@
 //' @param col_file row file (n x 1)
 //' @param latent_factor (n x K)
 //' @param knn kNN parameter
-//' @param output a file header for resulting files
+//' @param output file header for resulting files
+//'
+//' @param CUTOFF expression present/absent call cutoff (default: 1e-2)
+//' @param WEIGHTED output weighted features (default: FALSE)
+//' @param MAXW maximum weight (default: 1)
+//'
+//' @param write_sample_network Do we want sample inc/adj? (default: FALSE)
+//' @param output_sample_incidence file header for sample inc (default: NULL)
+//' @param output_sample_incidence file header for sample adj (default: NULL)
 //'
 //' @param r_batches batch names (n x 1, default: NULL)
 //'
@@ -16,7 +24,7 @@
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
 //'
-//' @return feature.incidence, sample.incidence, edges, adjacency matrix files
+//' @return feature.incidence, sample.incidence, sample.adjacency
 //'
 // [[Rcpp::export]]
 Rcpp::List
@@ -27,10 +35,13 @@ rcpp_mmutil_network_topic_data(
     const Eigen::MatrixXf latent_factor,
     const std::size_t knn,
     const std::string output,
+    const bool write_sample_network = false,
+    Rcpp::Nullable<std::string> output_sample_incidence = R_NilValue,
+    Rcpp::Nullable<std::string> output_sample_adjacency = R_NilValue,
     Rcpp::Nullable<const Rcpp::StringVector> r_batches = R_NilValue,
-    const float CUTOFF = 1e-2,
+    const double CUTOFF = 1e-2,
     const bool WEIGHTED = false,
-    const float MAXW = 1,
+    const double MAXW = 1,
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
     const std::size_t NUM_THREADS = 1)
@@ -130,11 +141,6 @@ rcpp_mmutil_network_topic_data(
     // Step 2. build a sparse incidence matrix //
     /////////////////////////////////////////////
 
-    const std::string out_feat_inc = output + "_feat_inc.mtx.gz";
-    const std::string out_pair_names = output + ".pairs.gz";
-    const std::string out_samp_inc = output + "_samp_inc.mtx.gz";
-    const std::string out_samp_adj = output + "_samp_adj.mtx.gz";
-
     auto rm_mtx = [](const std::string mtx) {
         if (file_exists(mtx)) {
             WLOG("Removing the existing mtx file: " << mtx);
@@ -151,19 +157,28 @@ rcpp_mmutil_network_topic_data(
             remove_file(ff);
     };
 
-    rm_mtx(out_feat_inc);
-    rm_mtx(out_samp_inc);
-    rm_mtx(out_samp_adj);
-
     //////////////////////////////////////
     // feature (row/gene) x edge matrix //
     //////////////////////////////////////
 
+    Rcpp::List feature_inc =
+        Rcpp::List::create(Rcpp::_["mtx"] = output + ".mtx.gz",
+                           Rcpp::_["row"] = output + ".rows.gz",
+                           Rcpp::_["col"] = output + ".cols.gz",
+                           Rcpp::_["idx"] = output + ".mtx.gz.index");
+
     {
+        std::vector<std::string> pairs;
+        pairs.reserve(W.nonZeros());
+
+        const std::string out_feat_inc = output + ".mtx.gz";
+        rm_mtx(out_feat_inc);
+
         using writer_t = feature_incidence_writer_t<obgzf_stream>;
         const std::string temp_file = out_feat_inc + "_temp";
         rm(temp_file);
-        writer_t writer(mtx_file, temp_file, CUTOFF, WEIGHTED, MAXW);
+        writer_t
+            writer(mtx_file, cols, temp_file, pairs, CUTOFF, WEIGHTED, MAXW);
         visit_sparse_matrix(W, writer);
 
         obgzf_stream ofs(out_feat_inc.c_str(), std::ios::out);
@@ -183,41 +198,72 @@ rcpp_mmutil_network_topic_data(
         ifs.close();
         remove_file(temp_file);
         TLOG("Wrote feature incidence matrix: " << out_feat_inc);
+
+        CHK_RETL(mmutil::index::build_mmutil_index(output + ".mtx.gz",
+                                                   output + ".mtx.gz.index"));
+
+        write_vector_file(output + ".cols.gz", pairs);
+        write_vector_file(output + ".rows.gz", rows);
     }
 
-    {
-        using writer_t = sample_pair_writer_t<obgzf_stream>;
-        writer_t writer(out_pair_names, cols);
-        visit_sparse_matrix(W, writer);
-        TLOG("Wrote pair names: " << out_pair_names);
-    }
+    Rcpp::List samp_inc, samp_adj;
 
     ///////////////////////////////////
     // vertex (sample) x edge matrix //
     ///////////////////////////////////
 
-    {
+    if (write_sample_network) {
+        const std::string hdr = output_sample_incidence.isNotNull() ?
+            Rcpp::as<std::string>(output_sample_incidence) :
+            (output + "_sample_incidence");
+
         using writer_t = sample_incidence_writer_t<obgzf_stream>;
-        writer_t writer(out_samp_inc);
+
+        std::vector<std::string> pairs;
+        pairs.reserve(Wsym.nonZeros());
+
+        rm_mtx(hdr + ".mtx.gz");
+        writer_t writer(hdr + ".mtx.gz", cols, pairs);
         visit_sparse_matrix(Wsym, writer);
-        TLOG("Wrote sample incidence matrix: " << out_samp_inc);
+        TLOG("Wrote sample incidence matrix: " << hdr);
+
+        CHK_RETL(mmutil::index::build_mmutil_index(hdr + ".mtx.gz",
+                                                   hdr + ".mtx.gz.index"));
+
+        write_vector_file(hdr + ".cols.gz", pairs);
+        write_vector_file(hdr + ".rows.gz", cols);
+
+        samp_inc = Rcpp::List::create(Rcpp::_["mtx"] = hdr + ".mtx.gz",
+                                      Rcpp::_["row"] = hdr + ".rows.gz",
+                                      Rcpp::_["col"] = hdr + ".cols.gz",
+                                      Rcpp::_["idx"] = hdr + ".mtx.gz.index");
     }
 
-    {
+    if (write_sample_network) {
+        const std::string hdr = output_sample_adjacency.isNotNull() ?
+            Rcpp::as<std::string>(output_sample_adjacency) :
+            (output + "_sample_adjacency");
+
         using writer_t = sample_adjacency_writer_t<obgzf_stream>;
-        writer_t writer(out_samp_adj);
+
+        rm_mtx(hdr + ".mtx.gz");
+        writer_t writer(hdr + ".mtx.gz");
         visit_sparse_matrix(Wsym, writer);
-        TLOG("Wrote sample adjacency matrix: " << out_samp_adj);
+        TLOG("Wrote sample adjacency matrix: " << hdr);
+
+        CHK_RETL(mmutil::index::build_mmutil_index(hdr + ".mtx.gz",
+                                                   hdr + ".mtx.gz.index"));
+
+        write_vector_file(hdr + ".cols.gz", cols);
+        write_vector_file(hdr + ".rows.gz", cols);
+
+        samp_adj = Rcpp::List::create(Rcpp::_["mtx"] = hdr + ".mtx.gz",
+                                      Rcpp::_["row"] = hdr + ".rows.gz",
+                                      Rcpp::_["col"] = hdr + ".cols.gz",
+                                      Rcpp::_["idx"] = hdr + ".mtx.gz.index");
     }
 
-    write_vector_file(output + ".features.gz", rows);
-    write_vector_file(output + ".samples.gz", cols);
-
-    TLOG("Done");
-    return Rcpp::List::create(Rcpp::_["feature.incidence"] = out_feat_inc,
-                              Rcpp::_["pairs"] = output + ".pairs.gz",
-                              Rcpp::_["sample.incidence"] = out_samp_inc,
-                              Rcpp::_["sample.adjacency"] = out_samp_adj,
-                              Rcpp::_["features"] = output + ".features.gz",
-                              Rcpp::_["samples"] = output + ".samples.gz");
+    return Rcpp::List::create(Rcpp::_["feature.incidence"] = feature_inc,
+                              Rcpp::_["sample.incidence"] = samp_inc,
+                              Rcpp::_["sample.adjacency"] = samp_adj);
 }

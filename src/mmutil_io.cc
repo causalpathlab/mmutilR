@@ -7,6 +7,90 @@ using namespace mmutil::index;
 
 SpMat
 read_eigen_sparse_subset_col(const std::string mtx_file,
+                             const Index lb,
+                             const Index ub,
+                             const Index lb_mem,
+                             const Index ub_mem)
+{
+    using _reader_t = eigen_triplet_reader_remapped_cols_t;
+    using Index = _reader_t::index_t;
+
+    mm_info_reader_t info;
+    CHECK(peek_bgzf_header(mtx_file, info));
+
+    const Index max_row = info.max_row;
+
+#ifdef DEBUG
+    ASSERT(lb < ub, "LB < UB");
+#endif
+
+    Index max_col = 0;
+    _reader_t::index_map_t loc_map;
+    for (Index j = lb; j < ub; ++j) {
+        loc_map[j] = max_col++;
+    }
+
+    _reader_t::TripletVec Tvec; // keep accumulating this
+    Tvec.clear();
+    _reader_t reader(Tvec, loc_map);
+    CHECK(visit_bgzf_block(mtx_file, lb_mem, ub_mem, reader));
+    SpMat X(max_row, max_col);
+    X.setZero();
+    X.reserve(Tvec.size());
+    X.setFromTriplets(Tvec.begin(), Tvec.end());
+
+#ifdef DEBUG
+    TLOG("Constructed a sparse matrix with m = " << X.nonZeros());
+#endif
+
+    return X;
+}
+
+SpMat
+read_eigen_sparse_subset_row_col(
+    const std::string mtx_file,
+    const eigen_triplet_reader_remapped_rows_cols_t::index_map_t &rows,
+    const Index lb,
+    const Index ub,
+    const Index lb_mem,
+    const Index ub_mem)
+{
+    using _reader_t = eigen_triplet_reader_remapped_rows_cols_t;
+    using Index = _reader_t::index_t;
+
+    mm_info_reader_t info;
+    CHECK(peek_bgzf_header(mtx_file, info));
+
+    const Index max_row = info.max_row;
+
+#ifdef DEBUG
+    ASSERT(lb < ub, "LB < UB");
+#endif
+
+    Index max_col = 0;
+    _reader_t::index_map_t loc_map;
+    for (Index j = lb; j < ub; ++j) {
+        loc_map[j] = max_col++;
+    }
+
+    _reader_t::TripletVec Tvec; // keep accumulating this
+    Tvec.clear();
+    _reader_t reader(Tvec, rows, loc_map);
+    CHECK(visit_bgzf_block(mtx_file, lb_mem, ub_mem, reader));
+    SpMat X(max_row, max_col);
+    X.setZero();
+    X.reserve(Tvec.size());
+    X.setFromTriplets(Tvec.begin(), Tvec.end());
+
+#ifdef DEBUG
+    TLOG("Constructed a sparse matrix with m = " << X.nonZeros());
+#endif
+
+    return X;
+}
+
+SpMat
+read_eigen_sparse_subset_col(const std::string mtx_file,
                              const std::vector<Index> &index_tab,
                              const std::vector<Index> &subcol)
 {

@@ -3,7 +3,7 @@
 Mat
 matched_data_t::read_cf_block(const idx_vec_t &cells_j, bool impute_knn)
 {
-    float *mass = Vt.data();
+    Scalar *mass = Vt.data();
     const Index n_j = cells_j.size();
     Mat y = read_block(cells_j);
     Mat y0(D, n_j);
@@ -38,7 +38,7 @@ matched_data_t::read_cf_block(const idx_vec_t &cells_j, bool impute_knn)
             auto pq = alg_ti.searchKnn((void *)(mass + rank * _cell_j), nquery);
 
             while (!pq.empty()) {
-                float d = 0;                         // distance
+                Scalar d = 0;                         // distance
                 std::size_t k;                       // local index
                 std::tie(d, k) = pq.top();           //
                 const Index _cell_i = cells_i.at(k); // global index
@@ -141,7 +141,7 @@ matched_data_t::build_dictionary(const Rcpp::NumericMatrix r_V,
     for (Index tt = 0; tt < Ntrt; ++tt) {
         const Index n_tot = trt_index_set[tt].size(); // # cells
         KnnAlg &alg = *knn_lookup_trt[tt].get();      // lookup
-        float *mass = Vt.data();                      // raw data
+        Scalar *mass = Vt.data();                      // raw data
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)

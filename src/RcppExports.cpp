@@ -251,8 +251,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_network_topic_data
-Rcpp::List rcpp_mmutil_network_topic_data(const std::string mtx_file, const std::string row_file, const std::string col_file, const Eigen::MatrixXf latent_factor, const std::size_t knn, const std::string output, Rcpp::Nullable<const Rcpp::StringVector> r_batches, const float CUTOFF, const bool WEIGHTED, const float MAXW, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_network_topic_data(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP latent_factorSEXP, SEXP knnSEXP, SEXP outputSEXP, SEXP r_batchesSEXP, SEXP CUTOFFSEXP, SEXP WEIGHTEDSEXP, SEXP MAXWSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::List rcpp_mmutil_network_topic_data(const std::string mtx_file, const std::string row_file, const std::string col_file, const Eigen::MatrixXf latent_factor, const std::size_t knn, const std::string output, const bool write_sample_network, Rcpp::Nullable<std::string> output_sample_incidence, Rcpp::Nullable<std::string> output_sample_adjacency, Rcpp::Nullable<const Rcpp::StringVector> r_batches, const double CUTOFF, const bool WEIGHTED, const double MAXW, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS);
+RcppExport SEXP _mmutilR_rcpp_mmutil_network_topic_data(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP latent_factorSEXP, SEXP knnSEXP, SEXP outputSEXP, SEXP write_sample_networkSEXP, SEXP output_sample_incidenceSEXP, SEXP output_sample_adjacencySEXP, SEXP r_batchesSEXP, SEXP CUTOFFSEXP, SEXP WEIGHTEDSEXP, SEXP MAXWSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -262,14 +262,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::MatrixXf >::type latent_factor(latent_factorSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type knn(knnSEXP);
     Rcpp::traits::input_parameter< const std::string >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< const bool >::type write_sample_network(write_sample_networkSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<std::string> >::type output_sample_incidence(output_sample_incidenceSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<std::string> >::type output_sample_adjacency(output_sample_adjacencySEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<const Rcpp::StringVector> >::type r_batches(r_batchesSEXP);
-    Rcpp::traits::input_parameter< const float >::type CUTOFF(CUTOFFSEXP);
+    Rcpp::traits::input_parameter< const double >::type CUTOFF(CUTOFFSEXP);
     Rcpp::traits::input_parameter< const bool >::type WEIGHTED(WEIGHTEDSEXP);
-    Rcpp::traits::input_parameter< const float >::type MAXW(MAXWSEXP);
+    Rcpp::traits::input_parameter< const double >::type MAXW(MAXWSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_BILINK(KNN_BILINKSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_NNLIST(KNN_NNLISTSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_network_topic_data(mtx_file, row_file, col_file, latent_factor, knn, output, r_batches, CUTOFF, WEIGHTED, MAXW, KNN_BILINK, KNN_NNLIST, NUM_THREADS));
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_network_topic_data(mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network, output_sample_incidence, output_sample_adjacency, r_batches, CUTOFF, WEIGHTED, MAXW, KNN_BILINK, KNN_NNLIST, NUM_THREADS));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -390,7 +393,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_read_columns_sparse", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns_sparse, 6},
     {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 6},
     {"_mmutilR_rcpp_mmutil_match_files", (DL_FUNC) &_mmutilR_rcpp_mmutil_match_files, 15},
-    {"_mmutilR_rcpp_mmutil_network_topic_data", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_topic_data, 13},
+    {"_mmutilR_rcpp_mmutil_network_topic_data", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_topic_data, 16},
     {"_mmutilR_rcpp_mmutil_aggregate_pairwise", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate_pairwise, 18},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 18},
     {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 3},

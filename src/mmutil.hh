@@ -50,9 +50,8 @@ extern "C" {
 
 using Scalar = float;
 using SpMat = Eigen::SparseMatrix<Scalar, Eigen::RowMajor, std::ptrdiff_t>;
-using Index = SpMat::Index;
-using MSpMat = Eigen::MappedSparseMatrix<Scalar>;
 
+using Index = SpMat::Index;
 using Mat = typename Eigen::
     Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>;
 using Vec = typename Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;

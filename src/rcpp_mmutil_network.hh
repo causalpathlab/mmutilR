@@ -47,8 +47,12 @@ private:
 template <typename OFS>
 struct sample_incidence_writer_t {
 
-    sample_incidence_writer_t(const std::string _out_file)
+    sample_incidence_writer_t(const std::string _out_file,
+                              const std::vector<std::string> &_cols,
+                              std::vector<std::string> &_pairs)
         : out_file(_out_file)
+        , cols(_cols)
+        , pairs(_pairs)
     {
     }
 
@@ -63,6 +67,7 @@ struct sample_incidence_writer_t {
         ofs << "%%MatrixMarket matrix coordinate integer general" << std::endl;
         ofs << std::max(r, c) << FS << e << FS << (e * 2) << std::endl;
 
+        pairs.clear();
         npairs = 0;
     }
 
@@ -73,9 +78,12 @@ struct sample_incidence_writer_t {
         ofs << (j + 1) << FS << (npairs + 1) << FS << 1 << std::endl;
         ofs << (i + 1) << FS << (npairs + 1) << FS << 1 << std::endl;
         ++npairs;
+        pairs.emplace_back(cols.at(j) + "_" + cols.at(i));
     }
 
     const std::string out_file;
+    const std::vector<std::string> &cols;
+    std::vector<std::string> &pairs;
     static constexpr char FS = ' ';
 
 private:
@@ -120,12 +128,16 @@ template <typename OFS>
 struct feature_incidence_writer_t {
 
     feature_incidence_writer_t(const std::string _mtx_file,
+                               const std::vector<std::string> &_cols,
                                const std::string _out_file,
+                               std::vector<std::string> &_pairs,
                                const Scalar cutoff,
                                const bool keep_weights = true,
                                const Scalar maxW = 100)
         : mtx_file(_mtx_file)
+        , cols(_cols)
         , out_file(_out_file)
+        , pairs(_pairs)
         , CUTOFF(cutoff)
         , WEIGHTED(keep_weights)
         , MAXW(maxW)
@@ -137,7 +149,6 @@ struct feature_incidence_writer_t {
         CHECK(mmutil::bgzf::peek_bgzf_header(mtx_file, info));
         D = info.max_row;
         Nsample = info.max_col;
-
         _xj.resize(D);
         std::fill(_xj.begin(), _xj.end(), 0.);
     }
@@ -145,18 +156,41 @@ struct feature_incidence_writer_t {
     inline void eval_after_header(const Index r, const Index c, const Scalar e)
     {
         ofs.open(out_file.c_str(), std::ios::out);
+        pairs.clear();
         npairs = 0;
         mtot = 0;
     }
 
     inline void eval_end_of_data() { ofs.close(); }
 
+    inline SpMat read_x(const Index j)
+    {
+        const Index lb = j, ub = j + 1;
+        const Index lb_mem = lb < Nsample ? idx_tab[lb] : 0;
+        const Index ub_mem = ub < Nsample ? idx_tab[ub] : 0;
+        return mmutil::io::read_eigen_sparse_subset_col(mtx_file,
+                                                        lb,
+                                                        ub,
+                                                        lb_mem,
+                                                        ub_mem);
+    }
+
     inline void eval(const Index j, const Index i, const Scalar wji)
     {
 
-        SpMat xj =
-            mmutil::io::read_eigen_sparse_subset_col(mtx_file, idx_tab, { j })
-                .transpose();
+        using namespace mmutil::io;
+        bool _add_pair = false;
+
+        SpMat xi = read_x(i).transpose();
+        SpMat xj = read_x(j).transpose();
+
+        // SpMat xj =
+        //     read_eigen_sparse_subset_col(mtx_file, idx_tab, { j
+        //     }).transpose();
+
+        // SpMat xi =
+        //     read_eigen_sparse_subset_col(mtx_file, idx_tab, { i
+        //     }).transpose();
 
         for (SpMat::InnerIterator xt(xj, 0); xt; ++xt) {
             const Index g = xt.col();
@@ -164,10 +198,6 @@ struct feature_incidence_writer_t {
             if (xjg > CUTOFF)
                 _xj[g] = xjg;
         }
-
-        SpMat xi =
-            mmutil::io::read_eigen_sparse_subset_col(mtx_file, idx_tab, { i })
-                .transpose();
 
         for (SpMat::InnerIterator xt(xi, 0); xt; ++xt) {
             const Index g = xt.col();
@@ -184,6 +214,7 @@ struct feature_incidence_writer_t {
                         ofs << FS << 1 << std::endl;
                     }
                     ++mtot;
+                    _add_pair = true;
                 }
             }
         }
@@ -193,7 +224,10 @@ struct feature_incidence_writer_t {
             _xj[g] = 0;
         }
 
-        ++npairs;
+        if (_add_pair) {
+            ++npairs;
+            pairs.emplace_back(cols.at(j) + "_" + cols.at(i));
+        }
     }
 
     Index max_row() const { return D; }
@@ -201,7 +235,9 @@ struct feature_incidence_writer_t {
     Index max_elem() const { return mtot; }
 
     const std::string mtx_file;
+    const std::vector<std::string> &cols;
     const std::string out_file;
+    std::vector<std::string> &pairs;
     const Scalar CUTOFF;
     const bool WEIGHTED;
     const Scalar MAXW;

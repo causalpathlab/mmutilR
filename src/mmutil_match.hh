@@ -20,7 +20,7 @@
 // k-nearest neighbor matching //
 /////////////////////////////////
 
-using KnnAlg = hnswlib::HierarchicalNSW<float>;
+using KnnAlg = hnswlib::HierarchicalNSW<Scalar>;
 
 struct KNN {
     explicit KNN(const std::size_t _val)
@@ -46,28 +46,28 @@ struct NNLIST {
     const std::size_t val;
 };
 
-using index_triplet_vec = std::vector<std::tuple<Index, Index, float>>;
+using index_triplet_vec = std::vector<std::tuple<Index, Index, Scalar>>;
 
 struct SrcDataT {
-    explicit SrcDataT(const float *_data, const Index d, const Index s)
+    explicit SrcDataT(const Scalar *_data, const Index d, const Index s)
         : data(_data)
         , vecdim(d)
         , vecsize(s)
     {
     }
-    const float *data;
+    const Scalar *data;
     const Index vecdim;
     const Index vecsize;
 };
 
 struct TgtDataT {
-    explicit TgtDataT(const float *_data, const Index d, const Index s)
+    explicit TgtDataT(const Scalar *_data, const Index d, const Index s)
         : data(_data)
         , vecdim(d)
         , vecsize(s)
     {
     }
-    const float *data;
+    const Scalar *data;
     const Index vecdim;
     const Index vecsize;
 };
@@ -132,7 +132,7 @@ search_knn(const SrcDataT _SrcData,       //
     TLOG("Initializing kNN algorithm");
 
     {
-        const float *mass = _TgtData.data;
+        const Scalar *mass = _TgtData.data;
 
         progress_bar_t<Index> prog(vecsize, 1e2);
 
@@ -159,7 +159,7 @@ search_knn(const SrcDataT _SrcData,       //
         const Index N = _SrcData.vecsize;
         TLOG("Finding " << knn << " nearest neighbors for N = " << N);
 
-        const float *mass = _SrcData.data;
+        const Scalar *mass = _SrcData.data;
         progress_bar_t<Index> prog(_SrcData.vecsize, 1e2);
 
 #if defined(_OPENMP)
@@ -170,7 +170,7 @@ search_knn(const SrcDataT _SrcData,       //
 #pragma omp critical
             {
                 auto pq = alg.searchKnn((void *)(mass + vecdim * i), knn);
-                float d = 0;
+                Scalar d = 0;
                 std::size_t j;
                 while (!pq.empty()) {
                     std::tie(d, j) = pq.top();
@@ -197,8 +197,8 @@ search_knn(const SrcDataT _SrcData,       //
 
  */
 void normalize_weights(const Index deg_i,
-                       std::vector<float> &dist,
-                       std::vector<float> &weights);
+                       std::vector<Scalar> &dist,
+                       std::vector<Scalar> &weights);
 
 template <typename TVec, typename SVec>
 auto
@@ -206,14 +206,14 @@ build_knn_named(const TVec &out_index,     //
                 const SVec &col_src_names, //
                 const SVec &col_tgt_names)
 {
-    using RET = std::vector<std::tuple<std::string, std::string, float>>;
+    using RET = std::vector<std::tuple<std::string, std::string, Scalar>>;
 
     RET out_named;
     out_named.reserve(out_index.size());
 
     for (auto tt : out_index) {
         Index i, j;
-        float d;
+        Scalar d;
         std::tie(i, j, d) = tt;
         out_named.push_back(
             std::make_tuple(col_src_names.at(i), col_tgt_names.at(j), d));
@@ -230,14 +230,14 @@ build_knn_named(const TVec &out_index,     //
                 const VVec &valid_src,     //
                 const VVec &valid_tgt)
 {
-    using RET = std::vector<std::tuple<std::string, std::string, float>>;
+    using RET = std::vector<std::tuple<std::string, std::string, Scalar>>;
 
     RET out_named;
     out_named.reserve(out_index.size());
 
     for (auto tt : out_index) {
         Index i, j;
-        float d;
+        Scalar d;
         std::tie(i, j, d) = tt;
         if (valid_src.count(i) > 0 && valid_tgt.count(j) > 0) {
             out_named.push_back(

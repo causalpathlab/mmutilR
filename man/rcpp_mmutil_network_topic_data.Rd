@@ -11,6 +11,9 @@ rcpp_mmutil_network_topic_data(
   latent_factor,
   knn,
   output,
+  write_sample_network = FALSE,
+  output_sample_incidence = NULL,
+  output_sample_adjacency = NULL,
   r_batches = NULL,
   CUTOFF = 0.01,
   WEIGHTED = FALSE,
@@ -31,11 +34,19 @@ rcpp_mmutil_network_topic_data(
 
 \item{knn}{kNN parameter}
 
-\item{output}{a file header for resulting files}
+\item{output}{file header for resulting files}
+
+\item{write_sample_network}{Do we want sample inc/adj? (default: FALSE)}
+
+\item{output_sample_incidence}{file header for sample adj (default: NULL)}
 
 \item{r_batches}{batch names (n x 1, default: NULL)}
 
 \item{CUTOFF}{expression present/absent call cutoff (default: 1e-2)}
+
+\item{WEIGHTED}{output weighted features (default: FALSE)}
+
+\item{MAXW}{maximum weight (default: 1)}
 
 \item{KNN_BILINK}{num. of bidirectional links (default: 10)}
 
@@ -44,7 +55,7 @@ rcpp_mmutil_network_topic_data(
 \item{NUM_THREADS}{number of threads for multi-core processing}
 }
 \value{
-feature.incidence, sample.incidence, edges, adjacency matrix files
+feature.incidence, sample.incidence, sample.adjacency
 }
 \description{
 Construct a kNN cell-cell interaction network and identify gene topics

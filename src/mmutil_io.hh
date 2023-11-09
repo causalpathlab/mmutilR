@@ -72,7 +72,7 @@ struct one_column_reader_t {
         }
     }
 
-    void eval_end_of_file() {}
+    void eval_end_of_file() { }
 
     BGZF *fp;
 
@@ -97,7 +97,7 @@ struct _triplet_reader_remapped_cols_t {
     using index_map_t = std::unordered_map<index_t, index_t>;
 
     explicit _triplet_reader_remapped_cols_t(TripletVec &_tvec,
-                                             index_map_t &_remap,
+                                             const index_map_t &_remap,
                                              const index_t _nnz = 0)
         : Tvec(_tvec)
         , remap(_remap)
@@ -124,7 +124,7 @@ struct _triplet_reader_remapped_cols_t {
     void eval(const index_t row, const index_t col, const scalar_t weight)
     {
         if (remap.count(col) > 0) {
-            Tvec.emplace_back(T(row, remap[col], weight));
+            Tvec.emplace_back(T(row, remap.at(col), weight));
         }
     }
 
@@ -145,7 +145,7 @@ struct _triplet_reader_remapped_cols_t {
     index_t max_col;
     index_t max_elem;
     TripletVec &Tvec;
-    index_map_t &remap;
+    const index_map_t &remap;
     const index_t NNZ;
 };
 
@@ -159,8 +159,8 @@ struct _triplet_reader_remapped_rows_cols_t {
     using index_map_t = std::unordered_map<index_t, index_t>;
 
     explicit _triplet_reader_remapped_rows_cols_t(TripletVec &_tvec,
-                                                  index_map_t &_remap_row,
-                                                  index_map_t &_remap_col,
+                                                  const index_map_t &_remap_row,
+                                                  const index_map_t &_remap_col,
                                                   const index_t _nnz = 0)
         : Tvec(_tvec)
         , remap_row(_remap_row)
@@ -187,7 +187,7 @@ struct _triplet_reader_remapped_rows_cols_t {
     void eval(const index_t row, const index_t col, const scalar_t weight)
     {
         if (remap_col.count(col) > 0 && remap_row.count(row) > 0) {
-            Tvec.emplace_back(T(remap_row[row], remap_col[col], weight));
+            Tvec.emplace_back(T(remap_row.at(row), remap_col.at(col), weight));
         }
     }
 
@@ -206,8 +206,8 @@ struct _triplet_reader_remapped_rows_cols_t {
     index_t max_col;
     index_t max_elem;
     TripletVec &Tvec;
-    index_map_t &remap_row;
-    index_map_t &remap_col;
+    const index_map_t &remap_row;
+    const index_map_t &remap_col;
     const index_t NNZ;
 };
 
@@ -393,7 +393,7 @@ find_consecutive_blocks(const VEC1 &index_tab,
             ub_mem = index_tab[ub];
         }
 
-        ret.emplace_back(memory_block_t{ lb, lb_mem, ub, ub_mem });
+        ret.emplace_back(memory_block_t { lb, lb_mem, ub, ub_mem });
     }
 
     return ret;
@@ -585,6 +585,20 @@ private:
         return ret;
     }
 };
+
+SpMat read_eigen_sparse_subset_col(const std::string mtx_file,
+                                   const Index lb,
+                                   const Index ub,
+                                   const Index lb_mem,
+                                   const Index ub_mem);
+
+SpMat read_eigen_sparse_subset_row_col(
+    const std::string mtx_file,
+    const eigen_triplet_reader_remapped_rows_cols_t::index_map_t &rows,
+    const Index col_lb,
+    const Index col_ub,
+    const Index lb_mem,
+    const Index ub_mem);
 
 SpMat read_eigen_sparse_subset_col(const std::string mtx_file,
                                    const std::vector<Index> &index_tab,

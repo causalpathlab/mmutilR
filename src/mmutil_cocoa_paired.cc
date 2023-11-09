@@ -68,7 +68,7 @@ paired_data_t::read_matched_block(const Index i,
     const std::size_t nquery = std::min(knn, n_j);
     TLOG("#query per cell: " << nquery);
 
-    float *mass = Vt.data();
+    Scalar *mass = Vt.data();
 
     Mat y = _read_block(cells_i);
     Mat y0(D, n_i);
@@ -87,7 +87,7 @@ paired_data_t::read_matched_block(const Index i,
         auto pq = alg_j.searchKnn((void *)(mass + rank * _cell_i), nquery);
 
         while (!pq.empty()) {
-            float d = 0;                         // distance
+            Scalar d = 0;                        // distance
             std::size_t k;                       // local index
             std::tie(d, k) = pq.top();           //
             const Index _cell_j = cells_j.at(k); // global index
@@ -181,7 +181,7 @@ paired_data_t::match_individuals()
         std::min(knn_indv + 1, static_cast<std::size_t>(Nindv));
 
     KnnAlg alg(&VS, Nindv, param_bilink, param_nnlist);
-    float *mass = Vind.data();
+    Scalar *mass = Vind.data();
     for (Index ii = 0; ii < Nindv; ++ii) {
         alg.addPoint((void *)(mass + rank * ii), ii);
     }
@@ -198,7 +198,7 @@ paired_data_t::match_individuals()
         Index deg = 0;
 
         while (!pq.empty()) {
-            float d = 0;                // distance
+            Scalar d = 0;               // distance
             std::size_t jj;             // local index
             std::tie(d, jj) = pq.top(); //
             if (ii != jj) {
@@ -311,7 +311,7 @@ paired_data_t::build_dictionary(const Rcpp::NumericMatrix r_V,
     for (Index tt = 0; tt < Nindv; ++tt) {
         const Index n_tot = indv_index_set[tt].size(); // # cells
         KnnAlg &alg = *knn_lookup_indv[tt].get();      // lookup
-        float *mass = Vt.data();                       // raw data
+        Scalar *mass = Vt.data();                      // raw data
 
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)

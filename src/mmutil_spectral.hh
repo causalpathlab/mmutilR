@@ -100,6 +100,45 @@ struct spectral_options_t {
     }
 };
 
+template <typename Derived, typename Derived2>
+inline Mat
+make_normalized_laplacian(const Eigen::MatrixBase<Derived> &_X0,
+                          const Eigen::MatrixBase<Derived2> &_weights,
+                          const float tau_scale,
+                          const float norm_target,
+                          const bool log_trans = true)
+{
+
+    Mat xx = _X0.derived();
+    const Derived2 &ww = _weights.derived();
+
+    normalize_columns(xx);
+    xx *= norm_target;
+
+    auto log_op = [](const Scalar &x) -> Scalar {
+        return x >= 0. ? std::log(1.0 + x) : 0.;
+    };
+
+    if (log_trans)
+        xx = xx.unaryExpr(log_op);
+
+    const Mat _rr = ww.unaryExpr([](const Scalar &x) -> Scalar {
+        return x <= 0.0 ? 0.0 : std::sqrt(1.0 / x);
+    });
+
+    const Mat col_deg =
+        xx.cwiseProduct(xx).transpose() * Mat::Ones(xx.rows(), 1);
+
+    const Scalar tau = col_deg.mean() * tau_scale;
+    const Mat _cc = col_deg.unaryExpr([&tau](const Scalar &x) -> Scalar {
+        const Scalar _one = 1.0;
+        return _one / std::sqrt(std::max(_one, x + tau));
+    });
+
+    Mat ret = _rr.asDiagonal() * xx * _cc.asDiagonal();
+    return ret;
+}
+
 /**
    Batch-normalized graph Laplacian.
    - If needed, apply weights on features (rows; genes) to X matrix.
@@ -192,45 +231,6 @@ make_normalized_laplacian(const Eigen::SparseMatrixBase<Derived> &_X0,
     Mat xx = _rr.asDiagonal() * X * _cc.asDiagonal();
     // Mat ret = standardize(xx); // why?
     return xx;
-}
-
-template <typename Derived, typename Derived2>
-inline Mat
-make_normalized_laplacian(const Eigen::MatrixBase<Derived> &_X0,
-                          const Eigen::MatrixBase<Derived2> &_weights,
-                          const float tau_scale,
-                          const float norm_target,
-                          const bool log_trans = true)
-{
-
-    Mat xx = _X0.derived();
-    const Derived2 &ww = _weights.derived();
-
-    normalize_columns(xx);
-    xx *= norm_target;
-
-    auto log_op = [](const Scalar &x) -> Scalar {
-        return x >= 0. ? std::log(1.0 + x) : 0.;
-    };
-
-    if (log_trans)
-        xx = xx.unaryExpr(log_op);
-
-    const Mat _rr = ww.unaryExpr([](const Scalar &x) -> Scalar {
-        return x <= 0.0 ? 0.0 : std::sqrt(1.0 / x);
-    });
-
-    const Mat col_deg =
-        xx.cwiseProduct(xx).transpose() * Mat::Ones(xx.rows(), 1);
-
-    const Scalar tau = col_deg.mean() * tau_scale;
-    const Mat _cc = col_deg.unaryExpr([&tau](const Scalar &x) -> Scalar {
-        const Scalar _one = 1.0;
-        return _one / std::sqrt(std::max(_one, x + tau));
-    });
-
-    Mat ret = _rr.asDiagonal() * xx * _cc.asDiagonal();
-    return ret;
 }
 
 /**
