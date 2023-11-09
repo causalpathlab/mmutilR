@@ -386,8 +386,8 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #' @param output file header for resulting files
 #'
 #' @param CUTOFF expression present/absent call cutoff (default: 1e-2)
-#' @param WEIGHTED output weighted features (default: FALSE)
-#' @param MAXW maximum weight (default: 1)
+#' @param WEIGHTED include edge weights in feature calculation (default: TRUE)
+#' @param MAXW maximum edge weight (default: 1)
 #'
 #' @param write_sample_network Do we want sample inc/adj? (default: FALSE)
 #' @param output_sample_incidence file header for sample inc (default: NULL)
@@ -402,7 +402,7 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #'
 #' @return feature.incidence, sample.incidence, sample.adjacency
 #'
-rcpp_mmutil_network_topic_data <- function(mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network = FALSE, output_sample_incidence = NULL, output_sample_adjacency = NULL, r_batches = NULL, CUTOFF = 1e-2, WEIGHTED = FALSE, MAXW = 1, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
+rcpp_mmutil_network_topic_data <- function(mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network = FALSE, output_sample_incidence = NULL, output_sample_adjacency = NULL, r_batches = NULL, CUTOFF = 1e-2, WEIGHTED = TRUE, MAXW = 1, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
     .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network, output_sample_incidence, output_sample_adjacency, r_batches, CUTOFF, WEIGHTED, MAXW, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
 }
 

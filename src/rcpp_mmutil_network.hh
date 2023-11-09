@@ -204,12 +204,14 @@ struct feature_incidence_writer_t {
             const Scalar xig = xt.value();
             const Scalar xjg = _xj[g];
             if (xig > CUTOFF && xjg > CUTOFF) {
-                const Scalar xx = (xjg + xig) * wji / 2.0;
+
+                const Scalar xx = (xjg + xig) * std::min(wji, MAXW) / 2.0;
+
                 if (xx > CUTOFF) {
                     // fix zero-based to one-based
                     ofs << (g + 1) << FS << (npairs + 1);
                     if (WEIGHTED) {
-                        ofs << FS << std::min(xx, MAXW) << std::endl;
+                        ofs << FS << xx << std::endl;
                     } else {
                         ofs << FS << 1 << std::endl;
                     }

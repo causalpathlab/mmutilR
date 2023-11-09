@@ -10,8 +10,8 @@
 //' @param output file header for resulting files
 //'
 //' @param CUTOFF expression present/absent call cutoff (default: 1e-2)
-//' @param WEIGHTED output weighted features (default: FALSE)
-//' @param MAXW maximum weight (default: 1)
+//' @param WEIGHTED include edge weights in feature calculation (default: TRUE)
+//' @param MAXW maximum edge weight (default: 1)
 //'
 //' @param write_sample_network Do we want sample inc/adj? (default: FALSE)
 //' @param output_sample_incidence file header for sample inc (default: NULL)
@@ -19,7 +19,7 @@
 //'
 //' @param r_batches batch names (n x 1, default: NULL)
 //'
-//' @param CUTOFF expression present/absent call cutoff (default: 1e-2)
+//' @param CUTOFF expression present/absent call cutoff (default: 0)
 //' @param KNN_BILINK num. of bidirectional links (default: 10)
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
@@ -39,8 +39,8 @@ rcpp_mmutil_network_topic_data(
     Rcpp::Nullable<std::string> output_sample_incidence = R_NilValue,
     Rcpp::Nullable<std::string> output_sample_adjacency = R_NilValue,
     Rcpp::Nullable<const Rcpp::StringVector> r_batches = R_NilValue,
-    const double CUTOFF = 1e-2,
-    const bool WEIGHTED = false,
+    const double CUTOFF = 0,
+    const bool WEIGHTED = true,
     const double MAXW = 1,
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,

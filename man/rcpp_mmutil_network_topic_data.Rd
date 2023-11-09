@@ -16,7 +16,7 @@ rcpp_mmutil_network_topic_data(
   output_sample_adjacency = NULL,
   r_batches = NULL,
   CUTOFF = 0.01,
-  WEIGHTED = FALSE,
+  WEIGHTED = TRUE,
   MAXW = 1,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
@@ -44,9 +44,9 @@ rcpp_mmutil_network_topic_data(
 
 \item{CUTOFF}{expression present/absent call cutoff (default: 1e-2)}
 
-\item{WEIGHTED}{output weighted features (default: FALSE)}
+\item{WEIGHTED}{include edge weights in feature calculation (default: TRUE)}
 
-\item{MAXW}{maximum weight (default: 1)}
+\item{MAXW}{maximum edge weight (default: 1)}
 
 \item{KNN_BILINK}{num. of bidirectional links (default: 10)}
 
