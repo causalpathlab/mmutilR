@@ -53,6 +53,7 @@ by Pairwise INdividual Effect matching</p>
   <span class="va">mtx.data</span>,
   <span class="va">celltype</span>,
   <span class="va">cell2indv</span>,
+  V <span class="op">=</span> <span class="cn">NULL</span>,
   knn.cell <span class="op">=</span> <span class="fl">50</span>,
   knn.indv <span class="op">=</span> <span class="fl">1</span>,
   celltype.mat <span class="op">=</span> <span class="cn">NULL</span>,
@@ -63,6 +64,7 @@ by Pairwise INdividual Effect matching</p>
   .em.iter <span class="op">=</span> <span class="fl">0</span>,
   .em.tol <span class="op">=</span> <span class="fl">1e-04</span>,
   num.threads <span class="op">=</span> <span class="fl">1</span>,
+  impute.by.knn <span class="op">=</span> <span class="cn">FALSE</span>,
   remove.dup <span class="op">=</span> <span class="cn">TRUE</span>,
   <span class="va">...</span>
 <span class="op">)</span></code></pre></div>
@@ -114,6 +116,14 @@ by Pairwise INdividual Effect matching</p>
 <dd><p>number of threads for multi-core processing</p></dd>
 
 
+<dt>impute.by.knn</dt>
+<dd><p>imputation by kNN weighting (default: FALSE)</p></dd>
+
+
+<dt>remove.dup</dt>
+<dd><p>remove duplicated pairs (default: TRUE)</p></dd>
+
+
 <dt>eps</dt>
 <dd><p>small number (default: 1e-8)</p></dd>
 
@@ -137,71 +147,6 @@ by Pairwise INdividual Effect matching</p>
 <p>a list of sufficient statistics matrices</p>
     </div>
 
-    <div id="ref-examples">
-    <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="va">sim.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="make.sc.deg.data.html">make.sc.deg.data</a></span><span class="op">(</span><span class="st">"temp"</span>,</span>
-<span class="r-in">                              nind <span class="op">=</span> <span class="fl">20</span>,</span>
-<span class="r-in">                              ngenes <span class="op">=</span> <span class="fl">100</span>,</span>
-<span class="r-in">                              ngenes.covar <span class="op">=</span> <span class="fl">50</span>,</span>
-<span class="r-in">                              ncausal <span class="op">=</span> <span class="fl">3</span>,</span>
-<span class="r-in">                              ncovar.conf <span class="op">=</span> <span class="fl">3</span>,</span>
-<span class="r-in">                              ncovar.batch <span class="op">=</span> <span class="fl">0</span>,</span>
-<span class="r-in">                              ncell.ind <span class="op">=</span> <span class="fl">10</span>,</span>
-<span class="r-in">                              pve.1 <span class="op">=</span> <span class="fl">.3</span>,</span>
-<span class="r-in">                              pve.c <span class="op">=</span> <span class="fl">.5</span>,</span>
-<span class="r-in">                              pve.a <span class="op">=</span> <span class="fl">.5</span>,</span>
-<span class="r-in">                              rseed <span class="op">=</span> <span class="fl">13</span>,</span>
-<span class="r-in">                              exposure.type <span class="op">=</span> <span class="st">"continuous"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">mtx.data</span> <span class="op">&lt;-</span> <span class="va">sim.data</span><span class="op">$</span><span class="va">data</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">cell2indv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span><span class="va">sim.data</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">indv</span>,</span>
-<span class="r-in">                        header<span class="op">=</span><span class="cn">FALSE</span>,</span>
-<span class="r-in">                        col.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cell"</span>,<span class="st">"indv"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">nind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sim.data</span><span class="op">$</span><span class="va">indv</span><span class="op">$</span><span class="va">assignment</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">.pine</span> <span class="op">&lt;-</span> <span class="fu">make.pine</span><span class="op">(</span><span class="va">mtx.data</span>,</span>
-<span class="r-in">                   <span class="st">"bulk"</span>,</span>
-<span class="r-in">                   <span class="va">cell2indv</span>,</span>
-<span class="r-in">                   knn.cell <span class="op">=</span> <span class="fl">50</span>,</span>
-<span class="r-in">                   knn.indv <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Running PCA...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Estimating sufficient statistics by matching...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Finished PINE statistics preparation</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> reducing 100 to 64</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Removed duplicated pairs</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">.pine</span><span class="op">$</span><span class="va">delta</span><span class="op">)</span>, <span class="va">strsplit</span>, split<span class="op">=</span><span class="st">"[_]"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">.names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">.names</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">.pairs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">.names</span><span class="op">)</span>, stringsAsFactors<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">.pairs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"src"</span>,<span class="st">"tgt"</span>,<span class="st">"ct"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">W</span> <span class="op">&lt;-</span> <span class="va">sim.data</span><span class="op">$</span><span class="va">indv</span><span class="op">$</span><span class="va">assignment</span></span>
-<span class="r-in"><span class="va">w.src</span> <span class="op">&lt;-</span> <span class="va">W</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">.pairs</span><span class="op">$</span><span class="va">src</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"><span class="va">w.tgt</span> <span class="op">&lt;-</span> <span class="va">W</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">.pairs</span><span class="op">$</span><span class="va">tgt</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"><span class="va">w.delta</span> <span class="op">&lt;-</span> <span class="va">w.src</span> <span class="op">-</span> <span class="va">w.tgt</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">.pine</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">.pine</span><span class="op">$</span><span class="va">delta</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span> <span class="co"># numerical errors</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">ncausal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">sim.data</span><span class="op">$</span><span class="va">causal</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">ngenes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">.pine</span><span class="op">$</span><span class="va">delta</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="va">ncausal</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="kw">for</span><span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="va">sim.data</span><span class="op">$</span><span class="va">causal</span><span class="op">)</span><span class="op">{</span></span>
-<span class="r-in">    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">w.delta</span>, <span class="va">.pine</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="op">]</span>, xlab <span class="op">=</span> <span class="st">"dW"</span>, ylab <span class="op">=</span> <span class="st">"dY"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw">for</span><span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">ngenes</span>, <span class="va">sim.data</span><span class="op">$</span><span class="va">causal</span><span class="op">)</span>, <span class="va">ncausal</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span class="r-in">    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">w.delta</span>, <span class="va">.pine</span><span class="op">$</span><span class="va">delta</span><span class="op">[</span><span class="va">k</span>, <span class="op">]</span>, xlab <span class="op">=</span> <span class="st">"dW"</span>, ylab <span class="op">=</span> <span class="st">"dY"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-plt img"><img src="make.pine-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="st">"temp"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-</code></pre></div>
-    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

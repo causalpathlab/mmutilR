@@ -49,6 +49,7 @@
   <span class="va">r_batches</span>,
   <span class="va">knn</span>,
   <span class="va">RANK</span>,
+  RECIPROCAL_MATCH <span class="op">=</span> <span class="cn">TRUE</span>,
   TAKE_LN <span class="op">=</span> <span class="cn">TRUE</span>,
   TAU <span class="op">=</span> <span class="fl">1</span>,
   COL_NORM <span class="op">=</span> <span class="fl">10000</span>,
@@ -81,12 +82,16 @@
 <dd><p>SVD rank</p></dd>
 
 
+<dt>RECIPROCAL_MATCH</dt>
+<dd><p>do reciprocal match (default: TRUE)</p></dd>
+
+
 <dt>TAKE_LN</dt>
 <dd><p>take log(1 + x) trans or not</p></dd>
 
 
 <dt>TAU</dt>
-<dd><p>regularization parameter (default = 1)</p></dd>
+<dd><p>regularization parameter (default: 1)</p></dd>
 
 
 <dt>COL_NORM</dt>
@@ -94,7 +99,7 @@
 
 
 <dt>EM_ITER</dt>
-<dd><p>EM iteration for factorization (default: 10)</p></dd>
+<dd><p>EM iteration for factorization (default: 0)</p></dd>
 
 
 <dt>EM_TOL</dt>

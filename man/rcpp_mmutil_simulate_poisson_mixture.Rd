@@ -11,7 +11,9 @@ rcpp_mmutil_simulate_poisson_mixture(
   dir_alpha = 1,
   gam_alpha = 2,
   gam_beta = 2,
-  rseed = 42L
+  rseed = 42L,
+  MAX_COL_WORD = 100L,
+  COL_WORD_SEP = "@"
 )
 }
 \arguments{

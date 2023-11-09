@@ -61,7 +61,12 @@
   knn_indv <span class="op">=</span> <span class="fl">1L</span>,
   KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,
   KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,
-  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>
+  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>,
+  IMPUTE_BY_KNN <span class="op">=</span> <span class="cn">TRUE</span>,
+  MAX_ROW_WORD <span class="op">=</span> <span class="fl">2L</span>,
+  ROW_WORD_SEP <span class="op">=</span> <span class="st">"_"</span>,
+  MAX_COL_WORD <span class="op">=</span> <span class="fl">100L</span>,
+  COL_WORD_SEP <span class="op">=</span> <span class="st">"@"</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -133,6 +138,10 @@
 
 <dt>NUM_THREADS</dt>
 <dd><p>number of threads for multi-core processing</p></dd>
+
+
+<dt>IMPUTE_BY_KNN</dt>
+<dd><p>imputation by kNN alone (default: TRUE)</p></dd>
 
 </dl></div>
     <div id="value">

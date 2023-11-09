@@ -9,7 +9,11 @@ int run_merge_col(const std::vector<std::string> &glob_rows, //
                   const std::string output,                  //
                   const std::vector<std::string> mtx_files,  //
                   const std::vector<std::string> row_files,  //
-                  const std::vector<std::string> col_files);
+                  const std::vector<std::string> col_files,
+                  const std::size_t MAX_ROW_WORD,
+                  const char ROW_WORD_SEP,
+                  const std::size_t MAX_COL_WORD,
+                  const char COL_WORD_SEP);
 
 ////////////////////////////////
 // lightweight column counter //

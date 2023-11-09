@@ -21,62 +21,6 @@
 #'
 #' @return a list of sufficient statistics matrices
 #'
-#' @examples
-#' 
-#' sim.data <- make.sc.deg.data("temp",
-#'                              nind = 40,
-#'                              ngenes = 100,
-#'                              ngenes.covar = 50,
-#'                              ncausal = 3,
-#'                              ncovar.conf = 3,
-#'                              ncovar.batch = 0,
-#'                              ncell.ind = 20,
-#'                              pve.1 = .3,
-#'                              pve.c = .5,
-#'                              pve.a = .5,
-#'                              rseed = 13,
-#'                              rho.a = 2,
-#'                              rho.b = 2,
-#'                              exposure.type = "continuous",
-#'                              smudge = 5)
-#' 
-#' cell2indv <- read.table(sim.data$data$indv,
-#'                         header=FALSE,
-#'                         col.names=c("cell","indv"))
-#' 
-#' .pine <- make.pine(sim.data$data,
-#'                    "bulk",
-#'                    cell2indv,
-#'                    knn.cell = 10,
-#'                    knn.indv = 10)
-#' 
-#' Yd <- t(.pine$ln.delta)
-#' uu <- t(.pine$covar.matched)
-#' Yd <- t(lm(Yd ~ uu)$residuals)
-#' Yd0 <- .pine$ln.delta
-#' 
-#' W <- sim.data$indv$assignment
-#' 
-#' .src <- .pine$knn$obs.index
-#' .tgt <- .pine$knn$matched.index
-#' 
-#' w.delta <- W[.src] - W[.tgt]
-#' 
-#' causal <- sim.data$causal
-#' 
-#' ngenes <- nrow(Yd)
-#' p.values <- apply(Yd, 1, function(y) { cor.test(w.delta, y)$p.value })
-#' p.values.0 <- apply(Yd0, 1, function(y) { cor.test(w.delta, y)$p.value })
-#' 
-#' par(mfrow=c(2,1))
-#' plot(-log10(p.values), col="gray40", main = "adjusted")
-#' points(causal, -log10(p.values[causal]), col = 2, pch=19)
-#' 
-#' plot(-log10(p.values.0), col="gray40", main = "unadjusted")
-#' points(causal, -log10(p.values.0[causal]), col = 2, pch=19)
-#' 
-#' unlink(list.files(pattern = "temp"))
-#'
 make.pine <- function(mtx.data,
                       celltype,
                       cell2indv,
@@ -220,67 +164,6 @@ pine.remove.duplicated <- function(input){
 #' If treatment/exposure variables are assigned, it will calculate
 #' counterfactual individual effects (`resid.mu`).  Otherwise, it will
 #' only compute average effect estimations (`mu`).
-#'
-#' @examples
-#' 
-#' sim.data <- make.sc.deg.data("temp",
-#'                              nind = 20,
-#'                              ngenes = 100,
-#'                              ngenes.covar = 50,
-#'                              num.mixtures = 3,
-#'                              ncausal = 3,
-#'                              ncovar.conf = 3,
-#'                              ncovar.batch = 0,
-#'                           ncell.ind = 10,
-#'                           pve.1 = .3,
-#'                           pve.c = .5,
-#'                           pve.a = .5,
-#'                           rseed = 13,
-#'                           exposure.type = "binary")
-#' 
-#' mtx.data <- sim.data$data
-#' 
-#' cell2indv <- read.table(sim.data$data$indv,
-#'                         header=FALSE,
-#'                         col.names=c("cell","indv"))
-#' 
-#' nind <- length(sim.data$indv$assignment)
-#' indv2exp <- data.frame(indv=1:nind, exp = sim.data$indv$assignment)
-#' 
-#' .cocoa <- make.cocoa(mtx.data, "bulk", cell2indv, indv2exp, knn = 50)
-#' .stat <- make.cocoa(mtx.data, "bulk", cell2indv)
-#' 
-#' ncausal <- length(sim.data$causal)
-#' ngenes <- nrow(.cocoa$resid.mu)
-#' 
-#' par(mfrow=c(2, ncausal))
-#' W <- sim.data$indv$assignment
-#' for(k in sim.data$causal){
-#'     y0 <- .cocoa$resid.mu[k, W == 0]
-#'     y1 <- .cocoa$resid.mu[k, W == 1]
-#'     boxplot(y0, y1, main=k)
-#' }
-#' 
-#' W <- sim.data$indv$assignment
-#' for(k in sim.data$causal){
-#'     y0 <- .stat$mu[k, W == 0]
-#'     y1 <- .stat$mu[k, W == 1]
-#'     boxplot(y0, y1, main=k)
-#' }
-#'
-#' par(mfrow=c(2, ncausal))
-#' for(k in sample(setdiff(1:ngenes, sim.data$causal), ncausal)){
-#'     y0 <- .cocoa$resid.mu[k, W == 0]
-#'     y1 <- .cocoa$resid.mu[k, W == 1]
-#'     boxplot(y0, y1, main=k)
-#' }
-#' for(k in sample(setdiff(1:ngenes, sim.data$causal), ncausal)){
-#'     y0 <- .stat$mu[k, W == 0]
-#'     y1 <- .stat$mu[k, W == 1]
-#'     boxplot(y0, y1, main=k)
-#' }
-#' 
-#' unlink(list.files(pattern = "temp"))
 #'
 make.cocoa <- function(mtx.data,
                        celltype,

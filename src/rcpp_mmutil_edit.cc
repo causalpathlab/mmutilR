@@ -165,7 +165,11 @@ rcpp_mmutil_merge_file_sets(
                         output,
                         mtx_files,
                         row_files,
-                        col_files));
+                        col_files,
+                        MAX_ROW_WORD,
+                        ROW_WORD_SEP,
+                        MAX_COL_WORD,
+                        COL_WORD_SEP));
 
     const std::string mtx_file = output + ".mtx.gz";
     const std::string row_file = output + ".rows.gz";

@@ -13,7 +13,11 @@ rcpp_mmutil_merge_file_sets(
   r_fixed_rows = NULL,
   output = "output",
   nnz_cutoff = 1,
-  delim = "_"
+  delim = "_",
+  MAX_ROW_WORD = 2L,
+  ROW_WORD_SEP = "_",
+  MAX_COL_WORD = 100L,
+  COL_WORD_SEP = "@"
 )
 }
 \arguments{

@@ -4,7 +4,15 @@
 \alias{rcpp_mmutil_simulate_poisson}
 \title{Simulation Poisson data based on Mu}
 \usage{
-rcpp_mmutil_simulate_poisson(mu, rho, output, r_indv = NULL, rseed = 42L)
+rcpp_mmutil_simulate_poisson(
+  mu,
+  rho,
+  output,
+  r_indv = NULL,
+  rseed = 42L,
+  MAX_COL_WORD = 100L,
+  COL_WORD_SEP = "@"
+)
 }
 \arguments{
 \item{mu}{depth-adjusted mean matrix (M x n)}
