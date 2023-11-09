@@ -164,8 +164,8 @@ rcpp_mmutil_annotate_columns <- function(pos_labels, r_rows = NULL, r_cols = NUL
 #' unlink(list.files(pattern = "test2"))
 #' unlink(list.files(pattern = "test3"))
 #'
-rcpp_mmutil_merge_file_sets <- function(r_headers = NULL, r_batches = NULL, r_mtx_files = NULL, r_row_files = NULL, r_col_files = NULL, r_fixed_rows = NULL, output = "output", nnz_cutoff = 1, delim = "_") {
-    .Call('_mmutilR_rcpp_mmutil_merge_file_sets', PACKAGE = 'mmutilR', r_headers, r_batches, r_mtx_files, r_row_files, r_col_files, r_fixed_rows, output, nnz_cutoff, delim)
+rcpp_mmutil_merge_file_sets <- function(r_headers = NULL, r_batches = NULL, r_mtx_files = NULL, r_row_files = NULL, r_col_files = NULL, r_fixed_rows = NULL, output = "output", nnz_cutoff = 1, delim = "_", MAX_ROW_WORD = 2L, ROW_WORD_SEP = '_', MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_merge_file_sets', PACKAGE = 'mmutilR', r_headers, r_batches, r_mtx_files, r_row_files, r_col_files, r_fixed_rows, output, nnz_cutoff, delim, MAX_ROW_WORD, ROW_WORD_SEP, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Take a subset of rows and create a new MTX file-set
@@ -207,8 +207,8 @@ rcpp_mmutil_merge_file_sets <- function(r_headers = NULL, r_batches = NULL, r_mt
 #' unlink(list.files(pattern = src.hdr))
 #' unlink(list.files(pattern = tgt.hdr))
 #'
-rcpp_mmutil_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selected, output) {
-    .Call('_mmutilR_rcpp_mmutil_copy_selected_rows', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output)
+rcpp_mmutil_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selected, output, MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_copy_selected_rows', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Take a subset of columns and create a new MTX file-set
@@ -395,15 +395,20 @@ rcpp_mmutil_match_files <- function(src_mtx, tgt_mtx, knn, RANK, TAKE_LN = TRUE,
 #'
 #' @param r_batches batch names (n x 1, default: NULL)
 #'
-#' @param CUTOFF expression present/absent call cutoff (default: 1e-2)
+#' @param CUTOFF expression present/absent call cutoff (default: 0)
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
 #' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
 #'
+#' @param MAX_ROW_WORD maximum words per line in `row_file`
+#' @param ROW_WORD_SEP word separation character to replace white space
+#' @param MAX_COL_WORD maximum words per line in `col_file`
+#' @param COL_WORD_SEP word separation character to replace white space
+#'
 #' @return feature.incidence, sample.incidence, sample.adjacency
 #'
-rcpp_mmutil_network_topic_data <- function(mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network = FALSE, output_sample_incidence = NULL, output_sample_adjacency = NULL, r_batches = NULL, CUTOFF = 1e-2, WEIGHTED = TRUE, MAXW = 1, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network, output_sample_incidence, output_sample_adjacency, r_batches, CUTOFF, WEIGHTED, MAXW, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
+rcpp_mmutil_network_topic_data <- function(mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network = FALSE, output_sample_incidence = NULL, output_sample_adjacency = NULL, r_batches = NULL, CUTOFF = 0, WEIGHTED = TRUE, MAXW = 1, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, MAX_ROW_WORD = 2L, ROW_WORD_SEP = '_', MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_network_topic_data', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, latent_factor, knn, output, write_sample_network, output_sample_incidence, output_sample_adjacency, r_batches, CUTOFF, WEIGHTED, MAXW, KNN_BILINK, KNN_NNLIST, NUM_THREADS, MAX_ROW_WORD, ROW_WORD_SEP, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Create pseudo-bulk data for pairwise comparisons
@@ -425,12 +430,12 @@ rcpp_mmutil_network_topic_data <- function(mtx_file, row_file, col_file, latent_
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
 #' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
-#' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
+#' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 #'
 #' @return a list of inference results
 #'
-rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn_cell = 10L, knn_indv = 1L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
-    .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
+rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv, r_V, r_cols = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn_cell = 10L, knn_indv = 1L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = TRUE, MAX_ROW_WORD = 2L, ROW_WORD_SEP = '_', MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_aggregate_pairwise', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_indv, r_V, r_cols, r_annot, r_annot_mat, r_lab_name, a0, b0, eps, knn_cell, knn_indv, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN, MAX_ROW_WORD, ROW_WORD_SEP, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Create pseudo-bulk data by aggregating columns
@@ -452,12 +457,12 @@ rcpp_mmutil_aggregate_pairwise <- function(mtx_file, row_file, col_file, r_indv,
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
 #' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
-#' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
+#' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 #'
 #' @return a list of inference results
 #'
-rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = FALSE) {
-    .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_annot_mat, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN)
+rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r_indv = NULL, r_annot = NULL, r_annot_mat = NULL, r_lab_name = NULL, r_trt = NULL, r_V = NULL, a0 = 1.0, b0 = 1.0, eps = 1e-8, knn = 10L, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, IMPUTE_BY_KNN = TRUE, MAX_ROW_WORD = 2L, ROW_WORD_SEP = '_', MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_aggregate', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_cols, r_indv, r_annot, r_annot_mat, r_lab_name, r_trt, r_V, a0, b0, eps, knn, KNN_BILINK, KNN_NNLIST, NUM_THREADS, IMPUTE_BY_KNN, MAX_ROW_WORD, ROW_WORD_SEP, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Collect row-wise and column-wise statistics
@@ -494,8 +499,8 @@ rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NUL
 #' @param gam_beta a parameter for Gamma(alpha, beta)
 #' @param rseed random seed
 #'
-rcpp_mmutil_simulate_poisson_mixture <- function(r_mu_list, Ncell, output, dir_alpha = 1.0, gam_alpha = 2.0, gam_beta = 2.0, rseed = 42L) {
-    .Call('_mmutilR_rcpp_mmutil_simulate_poisson_mixture', PACKAGE = 'mmutilR', r_mu_list, Ncell, output, dir_alpha, gam_alpha, gam_beta, rseed)
+rcpp_mmutil_simulate_poisson_mixture <- function(r_mu_list, Ncell, output, dir_alpha = 1.0, gam_alpha = 2.0, gam_beta = 2.0, rseed = 42L, MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_simulate_poisson_mixture', PACKAGE = 'mmutilR', r_mu_list, Ncell, output, dir_alpha, gam_alpha, gam_beta, rseed, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Simulation Poisson data based on Mu
@@ -510,7 +515,7 @@ rcpp_mmutil_simulate_poisson_mixture <- function(r_mu_list, Ncell, output, dir_a
 #'
 #' @return a list of file names: {output}.{mtx,rows,cols}.gz
 #'
-rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL, rseed = 42L) {
-    .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output, r_indv, rseed)
+rcpp_mmutil_simulate_poisson <- function(mu, rho, output, r_indv = NULL, rseed = 42L, MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_simulate_poisson', PACKAGE = 'mmutilR', mu, rho, output, r_indv, rseed, MAX_COL_WORD, COL_WORD_SEP)
 }
 

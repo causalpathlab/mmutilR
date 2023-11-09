@@ -15,12 +15,16 @@ rcpp_mmutil_network_topic_data(
   output_sample_incidence = NULL,
   output_sample_adjacency = NULL,
   r_batches = NULL,
-  CUTOFF = 0.01,
+  CUTOFF = 0,
   WEIGHTED = TRUE,
   MAXW = 1,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
-  NUM_THREADS = 1L
+  NUM_THREADS = 1L,
+  MAX_ROW_WORD = 2L,
+  ROW_WORD_SEP = "_",
+  MAX_COL_WORD = 100L,
+  COL_WORD_SEP = "@"
 )
 }
 \arguments{
@@ -42,7 +46,7 @@ rcpp_mmutil_network_topic_data(
 
 \item{r_batches}{batch names (n x 1, default: NULL)}
 
-\item{CUTOFF}{expression present/absent call cutoff (default: 1e-2)}
+\item{CUTOFF}{expression present/absent call cutoff (default: 0)}
 
 \item{WEIGHTED}{include edge weights in feature calculation (default: TRUE)}
 
@@ -53,6 +57,14 @@ rcpp_mmutil_network_topic_data(
 \item{KNN_NNLIST}{num. of nearest neighbor lists (default: 10)}
 
 \item{NUM_THREADS}{number of threads for multi-core processing}
+
+\item{MAX_ROW_WORD}{maximum words per line in \code{row_file}}
+
+\item{ROW_WORD_SEP}{word separation character to replace white space}
+
+\item{MAX_COL_WORD}{maximum words per line in \code{col_file}}
+
+\item{COL_WORD_SEP}{word separation character to replace white space}
 }
 \value{
 feature.incidence, sample.incidence, sample.adjacency

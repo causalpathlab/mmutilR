@@ -4,7 +4,9 @@ int
 filter_col_by_nnz(const Index column_threshold,  //
                   const std::string mtx_file,    //
                   const std::string column_file, //
-                  const std::string output)
+                  const std::string output,
+                  const std::size_t MAX_COL_WORD = 100,
+                  const char COL_WORD_SEP = '@')
 {
     using namespace mmutil::io;
     using Str = std::string;
@@ -12,7 +14,12 @@ filter_col_by_nnz(const Index column_threshold,  //
         triplet_copier_remapped_cols_t<obgzf_stream, Index, Scalar>;
 
     std::vector<Str> column_names(0);
-    CHK_RET_(read_vector_file(column_file, column_names),
+    // CHK_RET_(read_vector_file(column_file, column_names),
+    //          "couldn't read the column file");
+    CHK_RET_(read_line_file(column_file,
+                            column_names,
+                            MAX_COL_WORD,
+                            COL_WORD_SEP),
              "couldn't read the column file");
 
     col_stat_collector_t collector;

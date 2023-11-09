@@ -52,7 +52,11 @@ rcpp_mmutil_merge_file_sets(
     Rcpp::Nullable<const Rcpp::StringVector> r_fixed_rows = R_NilValue,
     const std::string output = "output",
     const double nnz_cutoff = 1,
-    const std::string delim = "_")
+    const std::string delim = "_",
+    const std::size_t MAX_ROW_WORD = 2,
+    const char ROW_WORD_SEP = '_',
+    const std::size_t MAX_COL_WORD = 100,
+    const char COL_WORD_SEP = '@')
 {
 
     ASSERT_RETL(r_batches.isNotNull(), "must provide batch info");
@@ -90,8 +94,13 @@ rcpp_mmutil_merge_file_sets(
             ASSERT_RETL(file_exists(col_file_s),
                         "unable to find the col file: " << col_file_s);
 
-            ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
-                        "unable to read the row file: " << row_file_s);
+            // ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
+            //             "unable to read the row file: " << row_file_s);
+            CHK_RETL_(read_line_file(row_file_s,
+                                     rows_s,
+                                     MAX_ROW_WORD,
+                                     ROW_WORD_SEP),
+                      "unable to read the row file: " << row_file_s);
 
             for (auto r : rows_s) {
                 _rows.insert(r);
@@ -122,7 +131,12 @@ rcpp_mmutil_merge_file_sets(
 
         for (auto row_file_s : row_files) {
             std::vector<std::string> rows_s;
-            ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
+            // ASSERT_RETL(read_vector_file(row_file_s, rows_s) == EXIT_SUCCESS,
+            //             "unable to read the row file: " << row_file_s);
+            ASSERT_RETL(read_line_file(row_file_s,
+                                       rows_s,
+                                       MAX_ROW_WORD,
+                                       ROW_WORD_SEP) == EXIT_SUCCESS,
                         "unable to read the row file: " << row_file_s);
             for (auto r : rows_s) {
                 _rows.insert(r);
@@ -237,7 +251,9 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
                                const std::string row_file,
                                const std::string col_file,
                                const Rcpp::StringVector &r_selected,
-                               const std::string output)
+                               const std::string output,
+                               const std::size_t MAX_COL_WORD = 100,
+                               const char COL_WORD_SEP = '@')
 {
 
     ASSERT_RETL(file_exists(mtx_file), "missing the MTX file");
@@ -252,7 +268,12 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
     std::string temp_mtx_file = output + "-temp.mtx.gz";
 
     // Second pass: squeeze out empty columns
-    CHK_RETL(filter_col_by_nnz(1, temp_mtx_file, col_file, output));
+    CHK_RETL(filter_col_by_nnz(1,
+                               temp_mtx_file,
+                               col_file,
+                               output,
+                               MAX_COL_WORD,
+                               COL_WORD_SEP));
 
     if (file_exists(temp_mtx_file)) {
         std::remove(temp_mtx_file.c_str());

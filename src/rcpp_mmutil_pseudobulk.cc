@@ -35,7 +35,7 @@
 //' @param KNN_BILINK num. of bidirectional links (default: 10)
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
-//' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
+//' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 //'
 //' @return a list of inference results
 //'
@@ -59,7 +59,11 @@ rcpp_mmutil_aggregate_pairwise(
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
     const std::size_t NUM_THREADS = 1,
-    const bool IMPUTE_BY_KNN = false)
+    const bool IMPUTE_BY_KNN = true,
+    const std::size_t MAX_ROW_WORD = 2,
+    const char ROW_WORD_SEP = '_',
+    const std::size_t MAX_COL_WORD = 100,
+    const char COL_WORD_SEP = '@')
 {
 
     Eigen::initParallel();
@@ -67,7 +71,8 @@ rcpp_mmutil_aggregate_pairwise(
     CHK_RETL(mmutil::bgzf::convert_bgzip(mtx_file));
 
     std::vector<std::string> mtx_cols;
-    CHK_RETL(read_vector_file(col_file, mtx_cols));
+    // CHK_RETL(read_vector_file(col_file, mtx_cols));
+    CHK_RETL(read_line_file(col_file, mtx_cols, MAX_COL_WORD, COL_WORD_SEP));
 
     //////////////////////////////
     // check column annotations //
@@ -352,7 +357,9 @@ rcpp_mmutil_aggregate_pairwise(
     /////////////////////
 
     std::vector<std::string> out_row_names;
-    CHK_RETL(read_vector_file(row_file, out_row_names));
+    // CHK_RETL(read_vector_file(row_file, out_row_names));
+    CHK_RETL(
+        read_line_file(row_file, out_row_names, MAX_ROW_WORD, ROW_WORD_SEP));
 
     auto named_mat = [&out_row_names, &out_col_names](const Mat &xx) {
         Rcpp::NumericMatrix x = Rcpp::wrap(xx);
@@ -417,7 +424,7 @@ rcpp_mmutil_aggregate_pairwise(
 //' @param KNN_BILINK num. of bidirectional links (default: 10)
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
-//' @param IMPUTE_BY_KNN imputation by kNN alone (default: FALSE)
+//' @param IMPUTE_BY_KNN imputation by kNN alone (default: TRUE)
 //'
 //' @return a list of inference results
 //'
@@ -441,13 +448,18 @@ rcpp_mmutil_aggregate(
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
     const std::size_t NUM_THREADS = 1,
-    const bool IMPUTE_BY_KNN = false)
+    const bool IMPUTE_BY_KNN = true,
+    const std::size_t MAX_ROW_WORD = 2,
+    const char ROW_WORD_SEP = '_',
+    const std::size_t MAX_COL_WORD = 100,
+    const char COL_WORD_SEP = '@')
 {
     Eigen::initParallel();
     CHK_RETL(mmutil::bgzf::convert_bgzip(mtx_file));
 
     std::vector<std::string> mtx_cols;
-    CHK_RETL(read_vector_file(col_file, mtx_cols));
+    // CHK_RETL(read_vector_file(col_file, mtx_cols));
+    CHK_RETL(read_line_file(col_file, mtx_cols, MAX_COL_WORD, COL_WORD_SEP));
 
     //////////////////////////////
     // check column annotations //
@@ -791,7 +803,9 @@ rcpp_mmutil_aggregate(
     /////////////////////
 
     std::vector<std::string> out_row_names;
-    CHK_RETL(read_vector_file(row_file, out_row_names));
+    // CHK_RETL(read_vector_file(row_file, out_row_names));
+    CHK_RETL(
+        read_line_file(row_file, out_row_names, MAX_ROW_WORD, ROW_WORD_SEP));
 
     auto named_mat = [&out_row_names, &out_col_names](const Mat &xx) {
         Rcpp::NumericMatrix x = Rcpp::wrap(xx);

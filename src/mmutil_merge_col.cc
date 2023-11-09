@@ -6,7 +6,11 @@ run_merge_col(const std::vector<std::string> &glob_rows,
               const std::string output,
               const std::vector<std::string> mtx_files,
               const std::vector<std::string> row_files,
-              const std::vector<std::string> col_files)
+              const std::vector<std::string> col_files,
+              const std::size_t MAX_ROW_WORD = 2,
+              const char ROW_WORD_SEP = '_',
+              const std::size_t MAX_COL_WORD = 100,
+              const char COL_WORD_SEP = '@')
 {
     using Str = std::string;
     using Str2Index = std::unordered_map<Str, Index>;
@@ -74,7 +78,11 @@ run_merge_col(const std::vector<std::string> &glob_rows,
 
         {
             std::vector<Str> row_names(0);
-            CHECK(read_vector_file(row_file, row_names));
+            // CHECK(read_vector_file(row_file, row_names));
+            CHECK(read_line_file(row_file,
+                                 row_names,
+                                 MAX_ROW_WORD,
+                                 ROW_WORD_SEP));
 
             std::vector<Index> local_index(row_names.size()); // original
             std::vector<Index> rel_local_index; // relevant local indexes
@@ -120,7 +128,11 @@ run_merge_col(const std::vector<std::string> &glob_rows,
             const std::vector<Index> &nnz_col = counter.Col_N;
 
             std::vector<Str> column_names(0);
-            CHECK(read_vector_file(col_file, column_names));
+            // CHECK(read_vector_file(col_file, column_names));
+            CHECK(read_line_file(col_file,
+                                 column_names,
+                                 MAX_COL_WORD,
+                                 COL_WORD_SEP));
 
             ASSERT(column_names.size() >= counter.max_col,
                    "Insufficient number of columns");

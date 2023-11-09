@@ -22,7 +22,11 @@ rcpp_mmutil_aggregate(
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
   NUM_THREADS = 1L,
-  IMPUTE_BY_KNN = FALSE
+  IMPUTE_BY_KNN = TRUE,
+  MAX_ROW_WORD = 2L,
+  ROW_WORD_SEP = "_",
+  MAX_COL_WORD = 100L,
+  COL_WORD_SEP = "@"
 )
 }
 \arguments{
@@ -60,7 +64,7 @@ rcpp_mmutil_aggregate(
 
 \item{NUM_THREADS}{number of threads for multi-core processing}
 
-\item{IMPUTE_BY_KNN}{imputation by kNN alone (default: FALSE)}
+\item{IMPUTE_BY_KNN}{imputation by kNN alone (default: TRUE)}
 }
 \value{
 a list of inference results

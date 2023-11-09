@@ -1,5 +1,26 @@
 #include "io.hh"
 
+int
+read_line_file(const std::string filename,
+               std::vector<std::string> &in,
+               const std::size_t max_word = 1,
+               const char sep = '_')
+{
+    int ret = EXIT_SUCCESS;
+
+    if (is_file_gz(filename)) {
+        igzstream ifs(filename.c_str(), std::ios::in);
+        ret = read_line_stream(ifs, in, max_word, sep);
+        ifs.close();
+    } else {
+        std::ifstream ifs(filename.c_str(), std::ios::in);
+        ret = read_line_stream(ifs, in, max_word, sep);
+        ifs.close();
+    }
+
+    return ret;
+}
+
 bool
 file_exists(std::string filename)
 {

@@ -72,7 +72,10 @@ inline std::tuple<std::unordered_set<Index>, // valid
                   Index,                     // #total
                   std::vector<std::string>   // names
                   >
-find_nz_col_names(const std::string mtx_file, const std::string col_file)
+find_nz_col_names(const std::string mtx_file,
+                  const std::string col_file,
+                  const std::size_t MAX_COL_WORD = 100,
+                  const char COL_WORD_SEP = '@')
 {
     using valid_set_t = std::unordered_set<Index>;
     valid_set_t valid;
@@ -83,7 +86,8 @@ find_nz_col_names(const std::string mtx_file, const std::string col_file)
     std::vector<std::string> col_names;
 
     if (file_exists(col_file)) {
-        CHECK(read_vector_file(col_file, col_names));
+        // CHECK(read_vector_file(col_file, col_names));
+        CHECK(read_line_file(col_file, col_names, MAX_COL_WORD, COL_WORD_SEP));
         ASSERT(col_names.size() >= N,
                "Not enough # names in `find_nz_col_names`");
     } else {

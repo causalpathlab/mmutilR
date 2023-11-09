@@ -23,7 +23,9 @@ rcpp_mmutil_simulate_poisson_mixture(const Rcpp::List r_mu_list,
                                      const float dir_alpha = 1.0,
                                      const float gam_alpha = 2.0,
                                      const float gam_beta = 2.0,
-                                     const std::size_t rseed = 42)
+                                     const std::size_t rseed = 42,
+                                     const std::size_t MAX_COL_WORD = 100,
+                                     const char COL_WORD_SEP = '@')
 {
 
     ASSERT_RETL(r_mu_list.size() > 0, "must have a list of mu matrices");
@@ -194,7 +196,12 @@ rcpp_mmutil_simulate_poisson_mixture(const Rcpp::List r_mu_list,
 
     const std::string temp_col_file = output + ".cols-temp.gz";
     write_vector_file(temp_col_file, col_names);
-    filter_col_by_nnz(1, temp_mtx_file, temp_col_file, output);
+    filter_col_by_nnz(1,
+                      temp_mtx_file,
+                      temp_col_file,
+                      output,
+                      MAX_COL_WORD,
+                      COL_WORD_SEP);
     remove_file(temp_col_file);
     remove_file(temp_mtx_file);
 
@@ -254,7 +261,9 @@ rcpp_mmutil_simulate_poisson(
     const Eigen::VectorXf rho,
     const std::string output,
     Rcpp::Nullable<Rcpp::IntegerVector> r_indv = R_NilValue,
-    const std::size_t rseed = 42)
+    const std::size_t rseed = 42,
+    const std::size_t MAX_COL_WORD = 100,
+    const char COL_WORD_SEP = '@')
 {
     const Index max_row = mu.rows();
     const Index Nind = mu.cols();
@@ -393,7 +402,12 @@ rcpp_mmutil_simulate_poisson(
 
     const std::string temp_col_file = output + ".cols-temp.gz";
     write_vector_file(temp_col_file, col_names);
-    filter_col_by_nnz(1, temp_mtx_file, temp_col_file, output);
+    filter_col_by_nnz(1,
+                      temp_mtx_file,
+                      temp_col_file,
+                      output,
+                      MAX_COL_WORD,
+                      COL_WORD_SEP);
     remove_file(temp_col_file);
     remove_file(temp_mtx_file);
 

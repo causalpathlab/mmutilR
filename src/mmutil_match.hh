@@ -263,7 +263,10 @@ inline std::tuple<std::unordered_set<Index>, // valid
                   Index,                     // #total
                   std::vector<std::string>   // names
                   >
-find_nz_col_names(const std::string mtx_file, const std::string col_file);
+find_nz_col_names(const std::string mtx_file,
+                  const std::string col_file,
+                  const std::size_t,
+                  const char);
 
 //////////////////////
 // reciprocal match //

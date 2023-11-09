@@ -24,6 +24,11 @@
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
 //'
+//' @param MAX_ROW_WORD maximum words per line in `row_file`
+//' @param ROW_WORD_SEP word separation character to replace white space
+//' @param MAX_COL_WORD maximum words per line in `col_file`
+//' @param COL_WORD_SEP word separation character to replace white space
+//'
 //' @return feature.incidence, sample.incidence, sample.adjacency
 //'
 // [[Rcpp::export]]
@@ -44,7 +49,11 @@ rcpp_mmutil_network_topic_data(
     const double MAXW = 1,
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
-    const std::size_t NUM_THREADS = 1)
+    const std::size_t NUM_THREADS = 1,
+    const std::size_t MAX_ROW_WORD = 2,
+    const char ROW_WORD_SEP = '_',
+    const std::size_t MAX_COL_WORD = 100,
+    const char COL_WORD_SEP = '@')
 {
 
     mmutil::index::mm_info_reader_t info;
@@ -61,7 +70,7 @@ rcpp_mmutil_network_topic_data(
 
     std::vector<std::string> rows;
     if (file_exists(row_file)) {
-        read_vector_file(row_file, rows);
+        CHK_RETL(read_line_file(row_file, rows, MAX_ROW_WORD, ROW_WORD_SEP));
         ASSERT_RETL(rows.size() == D,
                     "The sample size does not match with the row name file.");
     } else {
@@ -71,7 +80,7 @@ rcpp_mmutil_network_topic_data(
 
     std::vector<std::string> cols;
     if (file_exists(col_file)) {
-        read_vector_file(col_file, cols);
+        CHK_RETL(read_line_file(col_file, cols, MAX_COL_WORD, COL_WORD_SEP));
         ASSERT_RETL(
             cols.size() == Nsample,
             "The sample size does not match with the column name file.");

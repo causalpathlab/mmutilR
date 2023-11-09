@@ -380,6 +380,64 @@ num_rows_cols(IFS &ifs)
     return std::make_tuple(nr, nc);
 }
 
+// Construct a word per line, concatenating up to max_word number of words
+int read_line_file(const std::string filename,
+                   std::vector<std::string> &in,
+                   const std::size_t max_word,
+                   const char sep);
+
+// Construct a word per line, concatenating up to max_word number of words
+template <typename IFS>
+int
+read_line_stream(IFS &ifs,
+                 std::vector<std::string> &in,
+                 const std::size_t max_word = 1,
+                 const char sep = '_')
+{
+    typedef enum _state_t { S_WORD, S_EOW, S_EOL } state_t;
+    const char eol = '\n';
+    std::istreambuf_iterator<char> END;
+    std::istreambuf_iterator<char> it(ifs);
+
+    strbuf_t strbuf;
+    state_t state = S_EOL;
+    std::size_t nw = 0;
+    std::string line;
+    std::size_t nr = 0;
+
+    for (; it != END; ++it) {
+        char c = *it;
+
+        if (c == eol) {
+            if (nw == 0) {
+                // empty line
+                ELOG("Found an empty line: " << (nr + 1));
+                return EXIT_FAILURE;
+            }
+            strbuf.take_string(line);
+            in.emplace_back(line);
+            strbuf.clear();
+            state = S_EOL;
+            nw = 0;
+            ++nr;
+        } else if (isspace(c)) {
+            if (state == S_WORD && nw < max_word) {
+                strbuf.add(sep);
+            }
+            state = S_EOW;
+        } else {
+            if (state != S_WORD) {
+                ++nw;
+            }
+            if (nw <= max_word) {
+                strbuf.add(c);
+            }
+            state = S_WORD;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
 template <typename IFS, typename T>
 auto
 read_data_stream(IFS &ifs, T &in)

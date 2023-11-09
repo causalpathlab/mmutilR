@@ -24,7 +24,9 @@ int
 copy_selected_rows(const std::string mtx_file,
                    const std::string full_row_file,
                    const STRVEC &_selected,
-                   const std::string output)
+                   const std::string output,
+                   const std::size_t MAX_ROW_WORD = 2,
+                   const char ROW_WORD_SEP = '_')
 {
 
     using namespace mmutil::io;
@@ -37,7 +39,12 @@ copy_selected_rows(const std::string mtx_file,
     using index_map_t = copier_t::index_map_t;
 
     std::vector<Str> features(0);
-    CHK_RET_(read_vector_file(full_row_file, features),
+    // CHK_RET_(read_vector_file(full_row_file, features),
+    //          "Failed to read features");
+    CHK_RET_(read_line_file(full_row_file,
+                            features,
+                            MAX_ROW_WORD,
+                            ROW_WORD_SEP),
              "Failed to read features");
 
     std::unordered_set<Str> selected(_selected.begin(), _selected.end());
@@ -104,7 +111,9 @@ int
 copy_selected_columns(const std::string mtx_file,
                       const std::string full_column_file,
                       const STRVEC &_selected,
-                      const std::string output)
+                      const std::string output,
+                      const std::size_t MAX_COL_WORD = 100,
+                      const char COL_WORD_SEP = '@')
 {
     using namespace mmutil::io;
     using Str = std::string;
@@ -114,7 +123,13 @@ copy_selected_columns(const std::string mtx_file,
     std::unordered_set<Str> selected(_selected.begin(), _selected.end());
 
     std::vector<Str> full_column_names(0);
-    CHK_RET_(read_vector_file(full_column_file, full_column_names),
+    // CHK_RET_(read_vector_file(full_column_file, full_column_names),
+    //          "Failed to read column names");
+
+    CHK_RET_(read_line_file(full_column_file,
+                            full_column_names,
+                            MAX_COL_WORD,
+                            COL_WORD_SEP),
              "Failed to read column names");
 
     col_stat_collector_t collector;
