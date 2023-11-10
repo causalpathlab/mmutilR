@@ -44,7 +44,7 @@ rcpp_mmutil_network_topic_data(
     Rcpp::Nullable<std::string> output_sample_incidence = R_NilValue,
     Rcpp::Nullable<std::string> output_sample_adjacency = R_NilValue,
     Rcpp::Nullable<const Rcpp::StringVector> r_batches = R_NilValue,
-    const double CUTOFF = 0,
+    const double CUTOFF = 1e-4, // nearly zero
     const bool WEIGHTED = true,
     const double MAXW = 1,
     const std::size_t KNN_BILINK = 10,

@@ -15,7 +15,7 @@ rcpp_mmutil_network_topic_data(
   output_sample_incidence = NULL,
   output_sample_adjacency = NULL,
   r_batches = NULL,
-  CUTOFF = 0,
+  CUTOFF = 1e-04,
   WEIGHTED = TRUE,
   MAXW = 1,
   KNN_BILINK = 10L,

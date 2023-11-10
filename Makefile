@@ -22,6 +22,14 @@ check: $(PKG)_$(VER).tar.gz
 install: $(PKG)_$(VER).tar.gz
 	R CMD INSTALL $<
 
-site:
-	R -e "pkgdown::build_site()"
+reference:
+	R -e "pkgdown::build_reference()"
 
+RMD := $(wildcard vignettes/*.Rmd)
+DOC := $(foreach x, $(RMD), $(subst vignettes, docs/articles, $(x)))
+HTML := $(DOC:.Rmd=.html)
+
+all_articles: $(HTML)
+
+docs/articles/%.html: vignettes/%.Rmd
+	R -e "pkgdown::build_article('$*')"
