@@ -170,8 +170,8 @@ rcpp_mmutil_merge_file_sets <- function(r_headers = NULL, r_batches = NULL, r_mt
 #' unlink(list.files(pattern = src.hdr))
 #' unlink(list.files(pattern = tgt.hdr))
 #'
-rcpp_mmutil_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selected, output, MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
-    .Call('_mmutilR_rcpp_mmutil_copy_selected_rows', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output, MAX_COL_WORD, COL_WORD_SEP)
+rcpp_mmutil_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selected, output, MAX_ROW_WORD = 100L, ROW_WORD_SEP = '@', MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_copy_selected_rows', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output, MAX_ROW_WORD, ROW_WORD_SEP, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Take a subset of columns and create a new MTX file-set
@@ -205,8 +205,8 @@ rcpp_mmutil_copy_selected_rows <- function(mtx_file, row_file, col_file, r_selec
 #' unlink(list.files(pattern = src.hdr))
 #' unlink(list.files(pattern = tgt.hdr))
 #'
-rcpp_mmutil_copy_selected_columns <- function(mtx_file, row_file, col_file, r_selected, output) {
-    .Call('_mmutilR_rcpp_mmutil_copy_selected_columns', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output)
+rcpp_mmutil_copy_selected_columns <- function(mtx_file, row_file, col_file, r_selected, output, MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_copy_selected_columns', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, r_selected, output, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Create an index file for a given MTX

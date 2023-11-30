@@ -10,6 +10,8 @@ rcpp_mmutil_copy_selected_rows(
   col_file,
   r_selected,
   output,
+  MAX_ROW_WORD = 100L,
+  ROW_WORD_SEP = "@",
   MAX_COL_WORD = 100L,
   COL_WORD_SEP = "@"
 )

@@ -9,7 +9,9 @@ rcpp_mmutil_copy_selected_columns(
   row_file,
   col_file,
   r_selected,
-  output
+  output,
+  MAX_COL_WORD = 100L,
+  COL_WORD_SEP = "@"
 )
 }
 \arguments{

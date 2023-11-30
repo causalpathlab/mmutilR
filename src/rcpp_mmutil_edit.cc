@@ -256,6 +256,8 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
                                const std::string col_file,
                                const Rcpp::StringVector &r_selected,
                                const std::string output,
+                               const std::size_t MAX_ROW_WORD = 100,
+                               const char ROW_WORD_SEP = '@',
                                const std::size_t MAX_COL_WORD = 100,
                                const char COL_WORD_SEP = '@')
 {
@@ -267,7 +269,12 @@ rcpp_mmutil_copy_selected_rows(const std::string mtx_file,
     std::vector<std::string> selected = copy(r_selected);
 
     // First pass: select rows and create temporary MTX
-    copy_selected_rows(mtx_file, row_file, selected, output + "-temp");
+    copy_selected_rows(mtx_file,
+                       row_file,
+                       selected,
+                       output + "-temp",
+                       MAX_ROW_WORD,
+                       ROW_WORD_SEP);
 
     std::string temp_mtx_file = output + "-temp.mtx.gz";
 
@@ -362,7 +369,9 @@ rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
                                   const std::string row_file,
                                   const std::string col_file,
                                   const Rcpp::StringVector &r_selected,
-                                  const std::string output)
+                                  const std::string output,
+                                  const std::size_t MAX_COL_WORD = 100,
+                                  const char COL_WORD_SEP = '@')
 {
 
     ASSERT_RETL(file_exists(mtx_file), "missing the MTX file");
@@ -373,7 +382,12 @@ rcpp_mmutil_copy_selected_columns(const std::string mtx_file,
 
     const std::string out_row_file = output + ".rows.gz";
     copy_file(row_file, out_row_file);
-    copy_selected_columns(mtx_file, col_file, selected, output);
+    copy_selected_columns(mtx_file,
+                          col_file,
+                          selected,
+                          output,
+                          MAX_COL_WORD,
+                          COL_WORD_SEP);
 
     ASSERT_RETL(file_exists(out_row_file),
                 "unable to create the row file: " << out_row_file)
