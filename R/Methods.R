@@ -49,7 +49,7 @@ make.pine <- function(mtx.data,
 
     if(is.null(V)){
         message("Running PCA...")
-        .pca <- rcpp_mmutil_pca(mtx_file = mtx.data$mtx,
+        .pca <- rcpp_mmutil_svd(mtx_file = mtx.data$mtx,
                                 RANK=.rank,
                                 TAKE_LN = .take.ln,
                                 TAU = .pca.reg,
@@ -194,7 +194,7 @@ make.cocoa <- function(mtx.data,
 
         message("Running PCA...")
 
-        .pca <- rcpp_mmutil_pca(mtx_file = mtx.data$mtx,
+        .pca <- rcpp_mmutil_svd(mtx_file = mtx.data$mtx,
                                 RANK=.rank,
                                 TAKE_LN = .take.ln,
                                 TAU = .pca.reg,
