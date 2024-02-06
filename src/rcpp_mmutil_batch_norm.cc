@@ -11,27 +11,36 @@
 //' BBKNN(Batch-balancing kNN) adjustment of SVD factors
 //'
 //' @param r_svd_v (n x L) n number of data points
-//' @param r_svd_d (L x 1) singular values
+//' @param r_svd_u (m x L) m number of features (default: NULL)
+//' @param r_svd_d (L x 1) singular values (default: NULL)
 //' @param r_batches batch names (n x 1)
 //' @param knn kNN parameter k
 //' @param RECIPROCAL_MATCH do reciprocal match (default: TRUE)
 //' @param KNN_BILINK num. of bidirectional links (default: 10)
 //' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 //' @param NUM_THREADS number of threads for multi-core processing
+//' @param USE_SINGULAR_VALUES Weight factors by the corresponding SVs
 //'
 //' @return a list of (1) factors.adjusted (2) D (3) V (4) knn
+//'
+//' @details
+//'
+//' Build batch-balancing kNN graph based on (V * D) or V data.
+//'
 //'
 // [[Rcpp::export]]
 Rcpp::List
 rcpp_mmutil_bbknn(
     const Rcpp::NumericMatrix &r_svd_v,
+    const Rcpp::Nullable<Rcpp::NumericMatrix> r_svd_u = R_NilValue,
     const Rcpp::Nullable<Rcpp::NumericMatrix> r_svd_d = R_NilValue,
     const Rcpp::Nullable<Rcpp::StringVector> r_batches = R_NilValue,
     const std::size_t knn = 10,
     const bool RECIPROCAL_MATCH = true,
     const std::size_t KNN_BILINK = 10,
     const std::size_t KNN_NNLIST = 10,
-    const std::size_t NUM_THREADS = 1)
+    const std::size_t NUM_THREADS = 1,
+    const bool USE_SINGULAR_VALUES = false)
 {
 
     const Mat svd_v = Rcpp::as<Mat>(r_svd_v);
@@ -41,6 +50,9 @@ rcpp_mmutil_bbknn(
     const Mat svd_d =
         (r_svd_d.isNotNull() ? Rcpp::as<Eigen::MatrixXf>(r_svd_d) :
                                Mat::Ones(svd_v.cols(), 1));
+
+    const Mat svd_u =
+        (r_svd_u.isNotNull() ? Rcpp::as<Eigen::MatrixXf>(r_svd_u) : Mat());
 
     const Index Nsample = svd_v.rows();
 
@@ -79,7 +91,12 @@ rcpp_mmutil_bbknn(
     TLOG("Identified " << Nbatch << " batches");
 
     std::vector<std::tuple<Index, Index, Scalar, Scalar>> knn_index;
-    Mat VD_rank_sample = (svd_v * svd_d.asDiagonal()).transpose();
+    Mat VD_rank_sample;
+    if (USE_SINGULAR_VALUES) {
+        VD_rank_sample = (svd_v * svd_d.asDiagonal()).transpose();
+    } else {
+        VD_rank_sample = svd_v.transpose();
+    }
 
     CHECK(build_bbknn(VD_rank_sample,
                       batch_index_set,
@@ -268,6 +285,7 @@ rcpp_mmutil_bbknn(
     }
 
     return Rcpp::List::create(Rcpp::_["factors.adjusted"] = VDadj,
+                              Rcpp::_["U"] = svd_u,
                               Rcpp::_["D"] = svd_d,
                               Rcpp::_["V"] = svd_v,
                               Rcpp::_["knn"] = knn_out,
@@ -292,6 +310,7 @@ rcpp_mmutil_bbknn(
 //' @param row_weight_file row-wise weight file
 //' @param NUM_THREADS number of threads for multi-core processing
 //' @param BLOCK_SIZE number of columns per block
+//' @param USE_SINGULAR_VALUES Weight factors by the corresponding SVs
 //'
 //' @return a list of (1) factors.adjusted (2) D (3) V (4) knn
 //'
@@ -312,7 +331,8 @@ rcpp_mmutil_bbknn_mtx(const std::string mtx_file,
                       const std::size_t LU_ITER = 5,
                       const std::string row_weight_file = "",
                       const std::size_t NUM_THREADS = 1,
-                      const std::size_t BLOCK_SIZE = 10000)
+                      const std::size_t BLOCK_SIZE = 10000,
+                      const bool USE_SINGULAR_VALUES = false)
 {
 
     ////////////////////////////////////////
@@ -383,11 +403,13 @@ rcpp_mmutil_bbknn_mtx(const std::string mtx_file,
     //////////////////////////
 
     return rcpp_mmutil_bbknn(Rcpp::wrap(svd.V),
+                             Rcpp::wrap(svd.U),
                              Rcpp::wrap(svd.D),
                              r_batches,
                              knn,
                              RECIPROCAL_MATCH,
                              KNN_BILINK,
                              KNN_NNLIST,
-                             NUM_THREADS);
+                             NUM_THREADS,
+                             USE_SINGULAR_VALUES);
 }

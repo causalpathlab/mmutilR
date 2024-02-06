@@ -6,19 +6,23 @@
 \usage{
 rcpp_mmutil_bbknn(
   r_svd_v,
+  r_svd_u = NULL,
   r_svd_d = NULL,
   r_batches = NULL,
   knn = 10L,
   RECIPROCAL_MATCH = TRUE,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
-  NUM_THREADS = 1L
+  NUM_THREADS = 1L,
+  USE_SINGULAR_VALUES = FALSE
 )
 }
 \arguments{
 \item{r_svd_v}{(n x L) n number of data points}
 
-\item{r_svd_d}{(L x 1) singular values}
+\item{r_svd_u}{(m x L) m number of features (default: NULL)}
+
+\item{r_svd_d}{(L x 1) singular values (default: NULL)}
 
 \item{r_batches}{batch names (n x 1)}
 
@@ -31,10 +35,15 @@ rcpp_mmutil_bbknn(
 \item{KNN_NNLIST}{num. of nearest neighbor lists (default: 10)}
 
 \item{NUM_THREADS}{number of threads for multi-core processing}
+
+\item{USE_SINGULAR_VALUES}{Weight factors by the corresponding SVs}
 }
 \value{
 a list of (1) factors.adjusted (2) D (3) V (4) knn
 }
 \description{
 BBKNN(Batch-balancing kNN) adjustment of SVD factors
+}
+\details{
+Build batch-balancing kNN graph based on (V * D) or V data.
 }

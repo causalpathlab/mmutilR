@@ -12,12 +12,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_mmutil_bbknn
-Rcpp::List rcpp_mmutil_bbknn(const Rcpp::NumericMatrix& r_svd_v, const Rcpp::Nullable<Rcpp::NumericMatrix> r_svd_d, const Rcpp::Nullable<Rcpp::StringVector> r_batches, const std::size_t knn, const bool RECIPROCAL_MATCH, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn(SEXP r_svd_vSEXP, SEXP r_svd_dSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RECIPROCAL_MATCHSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::List rcpp_mmutil_bbknn(const Rcpp::NumericMatrix& r_svd_v, const Rcpp::Nullable<Rcpp::NumericMatrix> r_svd_u, const Rcpp::Nullable<Rcpp::NumericMatrix> r_svd_d, const Rcpp::Nullable<Rcpp::StringVector> r_batches, const std::size_t knn, const bool RECIPROCAL_MATCH, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS, const bool USE_SINGULAR_VALUES);
+RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn(SEXP r_svd_vSEXP, SEXP r_svd_uSEXP, SEXP r_svd_dSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RECIPROCAL_MATCHSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP, SEXP USE_SINGULAR_VALUESSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type r_svd_v(r_svd_vSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::NumericMatrix> >::type r_svd_u(r_svd_uSEXP);
     Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::NumericMatrix> >::type r_svd_d(r_svd_dSEXP);
     Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::StringVector> >::type r_batches(r_batchesSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type knn(knnSEXP);
@@ -25,13 +26,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_BILINK(KNN_BILINKSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_NNLIST(KNN_NNLISTSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn(r_svd_v, r_svd_d, r_batches, knn, RECIPROCAL_MATCH, KNN_BILINK, KNN_NNLIST, NUM_THREADS));
+    Rcpp::traits::input_parameter< const bool >::type USE_SINGULAR_VALUES(USE_SINGULAR_VALUESSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn(r_svd_v, r_svd_u, r_svd_d, r_batches, knn, RECIPROCAL_MATCH, KNN_BILINK, KNN_NNLIST, NUM_THREADS, USE_SINGULAR_VALUES));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_mmutil_bbknn_mtx
-Rcpp::List rcpp_mmutil_bbknn_mtx(const std::string mtx_file, const Rcpp::StringVector& r_batches, const std::size_t knn, const std::size_t RANK, const bool RECIPROCAL_MATCH, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t LU_ITER, const std::string row_weight_file, const std::size_t NUM_THREADS, const std::size_t BLOCK_SIZE);
-RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn_mtx(SEXP mtx_fileSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RANKSEXP, SEXP RECIPROCAL_MATCHSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP LU_ITERSEXP, SEXP row_weight_fileSEXP, SEXP NUM_THREADSSEXP, SEXP BLOCK_SIZESEXP) {
+Rcpp::List rcpp_mmutil_bbknn_mtx(const std::string mtx_file, const Rcpp::StringVector& r_batches, const std::size_t knn, const std::size_t RANK, const bool RECIPROCAL_MATCH, const bool TAKE_LN, const double TAU, const double COL_NORM, const std::size_t EM_ITER, const double EM_TOL, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t LU_ITER, const std::string row_weight_file, const std::size_t NUM_THREADS, const std::size_t BLOCK_SIZE, const bool USE_SINGULAR_VALUES);
+RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn_mtx(SEXP mtx_fileSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RANKSEXP, SEXP RECIPROCAL_MATCHSEXP, SEXP TAKE_LNSEXP, SEXP TAUSEXP, SEXP COL_NORMSEXP, SEXP EM_ITERSEXP, SEXP EM_TOLSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP LU_ITERSEXP, SEXP row_weight_fileSEXP, SEXP NUM_THREADSSEXP, SEXP BLOCK_SIZESEXP, SEXP USE_SINGULAR_VALUESSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -51,7 +53,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string >::type row_weight_file(row_weight_fileSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type BLOCK_SIZE(BLOCK_SIZESEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn_mtx(mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE));
+    Rcpp::traits::input_parameter< const bool >::type USE_SINGULAR_VALUES(USE_SINGULAR_VALUESSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn_mtx(mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE, USE_SINGULAR_VALUES));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -437,8 +440,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mmutilR_rcpp_mmutil_bbknn", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn, 8},
-    {"_mmutilR_rcpp_mmutil_bbknn_mtx", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn_mtx, 16},
+    {"_mmutilR_rcpp_mmutil_bbknn", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn, 10},
+    {"_mmutilR_rcpp_mmutil_bbknn_mtx", (DL_FUNC) &_mmutilR_rcpp_mmutil_bbknn_mtx, 17},
     {"_mmutilR_rcpp_mmutil_annotate_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_annotate_columns, 18},
     {"_mmutilR_rcpp_mmutil_merge_file_sets", (DL_FUNC) &_mmutilR_rcpp_mmutil_merge_file_sets, 13},
     {"_mmutilR_rcpp_mmutil_copy_selected_rows", (DL_FUNC) &_mmutilR_rcpp_mmutil_copy_selected_rows, 9},

@@ -46,13 +46,15 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rcpp_mmutil_bbknn</span><span class="op">(</span></span>
 <span>  <span class="va">r_svd_v</span>,</span>
+<span>  r_svd_u <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  r_svd_d <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  r_batches <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  knn <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  RECIPROCAL_MATCH <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,</span>
-<span>  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span></span>
+<span>  NUM_THREADS <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  USE_SINGULAR_VALUES <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -62,8 +64,12 @@
 <dd><p>(n x L) n number of data points</p></dd>
 
 
+<dt>r_svd_u</dt>
+<dd><p>(m x L) m number of features (default: NULL)</p></dd>
+
+
 <dt>r_svd_d</dt>
-<dd><p>(L x 1) singular values</p></dd>
+<dd><p>(L x 1) singular values (default: NULL)</p></dd>
 
 
 <dt>r_batches</dt>
@@ -89,12 +95,20 @@
 <dt>NUM_THREADS</dt>
 <dd><p>number of threads for multi-core processing</p></dd>
 
+
+<dt>USE_SINGULAR_VALUES</dt>
+<dd><p>Weight factors by the corresponding SVs</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
     
 
 <p>a list of (1) factors.adjusted (2) D (3) V (4) knn</p>
+    </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>Build batch-balancing kNN graph based on (V * D) or V data.</p>
     </div>
 
   </div>

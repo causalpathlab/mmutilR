@@ -4,18 +4,25 @@
 #' BBKNN(Batch-balancing kNN) adjustment of SVD factors
 #'
 #' @param r_svd_v (n x L) n number of data points
-#' @param r_svd_d (L x 1) singular values
+#' @param r_svd_u (m x L) m number of features (default: NULL)
+#' @param r_svd_d (L x 1) singular values (default: NULL)
 #' @param r_batches batch names (n x 1)
 #' @param knn kNN parameter k
 #' @param RECIPROCAL_MATCH do reciprocal match (default: TRUE)
 #' @param KNN_BILINK num. of bidirectional links (default: 10)
 #' @param KNN_NNLIST num. of nearest neighbor lists (default: 10)
 #' @param NUM_THREADS number of threads for multi-core processing
+#' @param USE_SINGULAR_VALUES Weight factors by the corresponding SVs
 #'
 #' @return a list of (1) factors.adjusted (2) D (3) V (4) knn
 #'
-rcpp_mmutil_bbknn <- function(r_svd_v, r_svd_d = NULL, r_batches = NULL, knn = 10L, RECIPROCAL_MATCH = TRUE, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L) {
-    .Call('_mmutilR_rcpp_mmutil_bbknn', PACKAGE = 'mmutilR', r_svd_v, r_svd_d, r_batches, knn, RECIPROCAL_MATCH, KNN_BILINK, KNN_NNLIST, NUM_THREADS)
+#' @details
+#'
+#' Build batch-balancing kNN graph based on (V * D) or V data.
+#'
+#'
+rcpp_mmutil_bbknn <- function(r_svd_v, r_svd_u = NULL, r_svd_d = NULL, r_batches = NULL, knn = 10L, RECIPROCAL_MATCH = TRUE, KNN_BILINK = 10L, KNN_NNLIST = 10L, NUM_THREADS = 1L, USE_SINGULAR_VALUES = FALSE) {
+    .Call('_mmutilR_rcpp_mmutil_bbknn', PACKAGE = 'mmutilR', r_svd_v, r_svd_u, r_svd_d, r_batches, knn, RECIPROCAL_MATCH, KNN_BILINK, KNN_NNLIST, NUM_THREADS, USE_SINGULAR_VALUES)
 }
 
 #' BBKNN(Batch-balancing kNN)-adjusted SVD
@@ -36,11 +43,12 @@ rcpp_mmutil_bbknn <- function(r_svd_v, r_svd_d = NULL, r_batches = NULL, knn = 1
 #' @param row_weight_file row-wise weight file
 #' @param NUM_THREADS number of threads for multi-core processing
 #' @param BLOCK_SIZE number of columns per block
+#' @param USE_SINGULAR_VALUES Weight factors by the corresponding SVs
 #'
 #' @return a list of (1) factors.adjusted (2) D (3) V (4) knn
 #'
-rcpp_mmutil_bbknn_mtx <- function(mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH = TRUE, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L) {
-    .Call('_mmutilR_rcpp_mmutil_bbknn_mtx', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE)
+rcpp_mmutil_bbknn_mtx <- function(mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH = TRUE, TAKE_LN = TRUE, TAU = 1., COL_NORM = 1e4, EM_ITER = 0L, EM_TOL = 1e-4, KNN_BILINK = 10L, KNN_NNLIST = 10L, LU_ITER = 5L, row_weight_file = "", NUM_THREADS = 1L, BLOCK_SIZE = 10000L, USE_SINGULAR_VALUES = FALSE) {
+    .Call('_mmutilR_rcpp_mmutil_bbknn_mtx', PACKAGE = 'mmutilR', mtx_file, r_batches, knn, RANK, RECIPROCAL_MATCH, TAKE_LN, TAU, COL_NORM, EM_ITER, EM_TOL, KNN_BILINK, KNN_NNLIST, LU_ITER, row_weight_file, NUM_THREADS, BLOCK_SIZE, USE_SINGULAR_VALUES)
 }
 
 #' Annotate columns by marker feature information

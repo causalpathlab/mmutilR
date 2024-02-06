@@ -20,7 +20,8 @@ rcpp_mmutil_bbknn_mtx(
   LU_ITER = 5L,
   row_weight_file = "",
   NUM_THREADS = 1L,
-  BLOCK_SIZE = 10000L
+  BLOCK_SIZE = 10000L,
+  USE_SINGULAR_VALUES = FALSE
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ rcpp_mmutil_bbknn_mtx(
 \item{NUM_THREADS}{number of threads for multi-core processing}
 
 \item{BLOCK_SIZE}{number of columns per block}
+
+\item{USE_SINGULAR_VALUES}{Weight factors by the corresponding SVs}
 }
 \value{
 a list of (1) factors.adjusted (2) D (3) V (4) knn
