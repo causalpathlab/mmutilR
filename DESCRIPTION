@@ -8,8 +8,8 @@ Maintainer: Yongjin Park <ypp@stat.ubc.ca>
 Description: Single-cell sequencing data often come in a matrix market
   format, which consists of triplets in each line (row, column, value).
 License: MIT License
-Imports: Rcpp, RcppEigen, RcppProgress, dqrng, sitmo, BH
-LinkingTo: Rcpp, RcppEigen, RcppProgress, dqrng, sitmo, BH
+Imports: Rcpp, RcppEigen, RcppProgress, dqrng, sitmo, BH, Matrix
+LinkingTo: Rcpp, RcppEigen, RcppProgress, dqrng, sitmo, BH, Matrix
 Suggests: data.table
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -10,8 +10,8 @@
 
 //' BBKNN(Batch-balancing kNN) adjustment of SVD factors
 //'
-//' @param svd_d (L x 1) singular values
-//' @param svd_v (n x L) n number of data points
+//' @param r_svd_v (n x L) n number of data points
+//' @param r_svd_d (L x 1) singular values
 //' @param r_batches batch names (n x 1)
 //' @param knn kNN parameter k
 //' @param RECIPROCAL_MATCH do reciprocal match (default: TRUE)
@@ -23,19 +23,38 @@
 //'
 // [[Rcpp::export]]
 Rcpp::List
-rcpp_mmutil_bbknn(const Eigen::MatrixXf svd_v,
-                  const Eigen::MatrixXf svd_d,
-                  const Rcpp::StringVector &r_batches,
-                  const std::size_t knn,
-                  const bool RECIPROCAL_MATCH = true,
-                  const std::size_t KNN_BILINK = 10,
-                  const std::size_t KNN_NNLIST = 10,
-                  const std::size_t NUM_THREADS = 1)
+rcpp_mmutil_bbknn(
+    const Rcpp::NumericMatrix &r_svd_v,
+    const Rcpp::Nullable<Rcpp::NumericMatrix> r_svd_d = R_NilValue,
+    const Rcpp::Nullable<Rcpp::StringVector> r_batches = R_NilValue,
+    const std::size_t knn = 10,
+    const bool RECIPROCAL_MATCH = true,
+    const std::size_t KNN_BILINK = 10,
+    const std::size_t KNN_NNLIST = 10,
+    const std::size_t NUM_THREADS = 1)
 {
-    std::vector<std::string> batch_membership(r_batches.begin(),
-                                              r_batches.end());
+
+    const Mat svd_v = Rcpp::as<Mat>(r_svd_v);
+
+    TLOG("feature matrix: " << svd_v.rows() << " x " << svd_v.cols());
+
+    const Mat svd_d =
+        (r_svd_d.isNotNull() ? Rcpp::as<Eigen::MatrixXf>(r_svd_d) :
+                               Mat::Ones(svd_v.cols(), 1));
 
     const Index Nsample = svd_v.rows();
+
+    std::vector<std::string> batch_membership;
+
+    if (r_batches.isNotNull()) {
+        Rcpp::StringVector _batches(r_batches);
+        for (auto r : _batches) {
+            batch_membership.emplace_back(r);
+        }
+    } else {
+        for (Index j = 0; j < Nsample; ++j)
+            batch_membership.emplace_back("no_batch");
+    }
 
     //////////////////////
     // batch membership //
@@ -82,12 +101,35 @@ rcpp_mmutil_bbknn(const Eigen::MatrixXf svd_v,
     Mat VDorg = VD_rank_sample;
     Mat VDadj = VDorg;
 
+    // Sort batch indexes in descending order of the sizes
+    std::vector<Index> batch_size;
+    for (Index a = 0; a < Nbatch; ++a) {
+        batch_size.emplace_back(batch_index_set.at(a).size());
+    }
+    std::vector<Index> batch_order = std_argsort(batch_size);
+    std::vector<Index> batch_rank(Nbatch);
+    for (Index a = 0; a < Nbatch; ++a) {
+        batch_rank[batch_order.at(a)] = a;
+    }
+
+    if (Nbatch > 1) {
+        TLOG("Batch adjustment order: ");
+        for (auto k : batch_order) {
+            TLOG(k << " [" << batch_id_name.at(k)
+                   << "] N=" << batch_size.at(k));
+        }
+    }
+
 #if defined(_OPENMP)
 #pragma omp parallel num_threads(NUM_THREADS)
 #pragma omp for
 #endif
-    for (Index aa = 1; aa < Nbatch; ++aa) {
+    for (Index a = 1; a < Nbatch; ++a) {
+
+        const Index aa = batch_order.at(a);
+
         const auto &batch_a = batch_index_set.at(aa);
+
         const Index nn_a = batch_a.size();
 
         Mat delta_a(VDorg.rows(), 1);
@@ -95,16 +137,15 @@ rcpp_mmutil_bbknn(const Eigen::MatrixXf svd_v,
         Scalar num_a = 0.;
 
         for (Index a_k = 0; a_k < nn_a; ++a_k) {
+
             const Index j = batch_a.at(a_k);
 
             for (SpMat::InnerIterator it(W, j); it; ++it) {
 
-                const Index i = it.col();
-
-                if (batch.at(i) < aa) { // mingle toward the previous ones
-
+                const Index i = it.index();  // other cell index
+                const Index b = batch.at(i); // its batch
+                if (batch_rank.at(b) < a) {  // mingle toward the previous ones
                     const Scalar wji = it.value();
-
                     delta_a += wji * (VDorg.col(j) - VDadj.col(i));
                     num_a += wji;
                 }
@@ -341,8 +382,8 @@ rcpp_mmutil_bbknn_mtx(const std::string mtx_file,
     // BBKNN and adjustment //
     //////////////////////////
 
-    return rcpp_mmutil_bbknn(svd.V,
-                             svd.D,
+    return rcpp_mmutil_bbknn(Rcpp::wrap(svd.V),
+                             Rcpp::wrap(svd.D),
                              r_batches,
                              knn,
                              RECIPROCAL_MATCH,

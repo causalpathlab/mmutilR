@@ -226,17 +226,18 @@ build_bbknn(Eigen::MatrixBase<Derived> &VD_rank_sample,
 
     if (reciprocal_match) {
 
-        reweight_knn_graph(VD_rank_sample,
-                           backbone,
-                           param_knn,
-                           knn_index,
-                           NUM_THREADS);
-    } else {
-
         auto backbone_rec = keep_reciprocal_knn(backbone);
 
         reweight_knn_graph(VD_rank_sample,
                            backbone_rec,
+                           param_knn,
+                           knn_index,
+                           NUM_THREADS);
+
+    } else {
+
+        reweight_knn_graph(VD_rank_sample,
+                           backbone,
                            param_knn,
                            knn_index,
                            NUM_THREADS);

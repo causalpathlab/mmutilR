@@ -12,20 +12,20 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // rcpp_mmutil_bbknn
-Rcpp::List rcpp_mmutil_bbknn(const Eigen::MatrixXf svd_v, const Eigen::MatrixXf svd_d, const Rcpp::StringVector& r_batches, const std::size_t knn, const bool RECIPROCAL_MATCH, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS);
-RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn(SEXP svd_vSEXP, SEXP svd_dSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RECIPROCAL_MATCHSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP) {
+Rcpp::List rcpp_mmutil_bbknn(const Rcpp::NumericMatrix& r_svd_v, const Rcpp::Nullable<Rcpp::NumericMatrix> r_svd_d, const Rcpp::Nullable<Rcpp::StringVector> r_batches, const std::size_t knn, const bool RECIPROCAL_MATCH, const std::size_t KNN_BILINK, const std::size_t KNN_NNLIST, const std::size_t NUM_THREADS);
+RcppExport SEXP _mmutilR_rcpp_mmutil_bbknn(SEXP r_svd_vSEXP, SEXP r_svd_dSEXP, SEXP r_batchesSEXP, SEXP knnSEXP, SEXP RECIPROCAL_MATCHSEXP, SEXP KNN_BILINKSEXP, SEXP KNN_NNLISTSEXP, SEXP NUM_THREADSSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::MatrixXf >::type svd_v(svd_vSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXf >::type svd_d(svd_dSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::StringVector& >::type r_batches(r_batchesSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix& >::type r_svd_v(r_svd_vSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::NumericMatrix> >::type r_svd_d(r_svd_dSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Nullable<Rcpp::StringVector> >::type r_batches(r_batchesSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type knn(knnSEXP);
     Rcpp::traits::input_parameter< const bool >::type RECIPROCAL_MATCH(RECIPROCAL_MATCHSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_BILINK(KNN_BILINKSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type KNN_NNLIST(KNN_NNLISTSEXP);
     Rcpp::traits::input_parameter< const std::size_t >::type NUM_THREADS(NUM_THREADSSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn(svd_v, svd_d, r_batches, knn, RECIPROCAL_MATCH, KNN_BILINK, KNN_NNLIST, NUM_THREADS));
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_bbknn(r_svd_v, r_svd_d, r_batches, knn, RECIPROCAL_MATCH, KNN_BILINK, KNN_NNLIST, NUM_THREADS));
     return rcpp_result_gen;
 END_RCPP
 }
