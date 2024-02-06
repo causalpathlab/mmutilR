@@ -52,6 +52,9 @@
     <loc>/reference/rcpp_build_mmutil_index.html</loc>
   </url>
   <url>
+    <loc>/reference/rcpp_build_sparse_mat.html</loc>
+  </url>
+  <url>
     <loc>/reference/rcpp_check_index_tab.html</loc>
   </url>
   <url>
@@ -80,6 +83,9 @@
   </url>
   <url>
     <loc>/reference/rcpp_mmutil_bbknn.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rcpp_mmutil_bbknn_mtx.html</loc>
   </url>
   <url>
     <loc>/reference/rcpp_mmutil_bbknn_pca.html</loc>
@@ -134,6 +140,9 @@
   </url>
   <url>
     <loc>/reference/rcpp_mmutil_simulate_poisson_mixture.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rcpp_mmutil_svd.html</loc>
   </url>
   <url>
     <loc>/reference/rcpp_mmutil_write_mtx.html</loc>

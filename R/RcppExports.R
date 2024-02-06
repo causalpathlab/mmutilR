@@ -131,7 +131,7 @@ rcpp_mmutil_annotate_columns <- function(pos_labels, r_rows = NULL, r_cols = NUL
 #' t2 <- mmutilR::rcpp_mmutil_simulate_poisson(mm, rr, "test2")
 #' bats <- hdrs <- c("test1","test2")
 #' t3 <- mmutilR::rcpp_mmutil_merge_file_sets(
-#'                       hdrs, bats, "test3", 0)
+#'                       hdrs, bats, output = "test3", nnz_cutoff = 0)
 #' A1 <- Matrix::readMM(t1$mtx);
 #' rownames(A1) <- unlist(read.table(gzfile(t1$row)))
 #' A2 <- Matrix::readMM(t2$mtx)
