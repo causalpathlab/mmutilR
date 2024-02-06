@@ -5,10 +5,10 @@
 \title{BBKNN(Batch-balancing kNN) adjustment of SVD factors}
 \usage{
 rcpp_mmutil_bbknn(
-  svd_v,
-  svd_d,
-  r_batches,
-  knn,
+  r_svd_v,
+  r_svd_d = NULL,
+  r_batches = NULL,
+  knn = 10L,
   RECIPROCAL_MATCH = TRUE,
   KNN_BILINK = 10L,
   KNN_NNLIST = 10L,
@@ -16,9 +16,9 @@ rcpp_mmutil_bbknn(
 )
 }
 \arguments{
-\item{svd_v}{(n x L) n number of data points}
+\item{r_svd_v}{(n x L) n number of data points}
 
-\item{svd_d}{(L x 1) singular values}
+\item{r_svd_d}{(L x 1) singular values}
 
 \item{r_batches}{batch names (n x 1)}
 
