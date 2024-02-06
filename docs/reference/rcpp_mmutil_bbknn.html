@@ -45,10 +45,10 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rcpp_mmutil_bbknn</span><span class="op">(</span></span>
-<span>  <span class="va">svd_v</span>,</span>
-<span>  <span class="va">svd_d</span>,</span>
-<span>  <span class="va">r_batches</span>,</span>
-<span>  <span class="va">knn</span>,</span>
+<span>  <span class="va">r_svd_v</span>,</span>
+<span>  r_svd_d <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  r_batches <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  knn <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  RECIPROCAL_MATCH <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  KNN_BILINK <span class="op">=</span> <span class="fl">10L</span>,</span>
 <span>  KNN_NNLIST <span class="op">=</span> <span class="fl">10L</span>,</span>
@@ -58,11 +58,11 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>svd_v</dt>
+    <dl><dt>r_svd_v</dt>
 <dd><p>(n x L) n number of data points</p></dd>
 
 
-<dt>svd_d</dt>
+<dt>r_svd_d</dt>
 <dd><p>(L x 1) singular values</p></dd>
 
 
