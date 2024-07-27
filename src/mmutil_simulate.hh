@@ -4,20 +4,18 @@
 #include "mmutil.hh"
 #include "mmutil_index.hh"
 
-// #include "stat.hh"
 #include "std_util.hh"
 #include "bgzstream.hh"
 
-// [[Rcpp::depends(dqrng, sitmo, BH)]]
-#include <dqrng.h>
-#include <dqrng_distribution.h>
+// [[Rcpp::depends(dqrng, BH)]]
+#include <xoshiro.h>
+
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/poisson_distribution.hpp>
 #include <boost/random/gamma_distribution.hpp>
 #include <boost/random/discrete_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
-#include <xoshiro.h>
 
 #ifndef MMUTIL_SIMULATE_HH_
 #define MMUTIL_SIMULATE_HH_

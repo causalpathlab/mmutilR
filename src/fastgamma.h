@@ -43,81 +43,43 @@
 
 #include <cstdint>
 #include "fastlog.h"
-#include "sse.h"
+// #include "sse.h"
 
 /* gamma/digamma functions only work for positive inputs */
 
-static inline float fastlgamma(float x) {
-  float logterm = fastlog(x * (1.0f + x) * (2.0f + x));
-  float xp3 = 3.0f + x;
+static inline float
+fastlgamma(float x)
+{
+    float logterm = fastlog(x * (1.0f + x) * (2.0f + x));
+    float xp3 = 3.0f + x;
 
-  return -2.081061466f - x + 0.0833333f / xp3 - logterm +
-         (2.5f + x) * fastlog(xp3);
+    return -2.081061466f - x + 0.0833333f / xp3 - logterm +
+        (2.5f + x) * fastlog(xp3);
 }
 
-static inline float fasterlgamma(float x) {
-  return -0.0810614667f - x - fasterlog(x) + (0.5f + x) * fasterlog(1.0f + x);
+static inline float
+fasterlgamma(float x)
+{
+    return -0.0810614667f - x - fasterlog(x) + (0.5f + x) * fasterlog(1.0f + x);
 }
 
-static inline float fastdigamma(float x) {
-  float twopx = 2.0f + x;
-  float logterm = fastlog(twopx);
+static inline float
+fastdigamma(float x)
+{
+    float twopx = 2.0f + x;
+    float logterm = fastlog(twopx);
 
-  return (-48.0f + x * (-157.0f + x * (-127.0f - 30.0f * x))) /
-             (12.0f * x * (1.0f + x) * twopx * twopx) +
-         logterm;
+    return (-48.0f + x * (-157.0f + x * (-127.0f - 30.0f * x))) /
+        (12.0f * x * (1.0f + x) * twopx * twopx) +
+        logterm;
 }
 
-static inline float fasterdigamma(float x) {
-  float onepx = 1.0f + x;
+static inline float
+fasterdigamma(float x)
+{
+    float onepx = 1.0f + x;
 
-  return -1.0f / x - 1.0f / (2 * onepx) + fasterlog(onepx);
+    return -1.0f / x - 1.0f / (2 * onepx) + fasterlog(onepx);
 }
 
-#ifdef __SSE2__
-
-static inline v4sf vfastlgamma(v4sf x) {
-  const v4sf c_1_0 = v4sfl(1.0f);
-  const v4sf c_2_0 = v4sfl(2.0f);
-  const v4sf c_3_0 = v4sfl(3.0f);
-  const v4sf c_2_081061466 = v4sfl(2.081061466f);
-  const v4sf c_0_0833333 = v4sfl(0.0833333f);
-  const v4sf c_2_5 = v4sfl(2.5f);
-
-  v4sf logterm = vfastlog(x * (c_1_0 + x) * (c_2_0 + x));
-  v4sf xp3 = c_3_0 + x;
-
-  return -c_2_081061466 - x + c_0_0833333 / xp3 - logterm +
-         (c_2_5 + x) * vfastlog(xp3);
-}
-
-static inline v4sf vfasterlgamma(v4sf x) {
-  const v4sf c_0_0810614667 = v4sfl(0.0810614667f);
-  const v4sf c_0_5 = v4sfl(0.5f);
-  const v4sf c_1 = v4sfl(1.0f);
-
-  return -c_0_0810614667 - x - vfasterlog(x) +
-         (c_0_5 + x) * vfasterlog(c_1 + x);
-}
-
-static inline v4sf vfastdigamma(v4sf x) {
-  v4sf twopx = v4sfl(2.0f) + x;
-  v4sf logterm = vfastlog(twopx);
-
-  return (v4sfl(-48.0f) +
-          x * (v4sfl(-157.0f) + x * (v4sfl(-127.0f) - v4sfl(30.0f) * x))) /
-             (v4sfl(12.0f) * x * (v4sfl(1.0f) + x) * twopx * twopx) +
-         logterm;
-}
-
-static inline v4sf vfasterdigamma(v4sf x) {
-  const v4sf c_1_0 = v4sfl(1.0f);
-  const v4sf c_2_0 = v4sfl(2.0f);
-  v4sf onepx = c_1_0 + x;
-
-  return -c_1_0 / x - c_1_0 / (c_2_0 * onepx) + vfasterlog(onepx);
-}
-
-#endif  //__SSE2__
-
-#endif  // __FAST_GAMMA_H_
+#endif // __FAST_GAMMA_H_

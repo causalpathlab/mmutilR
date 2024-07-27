@@ -1,23 +1,13 @@
-// #include <boost/graph/adjacency_list.hpp>
-// #include <boost/graph/connected_components.hpp>
-// #include <boost/lexical_cast.hpp>
-
 // [[Rcpp::plugins(cpp14)]]
 #include <Rcpp.h>
+
 // [[Rcpp::depends(RcppEigen)]]
 #include <RcppEigen.h>
+
 // [[Rcpp::depends(RcppProgress)]]
 
 // [[Rcpp::plugins(openmp)]]
 #include <omp.h>
-
-// [[Rcpp::depends(dqrng, sitmo, BH)]]
-#include <dqrng.h>
-#include <dqrng_distribution.h>
-#include <boost/random/binomial_distribution.hpp>
-#include <boost/random/poisson_distribution.hpp>
-#include <boost/random/gamma_distribution.hpp>
-#include <xoshiro.h>
 
 #include <iomanip>
 #include <iostream>

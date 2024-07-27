@@ -26,7 +26,11 @@ Rcpp::List
 rcpp_mmutil_compute_scores(
     const std::string mtx_file,
     Rcpp::Nullable<const std::string> row_file = R_NilValue,
-    Rcpp::Nullable<const std::string> col_file = R_NilValue)
+    Rcpp::Nullable<const std::string> col_file = R_NilValue,
+    const std::size_t MAX_ROW_WORD = 2,
+    const char ROW_WORD_SEP = '_',
+    const std::size_t MAX_COL_WORD = 100,
+    const char COL_WORD_SEP = '@')
 {
 
     TLOG("collecting statistics... ");
@@ -73,7 +77,11 @@ rcpp_mmutil_compute_scores(
         _col_file = Rcpp::as<std::string>(col_file);
 
     if (file_exists(_row_file)) {
-        read_vector_file(_row_file, row_names);
+        CHK_RETL_(read_line_file(_row_file,
+                                 row_names,
+                                 MAX_ROW_WORD,
+                                 ROW_WORD_SEP),
+                  "Failed to read row names");
     } else {
         for (Index x = 0; x < max_row; ++x) {
             row_names.emplace_back(std::to_string(x + 1));
@@ -81,7 +89,11 @@ rcpp_mmutil_compute_scores(
     }
 
     if (file_exists(_col_file)) {
-        read_vector_file(_col_file, col_names);
+        CHK_RETL_(read_line_file(_col_file,
+                                 col_names,
+                                 MAX_COL_WORD,
+                                 COL_WORD_SEP),
+                  "Failed to read col names");
     } else {
         for (Index x = 0; x < max_col; ++x) {
             col_names.emplace_back(std::to_string(x + 1));

@@ -191,6 +191,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_mmutil_rownames
+std::vector<std::string> rcpp_mmutil_rownames(const std::string row_file, const std::size_t MAX_ROW_WORD, const char ROW_WORD_SEP);
+RcppExport SEXP _mmutilR_rcpp_mmutil_rownames(SEXP row_fileSEXP, SEXP MAX_ROW_WORDSEXP, SEXP ROW_WORD_SEPSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type row_file(row_fileSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type MAX_ROW_WORD(MAX_ROW_WORDSEXP);
+    Rcpp::traits::input_parameter< const char >::type ROW_WORD_SEP(ROW_WORD_SEPSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_rownames(row_file, MAX_ROW_WORD, ROW_WORD_SEP));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_mmutil_colnames
+std::vector<std::string> rcpp_mmutil_colnames(const std::string col_file, const std::size_t MAX_COL_WORD, const char COL_WORD_SEP);
+RcppExport SEXP _mmutilR_rcpp_mmutil_colnames(SEXP col_fileSEXP, SEXP MAX_COL_WORDSEXP, SEXP COL_WORD_SEPSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type col_file(col_fileSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type MAX_COL_WORD(MAX_COL_WORDSEXP);
+    Rcpp::traits::input_parameter< const char >::type COL_WORD_SEP(COL_WORD_SEPSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_colnames(col_file, MAX_COL_WORD, COL_WORD_SEP));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_mmutil_write_mtx
 int rcpp_mmutil_write_mtx(const Eigen::SparseMatrix<float, Eigen::ColMajor>& X, const std::string mtx_file);
 RcppExport SEXP _mmutilR_rcpp_mmutil_write_mtx(SEXP XSEXP, SEXP mtx_fileSEXP) {
@@ -355,15 +381,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_mmutil_compute_scores
-Rcpp::List rcpp_mmutil_compute_scores(const std::string mtx_file, Rcpp::Nullable<const std::string> row_file, Rcpp::Nullable<const std::string> col_file);
-RcppExport SEXP _mmutilR_rcpp_mmutil_compute_scores(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP) {
+Rcpp::List rcpp_mmutil_compute_scores(const std::string mtx_file, Rcpp::Nullable<const std::string> row_file, Rcpp::Nullable<const std::string> col_file, const std::size_t MAX_ROW_WORD, const char ROW_WORD_SEP, const std::size_t MAX_COL_WORD, const char COL_WORD_SEP);
+RcppExport SEXP _mmutilR_rcpp_mmutil_compute_scores(SEXP mtx_fileSEXP, SEXP row_fileSEXP, SEXP col_fileSEXP, SEXP MAX_ROW_WORDSEXP, SEXP ROW_WORD_SEPSEXP, SEXP MAX_COL_WORDSEXP, SEXP COL_WORD_SEPSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string >::type mtx_file(mtx_fileSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<const std::string> >::type row_file(row_fileSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<const std::string> >::type col_file(col_fileSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_compute_scores(mtx_file, row_file, col_file));
+    Rcpp::traits::input_parameter< const std::size_t >::type MAX_ROW_WORD(MAX_ROW_WORDSEXP);
+    Rcpp::traits::input_parameter< const char >::type ROW_WORD_SEP(ROW_WORD_SEPSEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type MAX_COL_WORD(MAX_COL_WORDSEXP);
+    Rcpp::traits::input_parameter< const char >::type COL_WORD_SEP(COL_WORD_SEPSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_mmutil_compute_scores(mtx_file, row_file, col_file, MAX_ROW_WORD, ROW_WORD_SEP, MAX_COL_WORD, COL_WORD_SEP));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -450,6 +480,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_read_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_index, 1},
     {"_mmutilR_rcpp_mmutil_check_index", (DL_FUNC) &_mmutilR_rcpp_mmutil_check_index, 2},
     {"_mmutilR_rcpp_mmutil_info", (DL_FUNC) &_mmutilR_rcpp_mmutil_info, 1},
+    {"_mmutilR_rcpp_mmutil_rownames", (DL_FUNC) &_mmutilR_rcpp_mmutil_rownames, 3},
+    {"_mmutilR_rcpp_mmutil_colnames", (DL_FUNC) &_mmutilR_rcpp_mmutil_colnames, 3},
     {"_mmutilR_rcpp_mmutil_write_mtx", (DL_FUNC) &_mmutilR_rcpp_mmutil_write_mtx, 2},
     {"_mmutilR_rcpp_mmutil_read_columns_sparse", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns_sparse, 6},
     {"_mmutilR_rcpp_mmutil_read_columns", (DL_FUNC) &_mmutilR_rcpp_mmutil_read_columns, 6},
@@ -457,7 +489,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mmutilR_rcpp_mmutil_network_topic_data", (DL_FUNC) &_mmutilR_rcpp_mmutil_network_topic_data, 20},
     {"_mmutilR_rcpp_mmutil_aggregate_pairwise", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate_pairwise, 22},
     {"_mmutilR_rcpp_mmutil_aggregate", (DL_FUNC) &_mmutilR_rcpp_mmutil_aggregate, 22},
-    {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 3},
+    {"_mmutilR_rcpp_mmutil_compute_scores", (DL_FUNC) &_mmutilR_rcpp_mmutil_compute_scores, 7},
     {"_mmutilR_rcpp_mmutil_simulate_poisson_mixture", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson_mixture, 9},
     {"_mmutilR_rcpp_mmutil_simulate_poisson", (DL_FUNC) &_mmutilR_rcpp_mmutil_simulate_poisson, 7},
     {"_mmutilR_rcpp_mmutil_svd", (DL_FUNC) &_mmutilR_rcpp_mmutil_svd, 11},

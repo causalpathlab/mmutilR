@@ -1,19 +1,39 @@
+read.sparse <- function(...){
+    read.mtx.sparse(...)
+}
+
+read.dense <- function(...){
+    read.mtx.dense(...)
+}
+
 #' A wrapper function to read a sparse submatrix
 #'
 #' @param mtx.file matrix market file
-#' @param sub.cols column index (default: all)
+#' @param row.file row file (default: NULL)
+#' @param col.file column file (default: NULL)
+#' @param sub.cols column index (default: NULL, all)
 #' @param memory.idx memory locations
 #' @param memory.idx.file memory location file
+#' @param max.row.word maximum number of words per each row (default: 2)
+#' @param row.word.sep row word separator character (default: "_")
+#' @param max.col.word maximum number of words per each col (default: 100)
+#' @param col.word.sep column word separator character (default: "@")
 #' @param verbose verbosity
 #'
 #' @return a sparse matrix
 #'
-read.sparse <- function(mtx.file,
-                        sub.cols = NULL,
-                        memory.idx = NULL,
-                        memory.idx.file = paste0(mtx.file,".index"),
-                        verbose = FALSE,
-                        NUM_THREADS = 1) {
+read.mtx.sparse <- function(mtx.file,
+                            row.file = NULL,
+                            col.file = NULL,
+                            sub.cols = NULL,
+                            memory.idx = NULL,
+                            memory.idx.file = paste0(mtx.file,".index"),
+                            verbose = FALSE,
+                            NUM_THREADS = 1,
+                            max.row.word = 2,
+                            row.word.sep = "_",
+                            max.col.word = 100,
+                            col.word.sep = "@") {
 
     if(is.null(memory.idx)) {
         if(!file.exists(memory.idx.file))
@@ -36,26 +56,58 @@ read.sparse <- function(mtx.file,
                                         verbose,
                                         NUM_THREADS)
 
-    Matrix::sparseMatrix(i=.in$row, j=.in$col, x=.in$val,
-                         dims = c(.in$max.row, .in$max.col))
+    ret <- Matrix::sparseMatrix(i=.in$row, j=.in$col, x=.in$val,
+                                dims = c(.in$max.row, .in$max.col))
+
+    if(!is.null(row.file)){
+        .rows <- rcpp_mmutil_rownames(row.file,
+                                      MAX_ROW_WORD = max.row.word,
+                                      ROW_WORD_SEP = row.word.sep)
+        if(length(.rows) == nrow(ret)){
+            rownames(ret) <- .rows
+        }
+    }
+
+    if(!is.null(col.file)){
+        .cols <- rcpp_mmutil_colnames(col.file,
+                                      MAX_COL_WORD = max.col.word,
+                                      COL_WORD_SEP = col.word.sep)
+        if(length(.cols) == ncol(ret)){
+            colnames(ret) <- .cols
+        }
+    }
+
+    return(ret)
 }
 
 #' A wrapper function to read a dense submatrix
 #'
 #' @param mtx.file matrix market file
-#' @param sub.cols column index (default: all)
+#' @param row.file row file (default: NULL)
+#' @param col.file column file (default: NULL)
+#' @param sub.cols column index (default: NULL, all)
 #' @param memory.idx memory locations
 #' @param memory.idx.file memory location file
+#' @param max.row.word maximum number of words per each row (default: 2)
+#' @param row.word.sep row word separator character (default: "_")
+#' @param max.col.word maximum number of words per each col (default: 100)
+#' @param col.word.sep column word separator character (default: "@")
 #' @param verbose verbosity
 #'
 #' @return a dense matrix
 #'
-read.dense <- function(mtx.file,
-                       sub.cols = NULL,
-                       memory.idx = NULL,
-                       memory.idx.file = paste0(mtx.file,".index"),
-                       verbose = FALSE,
-                       NUM_THREADS = 1) {
+read.mtx.dense <- function(mtx.file,
+                           row.file = NULL,
+                           col.file = NULL,
+                           sub.cols = NULL,
+                           memory.idx = NULL,
+                           memory.idx.file = paste0(mtx.file,".index"),
+                           verbose = FALSE,
+                           NUM_THREADS = 1,
+                           max.row.word = 2,
+                           row.word.sep = "_",
+                           max.col.word = 100,
+                           col.word.sep = "@") {
 
     if(is.null(memory.idx)) {
         if(!file.exists(memory.idx.file))
@@ -71,11 +123,31 @@ read.dense <- function(mtx.file,
 
     stopifnot(length(sub.cols) == length(unique(sub.cols)))
 
-    rcpp_mmutil_read_columns(mtx.file,
-                             memory.idx,
-                             sub.cols,
-                             verbose,
-                             NUM_THREADS)
+    ret <- rcpp_mmutil_read_columns(mtx.file,
+                                    memory.idx,
+                                    sub.cols,
+                                    verbose,
+                                    NUM_THREADS)
+
+    if(!is.null(row.file)){
+        .rows <- rcpp_mmutil_rownames(row.file,
+                                      MAX_ROW_WORD = max.row.word,
+                                      ROW_WORD_SEP = row.word.sep)
+        if(length(.rows) == nrow(ret)){
+            rownames(ret) <- .rows
+        }
+    }
+
+    if(!is.null(col.file)){
+        .cols <- rcpp_mmutil_colnames(col.file,
+                                      MAX_COL_WORD = max.col.word,
+                                      COL_WORD_SEP = col.word.sep)
+        if(length(.cols) == ncol(ret)){
+            colnames(ret) <- .cols
+        }
+    }
+
+    return(ret)
 }
 
 #' Read a vector of string names
@@ -116,9 +188,9 @@ fileset.list <- function(.hdr){
 #' @param out.rows a vector of rows
 #' @param out.cols a vector of columns
 #' @param output output file set header
-#' 
+#'
 write.sparse <- function(out.mtx, out.rows, out.cols, output){
-    
+
     out.mtx.file <- paste0(output, ".mtx.gz")
     out.cols.file <- paste0(output, ".cols.gz")
     out.rows.file <- paste0(output, ".rows.gz")
@@ -135,58 +207,3 @@ write.sparse <- function(out.mtx, out.rows, out.cols, output){
 
     return(fileset.list(output))
 }
-
-#' A wrapper function that concatenates two files vertically
-#' 
-#' @param top.hdr a file header for the top files
-#' @param bottom.hdr a file header for the bottom files
-#' @param out.hdr output file header
-#'
-#' @return a list of the resulting file names
-vcat.sparse <- function(top.hdr, bottom.hdr, out.hdr){
-
-    dir.create(dirname(out.hdr), recursive = TRUE, showWarnings = FALSE)
-
-    out.mtx.file <- paste0(out.hdr, ".mtx.gz")
-    out.cols.file <- paste0(out.hdr, ".cols.gz")
-    out.rows.file <- paste0(out.hdr, ".rows.gz")
-
-    top.mtx.file <- paste0(top.hdr, ".mtx.gz")
-    top.rows.file <- paste0(top.hdr, ".rows.gz")
-    top.cols.file <- paste0(top.hdr, ".cols.gz")
-    bottom.mtx.file <- paste0(bottom.hdr, ".mtx.gz")
-    bottom.rows.file <- paste0(bottom.hdr, ".rows.gz")
-    bottom.cols.file <- paste0(bottom.hdr, ".cols.gz")
-
-    .files <- c(top.mtx.file,
-                top.rows.file,
-                top.cols.file,
-                bottom.mtx.file,
-                bottom.rows.file,
-                bottom.cols.file)
-
-    stopifnot(all(file.exists(.files)))
-
-    top.mtx <- read.sparse(top.mtx.file)
-    bottom.mtx <- read.sparse(bottom.mtx.file)
-
-    top.cols <- read.vec(top.cols.file)
-    top.rows <- read.vec(top.rows.file)
-
-    bottom.cols <- read.vec(bottom.cols.file)
-    bottom.rows <- read.vec(bottom.rows.file)
-
-    .top.idx <- which(top.cols %in% bottom.cols)
-    .bottom.idx <- match(top.cols[.top.idx], bottom.cols)
-
-    ## no overlapping row names
-    stopifnot(!any(top.rows %in% bottom.rows))
-
-    out.mtx <- rbind(top.mtx[, .top.idx, drop = FALSE],
-                     bottom.mtx[, .bottom.idx, drop = FALSE])
-
-    out.rows <- c(top.rows, bottom.rows)
-    out.cols <- top.cols[.top.idx]
-    write.sparse(out.mtx, out.rows, out.cols, out.hdr)
-}
-

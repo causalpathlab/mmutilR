@@ -86,6 +86,14 @@ std::string zeropad(const int t, const int tmax);
         }                             \
     }
 
+#define CHECK_(cond, msg)             \
+    {                                 \
+        if ((cond) != EXIT_SUCCESS) { \
+            ELOG(msg);                \
+            Rcpp::stop("exit 1");     \
+        }                             \
+    }
+
 #define CHK_ERR_EXIT(cond, msg)       \
     {                                 \
         if ((cond) != EXIT_SUCCESS) { \

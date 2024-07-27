@@ -41,6 +41,44 @@ rcpp_mmutil_info(const std::string mtx_file)
                               Rcpp::_["max.elem"] = info.max_elem);
 }
 
+//' Just read each row name per line
+//'
+//' @param row_file data file
+//'
+//' @return rownames
+//'
+// [[Rcpp::export]]
+std::vector<std::string>
+rcpp_mmutil_rownames(const std::string row_file,
+                     const std::size_t MAX_ROW_WORD = 2,
+                     const char ROW_WORD_SEP = '_')
+{
+    std::vector<std::string> features(0);
+    CHECK_(read_line_file(row_file, features, MAX_ROW_WORD, ROW_WORD_SEP),
+           "Failed to read row names");
+
+    return features;
+}
+
+//' Just read each col name per line
+//'
+//' @param col_file data file
+//'
+//' @return colnames
+//'
+// [[Rcpp::export]]
+std::vector<std::string>
+rcpp_mmutil_colnames(const std::string col_file,
+                     const std::size_t MAX_COL_WORD = 100,
+                     const char COL_WORD_SEP = '@')
+{
+    std::vector<std::string> features(0);
+    CHECK_(read_line_file(col_file, features, MAX_COL_WORD, COL_WORD_SEP),
+           "Failed to read col names");
+
+    return features;
+}
+
 ///////////////////////////////
 // Writing out sparse matrix //
 ///////////////////////////////

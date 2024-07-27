@@ -278,6 +278,26 @@ rcpp_mmutil_info <- function(mtx_file) {
     .Call('_mmutilR_rcpp_mmutil_info', PACKAGE = 'mmutilR', mtx_file)
 }
 
+#' Just read each row name per line
+#'
+#' @param row_file data file
+#'
+#' @return rownames
+#'
+rcpp_mmutil_rownames <- function(row_file, MAX_ROW_WORD = 2L, ROW_WORD_SEP = '_') {
+    .Call('_mmutilR_rcpp_mmutil_rownames', PACKAGE = 'mmutilR', row_file, MAX_ROW_WORD, ROW_WORD_SEP)
+}
+
+#' Just read each col name per line
+#'
+#' @param col_file data file
+#'
+#' @return colnames
+#'
+rcpp_mmutil_colnames <- function(col_file, MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_colnames', PACKAGE = 'mmutilR', col_file, MAX_COL_WORD, COL_WORD_SEP)
+}
+
 #' Write down sparse matrix to the disk
 #' @param X sparse matrix
 #' @param mtx_file file name
@@ -472,8 +492,8 @@ rcpp_mmutil_aggregate <- function(mtx_file, row_file, col_file, r_cols = NULL, r
 #' rowMeans(A)
 #' scr$row$mean
 #'
-rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NULL) {
-    .Call('_mmutilR_rcpp_mmutil_compute_scores', PACKAGE = 'mmutilR', mtx_file, row_file, col_file)
+rcpp_mmutil_compute_scores <- function(mtx_file, row_file = NULL, col_file = NULL, MAX_ROW_WORD = 2L, ROW_WORD_SEP = '_', MAX_COL_WORD = 100L, COL_WORD_SEP = '@') {
+    .Call('_mmutilR_rcpp_mmutil_compute_scores', PACKAGE = 'mmutilR', mtx_file, row_file, col_file, MAX_ROW_WORD, ROW_WORD_SEP, MAX_COL_WORD, COL_WORD_SEP)
 }
 
 #' Simulate sparse counting data with a mixture of Poisson parameters
