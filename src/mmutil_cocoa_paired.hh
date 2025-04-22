@@ -101,7 +101,7 @@ private:
 
     Scalar glm_pseudo;
     Index glm_iter;
-    Index glm_reg;
+    Scalar glm_reg;
     Scalar glm_sd;
     bool glm_std;
 
