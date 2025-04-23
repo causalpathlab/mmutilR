@@ -2,11 +2,13 @@
 #' by Pairwise INdividual Effect matching
 #'
 #' @param mtx.data fileset.header ($mtx, $row, $col, $idx)
-#' @param celltype celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)
+#' @param celltype celltype/cluster assignments (cells x 2 mapping)
 #' @param celltype.mat celltype/cluster assignment matrix (cells x cell types)
 #' @param cell2indv cell-level individual assignments (cells x 2), cell -> indv
+#' @param cell.latent.matrix cell x latent factor matrix (default: NULL)
 #' @param eps small number (default: 1e-8)
-#' @param knn number of neighbours `k` in kNN for matching
+#' @param knn.cell number of cell neighbours
+#' @param knn.indv number of sample neighbours
 #' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
 #' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
 #' @param num.threads number of threads for multi-core processing
@@ -16,7 +18,7 @@
 #' @param .col.norm column normalization for SVD
 #' @param .em.iter EM iteration for factorization (default: 0)
 #' @param .em.tol EM convergence (default: 1e-4)
-#' @param impute.by.knn imputation by kNN weighting (default: FALSE)
+#' @param impute.by.knn imputation by kNN weighting (default: TRUE)
 #' @param remove.dup remove duplicated pairs (default: TRUE)
 #'
 #' @return a list of sufficient statistics matrices
@@ -24,7 +26,7 @@
 make.pine <- function(mtx.data,
                       celltype,
                       cell2indv,
-                      V = NULL,
+                      cell.latent.matrix = NULL,
                       knn.cell = 50,
                       knn.indv = 1,
                       celltype.mat = NULL,
@@ -35,7 +37,7 @@ make.pine <- function(mtx.data,
                       .em.iter = 0,
                       .em.tol = 1e-4,
                       num.threads = 1,
-                      impute.by.knn = FALSE,
+                      impute.by.knn = TRUE,
                       remove.dup = TRUE,
                       ...) {
 
@@ -47,7 +49,7 @@ make.pine <- function(mtx.data,
     celltype.lab <- .input$celltype.lab
     treatments <- .input$treatments
 
-    if(is.null(V)){
+    if(is.null(cell.latent.matrix)){
         message("Running PCA...")
         .pca <- rcpp_mmutil_svd(mtx_file = mtx.data$mtx,
                                 RANK=.rank,
@@ -56,7 +58,7 @@ make.pine <- function(mtx.data,
                                 COL_NORM = .col.norm,
                                 EM_ITER = .em.iter,
                                 EM_TOL = .em.tol)
-        V <- .pca$V
+        cell.latent.matrix <- .pca$V
     }
     message("Estimating sufficient statistics by matching...")
 
@@ -68,7 +70,7 @@ make.pine <- function(mtx.data,
                                             r_annot = celltype.vec,
                                             r_annot_mat = celltype.mat,
                                             r_lab_name = celltype.lab,
-                                            r_V = V,
+                                            r_V = cell.latent.matrix,
                                             knn_cell = knn.cell,
                                             knn_indv = knn.indv,
                                             NUM_THREADS = num.threads,
@@ -86,11 +88,11 @@ make.pine <- function(mtx.data,
 
 #' Check duplicated pairs of individuals in the matching results
 #' and take the nearest ones
-#' 
+#'
 #' @param input the whole result of `make.pine`
 #'
 #' @return filtered `input` results
-#' 
+#'
 pine.remove.duplicated <- function(input){
 
     left <- pmin(input$knn$obs.index,
@@ -140,10 +142,11 @@ pine.remove.duplicated <- function(input){
 #' differential expression analysis
 #'
 #' @param mtx.data fileset.header ($mtx, $row, $col, $idx)
-#' @param celltype celltype/cluster assignments (cells x 2 mapping, cells x 1, or just a single string)
+#' @param celltype celltype/cluster assignments (cells x 2 mapping)
 #' @param celltype.mat celltype/cluster assignment matrix (cells x cell types)
 #' @param cell2indv cell-level individual assignments (cells x 2), cell -> indv
 #' @param indv2exp individual treatment/exposure assignments (indiv x 2), indv -> exposure
+#' @param cell.latent.matrix cell x latent factor matrix (default: NULL)
 #' @param knn number of neighbours `k` in kNN for matching
 #' @param a0 hyperparameter for gamma(a0, b0) (default: 1)
 #' @param b0 hyperparameter for gamma(a0, b0) (default: 1)
@@ -155,7 +158,7 @@ pine.remove.duplicated <- function(input){
 #' @param .col.norm column normalization for SVD
 #' @param .em.iter EM iteration for factorization (default: 0)
 #' @param .em.tol EM convergence (default: 1e-4)
-#' @param impute.by.knn imputation by kNN weighting (default: FALSE)
+#' @param impute.by.knn imputation by kNN weighting (default: TRUE)
 #'
 #' @return a list of sufficient statistics matrices
 #'
@@ -168,6 +171,7 @@ pine.remove.duplicated <- function(input){
 make.cocoa <- function(mtx.data,
                        celltype,
                        cell2indv,
+                       cell.latent.matrix = NULL,
                        indv2exp = NULL,
                        knn = 10,
                        celltype.mat = NULL,
@@ -178,7 +182,7 @@ make.cocoa <- function(mtx.data,
                        .em.iter = 0,
                        .em.tol = 1e-4,
                        num.threads = 1,
-                       impute.by.knn = FALSE,
+                       impute.by.knn = TRUE,
                        ...) {
 
     .input <- check.cocoa.input(mtx.data, celltype, cell2indv, indv2exp, celltype.mat)
@@ -192,15 +196,18 @@ make.cocoa <- function(mtx.data,
 
     if(!is.null(treatments)) {
 
-        message("Running PCA...")
+        if(is.null(cell.latent.matrix)){
+            message("Running PCA...")
 
-        .pca <- rcpp_mmutil_svd(mtx_file = mtx.data$mtx,
-                                RANK=.rank,
-                                TAKE_LN = .take.ln,
-                                TAU = .pca.reg,
-                                COL_NORM = .col.norm,
-                                EM_ITER = .em.iter,
-                                EM_TOL = .em.tol)
+            .pca <- rcpp_mmutil_svd(mtx_file = mtx.data$mtx,
+                                    RANK=.rank,
+                                    TAKE_LN = .take.ln,
+                                    TAU = .pca.reg,
+                                    COL_NORM = .col.norm,
+                                    EM_ITER = .em.iter,
+                                    EM_TOL = .em.tol)
+            cell.latent.matrix <- .pca$V
+        }
 
         message("Estimating sufficient statistics by matching...")
 
@@ -213,7 +220,7 @@ make.cocoa <- function(mtx.data,
                                        r_annot_mat = celltype.mat,
                                        r_lab_name = celltype.lab,
                                        r_trt = treatments,
-                                       r_V = .pca$V,
+                                       r_V = cell.latent.matrix,
                                        knn = knn,
                                        IMPUTE_BY_KNN = impute.by.knn,
                                        NUM_THREADS = num.threads,
@@ -222,7 +229,7 @@ make.cocoa <- function(mtx.data,
         .stat$indv2exp <- indv2exp
 
     } else {
-        
+
         .stat <- rcpp_mmutil_aggregate(mtx_file = mtx.data$mtx,
                                        row_file = mtx.data$row,
                                        col_file = mtx.data$col,
@@ -271,7 +278,7 @@ check.cocoa.input <- function(mtx.data,
     if(is.null(indv2exp)){
         treatments <- NULL
     } else {
-        treatments <- .match(indv2exp, individuals) 
+        treatments <- .match(indv2exp, individuals)
     }
     #############################
     ## match cell -> cell type ##
